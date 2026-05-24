@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@kore/shared": ["../../packages/shared/src/index"],
+      "@kore/shared/*": ["../../packages/shared/src/*"]
+    },
+    "incremental": true,
+    "strictNullChecks": true,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false
+  },
+  "include": ["src/**/*", "test/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

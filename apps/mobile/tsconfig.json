@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "jsx": "react-native",
+    "allowJs": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": false,
+    "emitDecoratorMetadata": false,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@kore/shared": ["../../packages/shared/src/index"],
+      "@kore/shared/*": ["../../packages/shared/src/*"]
+    }
+  },
+  "include": ["src", "App.tsx", "index.js"],
+  "exclude": ["node_modules", "android", "ios"]
+}

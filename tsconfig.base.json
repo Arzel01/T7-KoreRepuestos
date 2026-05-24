@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "sourceMap": true,
+    "removeComments": false,
+    "baseUrl": ".",
+    "paths": {
+      "@kore/shared": ["packages/shared/src/index"],
+      "@kore/shared/*": ["packages/shared/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build", "coverage"]
+}

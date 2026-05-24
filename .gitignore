@@ -1,0 +1,145 @@
+# ============================================================================
+# Kore Repuestos — .gitignore para monorepo Node / NestJS / React / RN
+# ============================================================================
+
+# --- Dependencias ---
+node_modules/
+.pnpm-store/
+.yarn/cache
+.yarn/install-state.gz
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+.npm/
+
+# --- Builds y compilados ---
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+*.tsbuildinfo
+
+# --- Variables de entorno (mantener únicamente los .example) ---
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.*.local
+!.env.example
+
+# --- Logs ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.eslintcache
+
+# --- Cobertura de tests ---
+coverage/
+.nyc_output/
+*.lcov
+junit.xml
+
+# --- Bases de datos locales / dumps ---
+*.sqlite
+*.sqlite3
+*.db
+*.dump
+*.sql.bak
+
+# --- React Native: iOS ---
+apps/mobile/ios/Pods/
+apps/mobile/ios/build/
+apps/mobile/ios/DerivedData/
+apps/mobile/ios/*.xcworkspace/xcuserdata/
+apps/mobile/ios/*.xcodeproj/xcuserdata/
+apps/mobile/ios/Podfile.lock.bak
+*.ipa
+
+# --- React Native: Android ---
+apps/mobile/android/.gradle/
+apps/mobile/android/build/
+apps/mobile/android/app/build/
+apps/mobile/android/local.properties
+apps/mobile/android/keystores/
+apps/mobile/android/captures/
+*.keystore
+!debug.keystore
+*.apk
+*.aab
+*.aar
+
+# --- React Native: Metro / Expo ---
+.expo/
+.expo-shared/
+metro-cache/
+.metro-health-check*
+*.tgz
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# --- IDEs y editores ---
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.iml
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+*.swo
+*~
+*.bak
+*.tmp
+
+# --- Sistema operativo ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# --- Docker ---
+docker-compose.override.yml
+docker-volume-data/
+
+# --- Vite / Storybook / herramientas ---
+.vite/
+storybook-static/
+.turbo/
+.nx/
+
+# --- Sentry / source maps ---
+.sentryclirc
+
+# --- Certificados / secretos ---
+*.pem
+*.crt
+*.cert
+secrets/
+
+.claude

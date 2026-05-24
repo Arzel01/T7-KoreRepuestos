@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "experimentalDecorators": false,
+    "emitDecoratorMetadata": false,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@kore/shared": ["../../packages/shared/src/index"],
+      "@kore/shared/*": ["../../packages/shared/src/*"]
+    }
+  },
+  "include": ["src", "vite.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,69 @@
+# ============================================================================
+# Kore Repuestos — Orquestación de servicios locales
+# Levanta: PostgreSQL 16 (persistente) + pgAdmin opcional para inspección.
+# Uso:
+#   docker compose up -d           # arranca todo
+#   docker compose up -d postgres  # solo BD
+#   docker compose down            # detiene
+#   docker compose down -v         # detiene y borra volúmenes (datos)
+# ============================================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kore-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-kore_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-kore_password}
+      POSTGRES_DB: ${DB_NAME:-kore_repuestos}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      # Persistencia de datos en volumen nombrado
+      - kore_postgres_data:/var/lib/postgresql/data
+      # Scripts de inicialización (se ejecutan solo en BD vacía)
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - kore-network
+
+  # Interfaz gráfica opcional para administrar Postgres en http://localhost:5050
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: kore-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@kore.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - '${PGADMIN_PORT:-5050}:80'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - kore_pgadmin_data:/var/lib/pgadmin
+    networks:
+      - kore-network
+    profiles:
+      - tools
+
+volumes:
+  kore_postgres_data:
+    name: kore_postgres_data
+  kore_pgadmin_data:
+    name: kore_pgadmin_data
+
+networks:
+  kore-network:
+    name: kore-network
+    driver: bridge

@@ -1,0 +1,58 @@
+{
+  "name": "kore-repuestos",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monorepo del sistema Kore Repuestos (backend NestJS + web React + móvil React Native)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev:backend": "npm run start:dev --workspace=apps/backend",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:mobile": "npm run start --workspace=apps/mobile",
+    "build": "npm run build --workspaces --if-present",
+    "build:backend": "npm run build --workspace=apps/backend",
+    "build:web": "npm run build --workspace=apps/web",
+    "build:shared": "npm run build --workspace=packages/shared",
+    "lint": "eslint \"{apps,packages}/**/*.{ts,tsx}\" --max-warnings=0",
+    "lint:fix": "eslint \"{apps,packages}/**/*.{ts,tsx}\" --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "test": "npm run test --workspaces --if-present",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d postgres",
+    "db:logs": "docker compose logs -f postgres",
+    "prepare": "husky install || true"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}
