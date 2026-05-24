@@ -1,5 +1,5 @@
 import { getDataSourceToken } from '@nestjs/typeorm';
-import * as request from 'supertest';
+import request from 'supertest';
 
 import { createTestingApp } from './setup-e2e';
 
