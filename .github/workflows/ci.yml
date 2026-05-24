@@ -111,6 +111,8 @@ jobs:
       DB_SYNCHRONIZE: "true"
       JWT_SECRET: ci-jwt-secret-do-not-use-in-prod-32-chars-min
       JWT_EXPIRES_IN: 1h
+      JWT_REFRESH_SECRET: ci-jwt-refresh-secret-do-not-use-in-prod-32-chars-min
+      JWT_REFRESH_EXPIRES_IN: 7d
       BCRYPT_SALT_ROUNDS: "4" # rounds bajos en CI para acelerar tests
     steps:
       - uses: actions/checkout@v4
