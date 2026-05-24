@@ -1,7 +1,0 @@
-{
-  "//": "Configuración de lint-staged. Se ejecuta desde .husky/pre-commit y solo procesa archivos staged.",
-  "*.{ts,tsx}": ["eslint --fix --max-warnings=0", "prettier --write"],
-  "*.{js,jsx,cjs,mjs}": ["eslint --fix --max-warnings=0", "prettier --write"],
-  "*.{json,md,yml,yaml,html,css}": ["prettier --write"],
-  "package.json": ["prettier --write"]
-}
