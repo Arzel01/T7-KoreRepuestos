@@ -7,12 +7,12 @@ de planes de mantenimiento.
 
 Monorepo con tres aplicaciones y un paquete compartido:
 
-| Paquete                   | Stack                                      | Descripción                                  |
-| ------------------------- | ------------------------------------------ | -------------------------------------------- |
-| `apps/backend`            | Node.js · NestJS · TypeORM · TypeScript    | API REST y lógica de dominio                 |
-| `apps/web`                | React · Vite · TailwindCSS · TypeScript    | Panel administrativo y portal cliente        |
-| `apps/mobile`             | React Native · TypeScript                  | App para clientes / asesores en campo        |
-| `packages/shared`         | TypeScript                                 | DTOs, enums, interfaces y validaciones       |
+| Paquete           | Stack                                   | Descripción                            |
+| ----------------- | --------------------------------------- | -------------------------------------- |
+| `apps/backend`    | Node.js · NestJS · TypeORM · TypeScript | API REST y lógica de dominio           |
+| `apps/web`        | React · Vite · TailwindCSS · TypeScript | Panel administrativo y portal cliente  |
+| `apps/mobile`     | React Native · TypeScript               | App para clientes / asesores en campo  |
+| `packages/shared` | TypeScript                              | DTOs, enums, interfaces y validaciones |
 
 ## Requisitos previos
 
@@ -52,6 +52,7 @@ npm run dev --workspace=apps/web
 ## Patrones de diseño aplicados
 
 - **Repository** — abstrae el acceso a datos vía `IRepository<T>`.
-- **Strategy** — algoritmos intercambiables para el cálculo de planes de mantenimiento.
+- **Strategy** — algoritmos intercambiables para el cálculo de planes de
+  mantenimiento.
 - **Observer** — notificaciones de stock bajo, vencimientos de mantenimiento.
 - **Builder** — construcción incremental de cotizaciones y planes.

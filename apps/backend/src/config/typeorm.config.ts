@@ -26,9 +26,8 @@ const buildOptions = (config?: ConfigService): DataSourceOptions => {
 };
 
 /** Factory para inyectar la configuración en `TypeOrmModule.forRootAsync`. */
-export const typeOrmConfigFactory = (
-  config: ConfigService,
-): TypeOrmModuleOptions => buildOptions(config);
+export const typeOrmConfigFactory = (config: ConfigService): TypeOrmModuleOptions =>
+  buildOptions(config);
 
 /** DataSource exportado para la CLI de TypeORM (migraciones). */
 export default new DataSource(buildOptions());

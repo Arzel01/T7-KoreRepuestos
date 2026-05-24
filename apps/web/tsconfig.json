@@ -9,8 +9,11 @@
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "noEmit": true,
-    "experimentalDecorators": false,
-    "emitDecoratorMetadata": false,
+    // Decoradores necesarios al type-checkear archivos de @kore/shared
+    // (los DTOs de class-validator viven ahí y se importan vía path alias).
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],

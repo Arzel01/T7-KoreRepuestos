@@ -1,3 +1,4 @@
+import { UserRole } from '@kore/shared';
 import {
   Column,
   CreateDateColumn,
@@ -7,8 +8,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-import { UserRole } from '@kore/shared';
 
 /**
  * Entidad de dominio: Usuario del sistema.

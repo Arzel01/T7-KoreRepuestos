@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+# ----------------------------------------------------------------------------
+# Husky · pre-commit hook
+# ----------------------------------------------------------------------------
+# Se ejecuta automáticamente antes de cada `git commit`. Si cualquier paso
+# devuelve un código de salida distinto de cero el commit es abortado.
+#
+# Estrategia:
+#   1. `lint-staged` aplica ESLint --fix + Prettier --write SOLO sobre los
+#      archivos staged (no sobre todo el repo) → feedback en < 5 s.
+#   2. `tsc --noEmit` por workspace (no contra tsconfig.base.json) porque
+#      cada app define su propio `jsx`, `paths` y `lib`. El base solo aporta
+#      defaults compartidos; type-checkear contra él rompe los `.tsx` y los
+#      alias `@/*`.
+#
+# Si necesitas saltar el hook puntualmente: `git commit --no-verify`.
+# ----------------------------------------------------------------------------
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "[pre-commit] Ejecutando lint-staged..."
+npx --no-install lint-staged || exit 1
+
+echo "[pre-commit] Validando tipos por workspace..."
+npx --no-install tsc --noEmit -p apps/backend/tsconfig.json || exit 1
+npx --no-install tsc --noEmit -p apps/web/tsconfig.json     || exit 1
+npx --no-install tsc --noEmit -p packages/shared/tsconfig.json || exit 1
+
+echo "[pre-commit] OK ✔"

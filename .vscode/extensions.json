@@ -1,0 +1,21 @@
+{
+  "//": "Extensiones recomendadas para todo el equipo. VS Code las ofrecerá al abrir el workspace.",
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "editorconfig.editorconfig",
+    "bradlc.vscode-tailwindcss",
+    "ckolkman.vscode-postgres",
+    "ms-azuretools.vscode-docker",
+    "github.vscode-github-actions",
+    "eamodio.gitlens",
+    "yoavbls.pretty-ts-errors",
+    "wix.vscode-import-cost",
+    "streetsidesoftware.code-spell-checker",
+    "streetsidesoftware.code-spell-checker-spanish",
+    "orta.vscode-jest",
+    "redhat.vscode-yaml",
+    "christian-kohler.path-intellisense"
+  ],
+  "unwantedRecommendations": ["ms-vscode.vscode-typescript-tslint-plugin"]
+}
