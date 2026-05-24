@@ -105,10 +105,15 @@ export class AuthService {
     meta?: { userAgent?: string; ipAddress?: string },
   ): Promise<AuthTokens> {
     const accessToken = await this.jwtService.signAsync(payload);
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      secret: this.refreshSecret,
-      expiresIn: this.refreshTtlSeconds,
-    });
+    // `jti` único por refresh: evita colisiones de hash cuando dos emisiones
+    // ocurren dentro del mismo segundo (mismo `iat`) para el mismo usuario.
+    const refreshToken = await this.jwtService.signAsync(
+      { ...payload, jti: crypto.randomUUID() },
+      {
+        secret: this.refreshSecret,
+        expiresIn: this.refreshTtlSeconds,
+      },
+    );
 
     await this.sessionsRepository.create({
       userId: payload.sub,
