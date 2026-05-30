@@ -16,33 +16,61 @@ Monorepo con tres aplicaciones y un paquete compartido:
 
 ## Requisitos previos
 
-- Node.js >= 20.x
-- npm >= 10.x (o pnpm/yarn equivalentes)
-- Docker Desktop >= 4.x
-- Git >= 2.40
+| Herramienta    | Versión mínima | Descarga                                       |
+| -------------- | -------------- | ---------------------------------------------- |
+| Node.js        | >= 20.x        | https://nodejs.org                             |
+| npm            | >= 10.x        | incluido con Node.js                           |
+| Docker Desktop | >= 4.x         | https://www.docker.com/products/docker-desktop |
+| Git            | >= 2.40        | https://git-scm.com                            |
 
 ## Puesta en marcha
 
-```bash
-# 1. Clonar e instalar dependencias (raíz del monorepo)
-git clone <repo-url> kore-repuestos
-cd kore-repuestos
+> PowerShell desde la raíz del proyecto.
+
+```powershell
+# 1. Instalar dependencias
 npm install
 
 # 2. Copiar variables de entorno
-cp apps/backend/.env.example apps/backend/.env
-cp apps/web/.env.example apps/web/.env
-cp apps/mobile/.env.example apps/mobile/.env
+Copy-Item apps/backend/.env.example apps/backend/.env
+Copy-Item apps/web/.env.example apps/web/.env
+```
 
-# 3. Levantar la base de datos
+Abre `apps/backend/.env`, ejecuta este comando **dos veces** y pega cada
+resultado en `JWT_SECRET` y `JWT_REFRESH_SECRET`:
+
+```powershell
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+```
+
+```powershell
+# 3. Abrir Docker Desktop y levantar la base de datos
 docker compose up -d postgres
 
-# 4. Arrancar backend
-npm run dev --workspace=apps/backend
+# 4. Compilar el backend (solo la primera vez)
+npm run build:backend
 
-# 5. Arrancar web (en otra terminal)
-npm run dev --workspace=apps/web
+# 5. Correr las migraciones
+npm run migration:run --workspace=apps/backend
 ```
+
+**Terminal 1:**
+
+```powershell
+npm run dev:backend
+```
+
+**Terminal 2:**
+
+```powershell
+npm run dev:web
+```
+
+| Servicio | URL                          |
+| -------- | ---------------------------- |
+| API      | http://localhost:3000/api/v1 |
+| Swagger  | http://localhost:3000/docs   |
+| Web      | http://localhost:5173        |
 
 ## Documentación
 
