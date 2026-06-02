@@ -6,6 +6,14 @@ import { BaseRepository } from '../../common/repositories/base.repository';
 
 import { Session } from './entities/session.entity';
 
+export interface CreateSessionDto {
+  userId: string;
+  refreshTokenHash: string;
+  expiresAt: Date;
+  userAgent?: string;
+  ipAddress?: string;
+}
+
 /**
  * Repositorio concreto de sesiones.
  *
@@ -22,6 +30,24 @@ export class SessionsRepository extends BaseRepository<Session> {
     protected readonly repository: Repository<Session>,
   ) {
     super(repository);
+  }
+
+  /**
+   * Crea una nueva sesión asociando explícitamente la relación `user`
+   * para que TypeORM resuelva el FK `user_id` correctamente en el INSERT.
+   * Usar `BaseRepository.create({ userId })` deja `user` en undefined y
+   * TypeORM inserta NULL en `user_id`, violando el FK constraint.
+   */
+  async createSession(dto: CreateSessionDto): Promise<Session> {
+    const session = this.repository.create({
+      user: { id: dto.userId },
+      userId: dto.userId,
+      refreshTokenHash: dto.refreshTokenHash,
+      expiresAt: dto.expiresAt,
+      userAgent: dto.userAgent,
+      ipAddress: dto.ipAddress,
+    });
+    return this.repository.save(session);
   }
 
   /** Localiza una sesión vigente (no revocada y no expirada) por hash del refresh token. */

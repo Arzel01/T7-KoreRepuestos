@@ -27,5 +27,6 @@
       "@kore/shared/*": ["packages/shared/src/*"]
     }
   },
+  "files": [],
   "exclude": ["node_modules", "dist", "build", "coverage"]
 }

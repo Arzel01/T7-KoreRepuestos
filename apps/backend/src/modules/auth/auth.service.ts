@@ -115,7 +115,7 @@ export class AuthService {
       },
     );
 
-    await this.sessionsRepository.create({
+    await this.sessionsRepository.createSession({
       userId: payload.sub,
       refreshTokenHash: this.hashToken(refreshToken),
       userAgent: meta?.userAgent,
