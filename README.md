@@ -18,7 +18,7 @@ Monorepo con tres aplicaciones y un paquete compartido:
 
 | Herramienta    | Versión mínima | Descarga                                       |
 | -------------- | -------------- | ---------------------------------------------- |
-| Node.js        | >= 20.x        | https://nodejs.org                             |
+| Node.js        | >= 22.13.x     | https://nodejs.org                             |
 | pnpm           | >= 11.x        | `npm install -g pnpm`                          |
 | Docker Desktop | >= 4.x         | https://www.docker.com/products/docker-desktop |
 | Git            | >= 2.40        | https://git-scm.com                            |

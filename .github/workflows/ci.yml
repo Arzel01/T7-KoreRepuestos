@@ -1,9 +1,9 @@
 # =============================================================================
 # Kore Repuestos · CI Pipeline
 # -----------------------------------------------------------------------------
-# Se dispara en cada push y pull_request hacia `main` o `develop`.
-# Estrategia: jobs paralelos sobre la misma cache de dependencias para
-# minimizar tiempo total. Cualquier job en rojo bloquea el merge.
+# Triggered on every push and pull_request targeting `main` or `develop`.
+# Strategy: parallel jobs sharing the same dependency cache to minimize
+# total run time. Any failing job blocks the merge.
 # =============================================================================
 
 name: CI
@@ -14,18 +14,18 @@ on:
   pull_request:
     branches: [main, develop]
 
-# Cancela ejecuciones previas del mismo PR/branch si llega un nuevo push.
+# Cancel previous runs for the same PR/branch when a new push arrives.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "20.x"
+  NODE_VERSION: "22.x"
   PNPM_VERSION: "11.5.0"
 
 jobs:
   # ---------------------------------------------------------------------------
-  # 1. Instala dependencias una sola vez y publica la cache para los demás jobs
+  # 1. Install dependencies once and publish the cache for the other jobs
   # ---------------------------------------------------------------------------
   setup:
     name: Install & cache dependencies
@@ -47,7 +47,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
   # ---------------------------------------------------------------------------
-  # 2. Lint + formato sobre todo el monorepo
+  # 2. Lint + format check across the entire monorepo
   # ---------------------------------------------------------------------------
   lint:
     name: Lint & format check
@@ -68,7 +68,7 @@ jobs:
       - run: pnpm format:check
 
   # ---------------------------------------------------------------------------
-  # 3. Type-check del paquete compartido y de cada workspace
+  # 3. Type-check the shared package and each workspace
   # ---------------------------------------------------------------------------
   typecheck:
     name: TypeScript type-check
@@ -92,7 +92,7 @@ jobs:
         run: pnpm typecheck:web
 
   # ---------------------------------------------------------------------------
-  # 4. Tests backend (unit + e2e) contra una BD Postgres efímera del runner
+  # 4. Backend tests (unit + e2e) against an ephemeral Postgres service
   # ---------------------------------------------------------------------------
   test-backend:
     name: Backend tests (unit + e2e)
@@ -150,7 +150,7 @@ jobs:
         run: pnpm --filter @kore/backend test:e2e
 
   # ---------------------------------------------------------------------------
-  # 5. Tests frontend (vitest) + build de producción
+  # 5. Frontend tests (vitest) + production build
   # ---------------------------------------------------------------------------
   test-web:
     name: Web tests & build
@@ -172,12 +172,12 @@ jobs:
       - run: pnpm --filter @kore/web build
 
   # ---------------------------------------------------------------------------
-  # 6. Gate final: si alguno de los anteriores falla, este falla.
-  #    Útil para marcar un único required-check en branch protection rules.
+  # 6. Final gate: fails if any of the above jobs fail.
+  #    Useful as a single required check in branch protection rules.
   # ---------------------------------------------------------------------------
   ci-passed:
     name: CI passed
     runs-on: ubuntu-latest
     needs: [lint, typecheck, test-backend, test-web]
     steps:
-      - run: echo "Todos los jobs pasaron correctamente."
+      - run: echo "All jobs passed successfully."
