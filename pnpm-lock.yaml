@@ -7,6 +7,9 @@ settings:
 importers:
   .:
     devDependencies:
+      "@eslint/js":
+        specifier: ^9.28.0
+        version: 9.39.4
       "@typescript-eslint/eslint-plugin":
         specifier: ^8.33.1
         version: 8.60.0(@typescript-eslint/parser@8.60.0(eslint@9.39.4(jiti@1.21.7))(typescript@5.9.3))(eslint@9.39.4(jiti@1.21.7))(typescript@5.9.3)
@@ -94,6 +97,9 @@ importers:
       class-validator:
         specifier: ^0.14.1
         version: 0.14.4
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
       helmet:
         specifier: ^7.2.0
         version: 7.2.0
