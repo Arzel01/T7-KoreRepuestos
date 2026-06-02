@@ -13,8 +13,8 @@
 // que matchean el glob; devuelve el array de comandos a ejecutar.
 // ----------------------------------------------------------------------------
 
-/** Regex de archivos que ESLint ignora — debe coincidir con `ignorePatterns` de .eslintrc.json. */
-const IGNORED_BY_ESLINT = /(?:\.config\.(?:js|cjs|mjs|ts)|\.eslintrc\.(?:js|cjs|json))$/i;
+/** Regex de archivos que ESLint ignora — debe coincidir con los `ignores` de eslint.config.mjs. */
+const IGNORED_BY_ESLINT = /\.config\.(?:js|cjs)$/i;
 
 /** Quita rutas (separador OS) y devuelve cita simple para shell. */
 const escape = (file) => `"${file}"`;

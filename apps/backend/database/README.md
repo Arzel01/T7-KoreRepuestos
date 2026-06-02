@@ -39,7 +39,7 @@ PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USERNAME -d $DB_NAME \
 ### Vía TypeORM CLI
 
 ```bash
-npm run migration:run --workspace=apps/backend
+pnpm --filter @kore/backend migration:run
 ```
 
 ## Credenciales seed

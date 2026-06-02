@@ -43,7 +43,6 @@ async function bootstrap(): Promise<void> {
   }
 
   await app.listen(port);
-  // eslint-disable-next-line no-console
   console.info(`Kore Backend running on http://localhost:${port}/${apiPrefix}`);
 }
 

@@ -12,6 +12,7 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 .npm/
+package-lock.json
 
 # --- Builds y compilados ---
 dist/

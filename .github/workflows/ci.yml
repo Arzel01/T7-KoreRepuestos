@@ -21,6 +21,7 @@ concurrency:
 
 env:
   NODE_VERSION: "20.x"
+  PNPM_VERSION: "11.5.0"
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -32,14 +33,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: "pnpm"
 
-      - name: Install dependencies (clean install)
-        run: npm ci --no-audit --no-fund
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
   # ---------------------------------------------------------------------------
   # 2. Lint + formato sobre todo el monorepo
@@ -50,14 +55,17 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: "pnpm"
 
-      - run: npm ci --no-audit --no-fund
-      - run: npm run lint
-      - run: npm run format:check
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm format:check
 
   # ---------------------------------------------------------------------------
   # 3. Type-check del paquete compartido y de cada workspace
@@ -68,17 +76,20 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: "pnpm"
 
-      - run: npm ci --no-audit --no-fund
-      - run: npm run build:shared
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:shared
       - name: Type-check backend
-        run: npx tsc -p apps/backend/tsconfig.json --noEmit
+        run: pnpm typecheck:backend
       - name: Type-check web
-        run: npx tsc -p apps/web/tsconfig.json --noEmit
+        run: pnpm typecheck:web
 
   # ---------------------------------------------------------------------------
   # 4. Tests backend (unit + e2e) contra una BD Postgres efímera del runner
@@ -113,16 +124,19 @@ jobs:
       JWT_EXPIRES_IN: 1h
       JWT_REFRESH_SECRET: ci-jwt-refresh-secret-do-not-use-in-prod-32-chars-min
       JWT_REFRESH_EXPIRES_IN: 7d
-      BCRYPT_SALT_ROUNDS: "4" # rounds bajos en CI para acelerar tests
+      BCRYPT_SALT_ROUNDS: "4"
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: "pnpm"
 
-      - run: npm ci --no-audit --no-fund
-      - run: npm run build:shared
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:shared
 
       - name: Apply DB schema
         run: |
@@ -130,10 +144,10 @@ jobs:
             -f docker/postgres/init.sql
 
       - name: Unit tests
-        run: npm run test --workspace=apps/backend
+        run: pnpm --filter @kore/backend test
 
       - name: E2E tests
-        run: npm run test:e2e --workspace=apps/backend
+        run: pnpm --filter @kore/backend test:e2e
 
   # ---------------------------------------------------------------------------
   # 5. Tests frontend (vitest) + build de producción
@@ -144,15 +158,18 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: "pnpm"
 
-      - run: npm ci --no-audit --no-fund
-      - run: npm run build:shared
-      - run: npm run test --workspace=apps/web
-      - run: npm run build --workspace=apps/web
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:shared
+      - run: pnpm --filter @kore/web test
+      - run: pnpm --filter @kore/web build
 
   # ---------------------------------------------------------------------------
   # 6. Gate final: si alguno de los anteriores falla, este falla.

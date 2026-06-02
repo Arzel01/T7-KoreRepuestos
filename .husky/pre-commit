@@ -16,11 +16,11 @@
 export NODE_OPTIONS="--max-old-space-size=4096"
 
 echo "[pre-commit] Ejecutando lint-staged..."
-npx --no-install lint-staged || exit 1
+pnpm exec lint-staged || exit 1
 
 echo "[pre-commit] Validando tipos por workspace..."
-npx --no-install tsc --noEmit -p apps/backend/tsconfig.json     || exit 1
-npx --no-install tsc --noEmit -p apps/web/tsconfig.json          || exit 1
-npx --no-install tsc --noEmit -p packages/shared/tsconfig.json   || exit 1
+pnpm exec tsc --noEmit -p apps/backend/tsconfig.json     || exit 1
+pnpm exec tsc --noEmit -p apps/web/tsconfig.json          || exit 1
+pnpm exec tsc --noEmit -p packages/shared/tsconfig.json   || exit 1
 
 echo "[pre-commit] OK ✔"

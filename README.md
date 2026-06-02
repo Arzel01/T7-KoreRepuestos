@@ -19,7 +19,7 @@ Monorepo con tres aplicaciones y un paquete compartido:
 | Herramienta    | Versión mínima | Descarga                                       |
 | -------------- | -------------- | ---------------------------------------------- |
 | Node.js        | >= 20.x        | https://nodejs.org                             |
-| npm            | >= 10.x        | incluido con Node.js                           |
+| pnpm           | >= 11.x        | `npm install -g pnpm`                          |
 | Docker Desktop | >= 4.x         | https://www.docker.com/products/docker-desktop |
 | Git            | >= 2.40        | https://git-scm.com                            |
 
@@ -29,7 +29,7 @@ Monorepo con tres aplicaciones y un paquete compartido:
 
 ```powershell
 # 1. Instalar dependencias
-npm install
+pnpm install
 
 # 2. Copiar variables de entorno
 Copy-Item apps/backend/.env.example apps/backend/.env
@@ -48,22 +48,22 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 docker compose up -d postgres
 
 # 4. Compilar el backend (solo la primera vez)
-npm run build:backend
+pnpm build:backend
 
 # 5. Correr las migraciones
-npm run migration:run --workspace=apps/backend
+pnpm --filter @kore/backend migration:run
 ```
 
 **Terminal 1:**
 
 ```powershell
-npm run dev:backend
+pnpm dev:backend
 ```
 
 **Terminal 2:**
 
 ```powershell
-npm run dev:web
+pnpm dev:web
 ```
 
 | Servicio | URL                          |

@@ -1,8 +1,10 @@
-import { ConfigService } from '@nestjs/config';
-import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { DataSource, type DataSourceOptions } from 'typeorm';
-import * as dotenv from 'dotenv';
 import * as path from 'path';
+
+import { ConfigService } from '@nestjs/config';
+import * as dotenv from 'dotenv';
+import { DataSource, type DataSourceOptions } from 'typeorm';
+
+import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 

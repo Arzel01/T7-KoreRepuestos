@@ -116,9 +116,8 @@ Para evitar commits mal formados, instalar **commitlint** + **husky** en la raí
 del monorepo:
 
 ```bash
-npm install --save-dev @commitlint/cli @commitlint/config-conventional husky
-npx husky install
-npx husky add .husky/commit-msg 'npx --no -- commitlint --edit "$1"'
+pnpm add -D @commitlint/cli @commitlint/config-conventional husky
+pnpm exec husky add .husky/commit-msg 'pnpm exec commitlint --edit "$1"'
 ```
 
 `.commitlintrc.json`:
