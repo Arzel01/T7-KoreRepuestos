@@ -2,11 +2,6 @@ import { api } from '@/lib/api-client';
 
 import type { ProductResponse } from '@kore/shared';
 
-/**
- * Cliente HTTP del módulo de catálogo.
- * Mapea cada función a un endpoint de `ProductsController`.
- */
-
 export interface CreateProductPayload {
   sku: string;
   name: string;

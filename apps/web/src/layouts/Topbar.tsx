@@ -1,12 +1,5 @@
 import { useLocation } from 'react-router-dom';
 
-/**
- * Topbar editorial — un breadcrumb estilo "ficha técnica".
- *
- * Renderiza la ruta actual como una secuencia tipográfica monospace,
- * con un sello "LIVE" a la derecha. Es decorativo + funcional: ayuda al
- * usuario a ubicarse sin gritar atención.
- */
 export function Topbar(): JSX.Element {
   const location = useLocation();
   const segments = location.pathname.split('/').filter(Boolean);

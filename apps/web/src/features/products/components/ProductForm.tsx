@@ -1,7 +1,7 @@
 import { ProductUnit } from '@kore/shared';
 import { useEffect, useState, type FormEvent } from 'react';
 
-import { categoriesApi, type CategoryDto, type CreateProductPayload } from '../api/products.api';
+import { categoriesApi, type CategoryDto, type CreateProductPayload } from '../server/products.api';
 
 /**
  * Formulario interactivo de creación de productos (US#45).

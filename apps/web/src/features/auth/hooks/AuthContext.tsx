@@ -12,18 +12,8 @@ import {
 import { onUnauthorized } from '@/lib/api-client';
 import { tokenStorage } from '@/lib/token-storage';
 
-import { authApi, type LoginPayload, type RegisterPayload } from './api/auth.api';
+import { authApi, type LoginPayload, type RegisterPayload } from '../server/auth.api';
 
-/**
- * Contexto global de autenticación.
- *
- * Mantiene en memoria el `UserResponse` y expone métodos imperativos
- * (`login`, `register`, `logout`). La fuente de verdad del token es
- * `tokenStorage` — el contexto solo refleja el estado.
- *
- * Se conecta al cliente HTTP a través de `onUnauthorized` para hacer
- * logout automático si un 401 llega al interceptor (token expirado).
- */
 interface AuthState {
   user: UserResponse | null;
   isAuthenticated: boolean;
@@ -42,7 +32,6 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
   );
   const [isLoading, setIsLoading] = useState(false);
 
-  // Si la API responde 401 (token expirado/revocado), limpiamos el estado.
   useEffect(() => {
     onUnauthorized(() => setUser(null));
   }, []);
@@ -74,7 +63,6 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
   const logout = useCallback(async (): Promise<void> => {
     const refresh = tokenStorage.getRefreshToken();
     if (refresh) {
-      // No fallamos el logout local si la API no responde.
       await authApi.logout(refresh).catch(() => undefined);
     }
     tokenStorage.clear();

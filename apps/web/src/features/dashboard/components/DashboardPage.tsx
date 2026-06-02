@@ -1,18 +1,12 @@
 import { Link } from 'react-router-dom';
 
-import { useAuth } from '@/features/auth/AuthContext';
+import { useAuth } from '@/features/auth/hooks/AuthContext';
 
-/**
- * Landing del panel admin — "ficha de control" inspirada en
- * tableros de instrumentos. Compone tarjetas con números grandes
- * (Bebas Neue tabular) y micro-detalles tipo manual técnico.
- */
 export function DashboardPage(): JSX.Element {
   const { user } = useAuth();
 
   return (
     <div className="mx-auto max-w-7xl px-8 py-12 animate-fade-in-up">
-      {/* ─── Saludo ─── */}
       <header className="grid grid-cols-1 items-end gap-6 border-b border-ink-700 pb-10 lg:grid-cols-2">
         <div>
           <p className="eyebrow">Buenos días</p>
@@ -44,7 +38,6 @@ export function DashboardPage(): JSX.Element {
         </dl>
       </header>
 
-      {/* ─── KPIs ─── */}
       <section
         aria-label="Indicadores"
         className="mt-12 grid grid-cols-1 gap-px bg-ink-700 sm:grid-cols-2 lg:grid-cols-4"
@@ -55,7 +48,6 @@ export function DashboardPage(): JSX.Element {
         <Kpi id="04" label="Sesiones abiertas" value="1" hint="Esta sesión" highlighted />
       </section>
 
-      {/* ─── Acceso rápido ─── */}
       <section aria-label="Accesos rápidos" className="mt-12">
         <p className="eyebrow mb-6">Operaciones frecuentes</p>
         <div className="grid grid-cols-1 gap-px bg-ink-700 sm:grid-cols-2">
@@ -77,9 +69,6 @@ export function DashboardPage(): JSX.Element {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Subcomponentes locales
-// ---------------------------------------------------------------------------
 function Kpi({
   id,
   label,

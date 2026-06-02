@@ -4,21 +4,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { extractApiErrorMessage } from '@/lib/api-client';
 
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../hooks/AuthContext';
 
-/**
- * Página de Login — US-Auth.
- *
- * Composición editorial: división 50/50 entre columna informativa
- * (eyebrow + display tipográfico) y formulario técnico minimalista.
- *
- * Validación cliente:
- *   · email no vacío + formato válido
- *   · password no vacío
- *
- * La validación real ocurre en el backend; aquí prevenimos roundtrips
- * obvios y damos feedback inmediato.
- */
 export function LoginPage(): JSX.Element {
   const { login, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -30,7 +17,6 @@ export function LoginPage(): JSX.Element {
   const [touched, setTouched] = useState({ email: false, password: false });
   const [error, setError] = useState<string | null>(null);
 
-  // -------------------------- Validación cliente ----------------------------
   const emailError =
     touched.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
       ? 'Email con formato inválido'
@@ -113,7 +99,6 @@ export function LoginPage(): JSX.Element {
             className="mt-12 space-y-8"
             aria-describedby={error ? 'login-error' : undefined}
           >
-            {/* --- Email --- */}
             <div>
               <label
                 htmlFor="email"
@@ -141,7 +126,6 @@ export function LoginPage(): JSX.Element {
               )}
             </div>
 
-            {/* --- Password --- */}
             <div>
               <label
                 htmlFor="password"
@@ -173,7 +157,6 @@ export function LoginPage(): JSX.Element {
               )}
             </div>
 
-            {/* --- Error global del backend --- */}
             {error && (
               <div
                 id="login-error"

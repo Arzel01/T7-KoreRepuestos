@@ -1,15 +1,15 @@
 import { UserRole } from '@kore/shared';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import { ProtectedRoute } from '@/components/common/ProtectedRoute';
-import { AdminLayout } from '@/components/layout/AdminLayout';
-import { LoginPage } from '@/features/auth/pages/LoginPage';
-import { RegisterPage } from '@/features/auth/pages/RegisterPage';
-import { ProductCreatePage } from '@/features/products/pages/ProductCreatePage';
-import { ProductsListPage } from '@/features/products/pages/ProductsListPage';
-import { DashboardPage } from '@/pages/admin/DashboardPage';
-import { HomePage } from '@/pages/HomePage';
-import { NotFoundPage } from '@/pages/NotFoundPage';
+import { DashboardPage } from '@/app/admin/DashboardPage';
+import { ProductCreatePage } from '@/app/admin/products/ProductCreatePage';
+import { ProductsListPage } from '@/app/admin/products/ProductsListPage';
+import { LoginPage } from '@/app/auth/LoginPage';
+import { RegisterPage } from '@/app/auth/RegisterPage';
+import { HomePage } from '@/app/HomePage';
+import { NotFoundPage } from '@/app/NotFoundPage';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { AdminLayout } from '@/layouts/AdminLayout';
 
 /**
  * Mapa de rutas de la aplicación.

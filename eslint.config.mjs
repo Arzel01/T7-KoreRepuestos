@@ -11,15 +11,7 @@ import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 
 export default [
   {
-    ignores: [
-      '**/dist/**',
-      '**/build/**',
-      '**/coverage/**',
-      '**/*.config.js',
-      '**/*.config.cjs',
-      'apps/mobile/android/**',
-      'apps/mobile/ios/**',
-    ],
+    ignores: ['**/dist/**', '**/build/**', '**/coverage/**', '**/*.config.js', '**/*.config.cjs'],
   },
 
   js.configs.recommended,
@@ -47,7 +39,6 @@ export default [
           project: [
             'apps/backend/tsconfig.json',
             'apps/web/tsconfig.json',
-            'apps/mobile/tsconfig.json',
             'packages/shared/tsconfig.json',
           ],
         },
@@ -83,9 +74,9 @@ export default [
     },
   },
 
-  // React (web + mobile)
+  // React (web)
   {
-    files: ['apps/web/**/*.{ts,tsx}', 'apps/mobile/**/*.{ts,tsx}'],
+    files: ['apps/web/**/*.{ts,tsx}'],
     plugins: {
       react: reactPlugin,
       'react-hooks': reactHooksPlugin,

@@ -3,19 +3,10 @@ import { useNavigate } from 'react-router-dom';
 
 import { extractApiErrorMessage } from '@/lib/api-client';
 
-import { productsApi, type CreateProductPayload } from '../api/products.api';
-import { ProductForm } from '../components/ProductForm';
+import { productsApi, type CreateProductPayload } from '../server/products.api';
 
-/**
- * Página "Crear producto" del panel admin.
- *
- * Conecta el ProductForm puro con:
- *   · La API real (productsApi.create)
- *   · El router (navega al detalle tras éxito)
- *   · El estado de la página (submitting, errores)
- *
- * Diseño editorial: header con número de operación, formulario en panel.
- */
+import { ProductForm } from './ProductForm';
+
 export function ProductCreatePage(): JSX.Element {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +27,6 @@ export function ProductCreatePage(): JSX.Element {
 
   return (
     <div className="mx-auto max-w-5xl px-8 py-12 animate-fade-in-up">
-      {/* ─── Cabecera editorial ─── */}
       <header className="mb-12 flex items-end justify-between border-b border-ink-700 pb-8">
         <div>
           <p className="eyebrow">Op · 045</p>
@@ -52,7 +42,6 @@ export function ProductCreatePage(): JSX.Element {
         <span className="tag border-signal-500/40 text-signal-500">REQUIERE ADMIN</span>
       </header>
 
-      {/* ─── Formulario ─── */}
       <section className="panel p-8 lg:p-10">
         <ProductForm
           onSubmit={handleSubmit}

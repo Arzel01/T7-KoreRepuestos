@@ -2,14 +2,6 @@ import { api } from '@/lib/api-client';
 
 import type { UserResponse } from '@kore/shared';
 
-/**
- * Cliente HTTP del módulo de autenticación.
- *
- * Cada función mapea 1:1 a un endpoint del backend y declara su contrato
- * en términos de tipos compartidos (`@kore/shared`). Si el contrato cambia
- * en el backend, TypeScript marca aquí el error inmediatamente.
- */
-
 export interface AuthTokensDto {
   accessToken: string;
   refreshToken: string;

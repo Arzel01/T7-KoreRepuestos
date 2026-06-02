@@ -1,12 +1,7 @@
 import { Link } from 'react-router-dom';
 
-import { useAuth } from '@/features/auth/AuthContext';
+import { useAuth } from '@/features/auth/hooks/AuthContext';
 
-/**
- * Landing pública — la cara visible del sistema antes de iniciar sesión.
- *
- * Misma dirección estética que el panel admin: ink + signal + Bebas Neue.
- */
 export function HomePage(): JSX.Element {
   const { isAuthenticated, isAdmin } = useAuth();
 

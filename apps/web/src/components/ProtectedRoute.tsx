@@ -1,23 +1,9 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-import { useAuth } from '@/features/auth/AuthContext';
+import { useAuth } from '@/features/auth/hooks/AuthContext';
 
 import type { UserRole } from '@kore/shared';
 
-/**
- * Componente de control de acceso para rutas privadas.
- *
- * Política:
- *   · Si no hay sesión → redirige a `/auth/login` y guarda el `from` original
- *     para que el login pueda devolver al usuario a donde quería ir.
- *   · Si se requiere rol (`requireRole`) y el rol no coincide → 403 inline.
- *   · Si todo OK → renderiza el árbol hijo (Outlet de React Router v6).
- *
- * Se usa así en `AppRouter`:
- *   <Route element={<ProtectedRoute requireRole={UserRole.ADMIN} />}>
- *     <Route path="/admin" element={<AdminLayout />}>...</Route>
- *   </Route>
- */
 export function ProtectedRoute({ requireRole }: { requireRole?: UserRole }): JSX.Element {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();

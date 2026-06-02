@@ -3,20 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { extractApiErrorMessage } from '@/lib/api-client';
 
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../hooks/AuthContext';
 
-/**
- * Página de Registro — US-Auth.
- *
- * Validación cliente sincronizada con el DTO `CreateUserDto` del backend:
- *   · email           formato válido
- *   · password        ≥ 8 chars, ≥ 1 mayúscula, ≥ 1 dígito
- *   · firstName/lastName no vacíos
- *   · phone           opcional (7-30 chars si se completa)
- *
- * El backend repite la validación con `class-validator` — el cliente es
- * UX, no la fuente de verdad de las reglas.
- */
 export function RegisterPage(): JSX.Element {
   const { register, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -39,7 +27,6 @@ export function RegisterPage(): JSX.Element {
   });
   const [error, setError] = useState<string | null>(null);
 
-  // --- Validadores puros (testables en aislamiento) -------------------------
   const errors = {
     firstName: form.firstName.trim() ? null : 'Nombre obligatorio',
     lastName: form.lastName.trim() ? null : 'Apellido obligatorio',
@@ -99,7 +86,6 @@ export function RegisterPage(): JSX.Element {
   return (
     <main className="min-h-screen bg-ink-950 px-6 py-16 sm:px-12">
       <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-16 lg:grid-cols-[1fr_1.2fr]">
-        {/* ---------- Columna informativa ---------- */}
         <aside className="space-y-8">
           <p className="eyebrow">Kore · Alta de usuario</p>
           <h1 className="display text-display-lg text-balance">
@@ -117,7 +103,6 @@ export function RegisterPage(): JSX.Element {
           </ul>
         </aside>
 
-        {/* ---------- Formulario ---------- */}
         <section className="panel p-8 lg:p-10">
           <form onSubmit={handleSubmit} noValidate className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -225,9 +210,6 @@ export function RegisterPage(): JSX.Element {
   );
 }
 
-// ---------------------------------------------------------------------------
-// FieldText — átomo reutilizable del formulario
-// ---------------------------------------------------------------------------
 interface FieldTextProps {
   id: string;
   label: string;

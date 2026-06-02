@@ -3,16 +3,10 @@ import { Link } from 'react-router-dom';
 
 import { extractApiErrorMessage } from '@/lib/api-client';
 
-import { productsApi } from '../api/products.api';
+import { productsApi } from '../server/products.api';
 
 import type { ProductResponse } from '@kore/shared';
 
-/**
- * Listado del catálogo en el panel admin.
- *
- * Tabla densa, monospace para los datos técnicos (SKU, precio, stock).
- * Estética "ficha técnica de inventario".
- */
 export function ProductsListPage(): JSX.Element {
   const [items, setItems] = useState<ProductResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +51,6 @@ export function ProductsListPage(): JSX.Element {
         </div>
       )}
 
-      {/* ─── Tabla técnica ─── */}
       <div className="border border-ink-700">
         <table className="w-full border-collapse text-left">
           <thead className="border-b border-ink-700 bg-ink-900 text-ink-400">
