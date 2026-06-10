@@ -20,8 +20,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "22.x"
-  PNPM_VERSION: "11.5.0"
+  NODE_VERSION: '22.x'
+  PNPM_VERSION: '11.5.0'
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -41,7 +41,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -61,7 +61,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
@@ -82,7 +82,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:shared
@@ -119,12 +119,12 @@ jobs:
       DB_USERNAME: kore_user
       DB_PASSWORD: kore_password
       DB_NAME: kore_test
-      DB_SYNCHRONIZE: "true"
+      DB_SYNCHRONIZE: 'true'
       JWT_SECRET: ci-jwt-secret-do-not-use-in-prod-32-chars-min
       JWT_EXPIRES_IN: 1h
       JWT_REFRESH_SECRET: ci-jwt-refresh-secret-do-not-use-in-prod-32-chars-min
       JWT_REFRESH_EXPIRES_IN: 7d
-      BCRYPT_SALT_ROUNDS: "4"
+      BCRYPT_SALT_ROUNDS: '4'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -133,7 +133,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:shared
@@ -164,7 +164,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
+          cache: 'pnpm'
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:shared

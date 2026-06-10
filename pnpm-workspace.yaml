@@ -1,9 +1,9 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
 
 allowBuilds:
-  "@nestjs/core": true
+  '@nestjs/core': true
   bcrypt: true
   esbuild: true
   msw: true
