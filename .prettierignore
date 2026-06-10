@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+out/
+coverage/
+.next/
+.cache/
+.agents/
+*.lock
+package-lock.json
+pnpm-lock.yaml
+CONTEXT.md
+apps/mobile/android/
+apps/mobile/ios/

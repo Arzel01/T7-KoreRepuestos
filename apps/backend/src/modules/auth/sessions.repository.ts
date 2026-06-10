@@ -1,10 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { LessThan, Repository } from "typeorm";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { LessThan, Repository } from 'typeorm';
 
-import { BaseRepository } from "../../common/repositories/base.repository";
+import { BaseRepository } from '../../common/repositories/base.repository';
 
-import { Session } from "./entities/session.entity";
+import { Session } from './entities/session.entity';
 
 export interface CreateSessionDto {
   userId: string;
@@ -37,9 +37,7 @@ export class SessionsRepository extends BaseRepository<Session> {
    * el FK correctamente. Usar `createSession()` en su lugar.
    */
   override async create(_data: Partial<Session>): Promise<never> {
-    throw new Error(
-      "SessionsRepository: usar createSession() en lugar de create()",
-    );
+    throw new Error('SessionsRepository: usar createSession() en lugar de create()');
   }
 
   /**
@@ -62,10 +60,10 @@ export class SessionsRepository extends BaseRepository<Session> {
   async findActiveByRefreshHash(hash: string): Promise<Session | null> {
     const now = new Date();
     return this.repository
-      .createQueryBuilder("s")
-      .where("s.refreshTokenHash = :hash", { hash })
-      .andWhere("s.revokedAt IS NULL")
-      .andWhere("s.expiresAt > :now", { now })
+      .createQueryBuilder('s')
+      .where('s.refreshTokenHash = :hash', { hash })
+      .andWhere('s.revokedAt IS NULL')
+      .andWhere('s.expiresAt > :now', { now })
       .getOne();
   }
 
@@ -80,8 +78,8 @@ export class SessionsRepository extends BaseRepository<Session> {
       .createQueryBuilder()
       .update(Session)
       .set({ revokedAt: new Date() })
-      .where("user_id = :userId", { userId })
-      .andWhere("revoked_at IS NULL")
+      .where('user_id = :userId', { userId })
+      .andWhere('revoked_at IS NULL')
       .execute();
     return result.affected ?? 0;
   }
