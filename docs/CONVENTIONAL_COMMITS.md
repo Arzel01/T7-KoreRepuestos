@@ -1,9 +1,9 @@
 # Convención de Commits — Conventional Commits 1.0.0
 
-Esta guía define el formato **obligatorio** de todos los mensajes de commit
-y títulos de Pull Request en Kore Repuestos. El objetivo es generar
-changelogs automáticos, disparar releases por SemVer y mantener un historial
-legible para todo el equipo.
+Esta guía define el formato **obligatorio** de todos los mensajes de commit y
+títulos de Pull Request en Kore Repuestos. El objetivo es generar changelogs
+automáticos, disparar releases por SemVer y mantener un historial legible para
+todo el equipo.
 
 ---
 
@@ -43,8 +43,8 @@ Reglas estrictas:
 | `chore`    | Tareas de mantenimiento que no encajan en otras categorías         | —                 |
 | `revert`   | Revertir un commit anterior (referenciar SHA en cuerpo)            | depende           |
 
-Un commit con `BREAKING CHANGE:` en el footer o `!` después del tipo
-(`feat!:`) implica **MAJOR**.
+Un commit con `BREAKING CHANGE:` en el footer o `!` después del tipo (`feat!:`)
+implica **MAJOR**.
 
 ---
 
@@ -53,8 +53,8 @@ Un commit con `BREAKING CHANGE:` en el footer o `!` después del tipo
 Usar el scope para indicar el módulo o paquete afectado:
 
 `auth`, `users`, `products`, `categories`, `vehicles`, `maintenance`,
-`compatibility`, `inventory`, `backend`, `web`, `mobile`, `shared`,
-`db`, `deps`, `ci`, `docker`.
+`compatibility`, `inventory`, `backend`, `web`, `mobile`, `shared`, `db`,
+`deps`, `ci`, `docker`.
 
 ---
 
@@ -112,13 +112,12 @@ Refs: KORE-201
 
 ## 5. Validación automática
 
-Para evitar commits mal formados, instalar **commitlint** + **husky** en
-la raíz del monorepo:
+Para evitar commits mal formados, instalar **commitlint** + **husky** en la raíz
+del monorepo:
 
 ```bash
-npm install --save-dev @commitlint/cli @commitlint/config-conventional husky
-npx husky install
-npx husky add .husky/commit-msg 'npx --no -- commitlint --edit "$1"'
+pnpm add -D @commitlint/cli @commitlint/config-conventional husky
+pnpm exec husky add .husky/commit-msg 'pnpm exec commitlint --edit "$1"'
 ```
 
 `.commitlintrc.json`:
@@ -131,9 +130,22 @@ npx husky add .husky/commit-msg 'npx --no -- commitlint --edit "$1"'
       2,
       "always",
       [
-        "auth", "users", "products", "categories", "vehicles", "maintenance",
-        "compatibility", "inventory", "backend", "web", "mobile", "shared",
-        "db", "deps", "ci", "docker"
+        "auth",
+        "users",
+        "products",
+        "categories",
+        "vehicles",
+        "maintenance",
+        "compatibility",
+        "inventory",
+        "backend",
+        "web",
+        "mobile",
+        "shared",
+        "db",
+        "deps",
+        "ci",
+        "docker"
       ]
     ],
     "subject-case": [2, "never", ["upper-case", "pascal-case", "start-case"]],
@@ -146,10 +158,10 @@ npx husky add .husky/commit-msg 'npx --no -- commitlint --edit "$1"'
 
 ## 6. Anti-patrones (NO hacer)
 
-| ❌ Mal                              | ✅ Bien                                                  |
-| ----------------------------------- | -------------------------------------------------------- |
-| `arreglo bug`                       | `fix(auth): corregir expiración de refresh token`        |
-| `WIP`                               | (commit local, no se mergea — usar squash en el PR)      |
-| `Update README`                     | `docs(readme): añadir instrucciones de docker compose`   |
-| `feat: Cambios varios`              | un commit por cambio lógico                              |
-| `feat(auth): Implementó el login.`  | sin mayúscula inicial, sin punto, en imperativo          |
+| ❌ Mal                             | ✅ Bien                                                |
+| ---------------------------------- | ------------------------------------------------------ |
+| `arreglo bug`                      | `fix(auth): corregir expiración de refresh token`      |
+| `WIP`                              | (commit local, no se mergea — usar squash en el PR)    |
+| `Update README`                    | `docs(readme): añadir instrucciones de docker compose` |
+| `feat: Cambios varios`             | un commit por cambio lógico                            |
+| `feat(auth): Implementó el login.` | sin mayúscula inicial, sin punto, en imperativo        |

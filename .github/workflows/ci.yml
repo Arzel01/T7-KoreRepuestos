@@ -1,0 +1,183 @@
+# =============================================================================
+# Kore Repuestos · CI Pipeline
+# -----------------------------------------------------------------------------
+# Triggered on every push and pull_request targeting `main` or `develop`.
+# Strategy: parallel jobs sharing the same dependency cache to minimize
+# total run time. Any failing job blocks the merge.
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# Cancel previous runs for the same PR/branch when a new push arrives.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.x"
+  PNPM_VERSION: "11.5.0"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. Install dependencies once and publish the cache for the other jobs
+  # ---------------------------------------------------------------------------
+  setup:
+    name: Install & cache dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+  # ---------------------------------------------------------------------------
+  # 2. Lint + format check across the entire monorepo
+  # ---------------------------------------------------------------------------
+  lint:
+    name: Lint & format check
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm format:check
+
+  # ---------------------------------------------------------------------------
+  # 3. Type-check the shared package and each workspace
+  # ---------------------------------------------------------------------------
+  typecheck:
+    name: TypeScript type-check
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:shared
+      - name: Type-check backend
+        run: pnpm typecheck:backend
+      - name: Type-check web
+        run: pnpm typecheck:web
+
+  # ---------------------------------------------------------------------------
+  # 4. Backend tests (unit + e2e) against an ephemeral Postgres service
+  # ---------------------------------------------------------------------------
+  test-backend:
+    name: Backend tests (unit + e2e)
+    runs-on: ubuntu-latest
+    needs: setup
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: kore_user
+          POSTGRES_PASSWORD: kore_password
+          POSTGRES_DB: kore_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U kore_user -d kore_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      NODE_ENV: test
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USERNAME: kore_user
+      DB_PASSWORD: kore_password
+      DB_NAME: kore_test
+      DB_SYNCHRONIZE: "true"
+      JWT_SECRET: ci-jwt-secret-do-not-use-in-prod-32-chars-min
+      JWT_EXPIRES_IN: 1h
+      JWT_REFRESH_SECRET: ci-jwt-refresh-secret-do-not-use-in-prod-32-chars-min
+      JWT_REFRESH_EXPIRES_IN: 7d
+      BCRYPT_SALT_ROUNDS: "4"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:shared
+
+      - name: Apply DB schema
+        run: |
+          PGPASSWORD=kore_password psql -h localhost -U kore_user -d kore_test \
+            -f docker/postgres/init.sql
+
+      - name: Unit tests
+        run: pnpm --filter @kore/backend test
+
+      - name: E2E tests
+        run: pnpm --filter @kore/backend test:e2e
+
+  # ---------------------------------------------------------------------------
+  # 5. Frontend tests (vitest) + production build
+  # ---------------------------------------------------------------------------
+  test-web:
+    name: Web tests & build
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:shared
+      - run: pnpm --filter @kore/web test
+      - run: pnpm --filter @kore/web build
+
+  # ---------------------------------------------------------------------------
+  # 6. Final gate: fails if any of the above jobs fail.
+  #    Useful as a single required check in branch protection rules.
+  # ---------------------------------------------------------------------------
+  ci-passed:
+    name: CI passed
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test-backend, test-web]
+    steps:
+      - run: echo "All jobs passed successfully."

@@ -1,0 +1,96 @@
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { LessThan, Repository } from "typeorm";
+
+import { BaseRepository } from "../../common/repositories/base.repository";
+
+import { Session } from "./entities/session.entity";
+
+export interface CreateSessionDto {
+  userId: string;
+  refreshTokenHash: string;
+  expiresAt: Date;
+  userAgent?: string;
+  ipAddress?: string;
+}
+
+/**
+ * Repositorio concreto de sesiones.
+ *
+ * Hereda CRUD genérico de BaseRepository<Session> y añade operaciones
+ * propias del dominio de autenticación (revocación, limpieza, lookup por hash).
+ *
+ * Nota DI: `Repository` se importa como VALOR porque es el tipo del parámetro
+ * inyectado por `@InjectRepository(Session)` en runtime.
+ */
+@Injectable()
+export class SessionsRepository extends BaseRepository<Session> {
+  constructor(
+    @InjectRepository(Session)
+    protected readonly repository: Repository<Session>,
+  ) {
+    super(repository);
+  }
+
+  /**
+   * Bloqueado intencionalmente: Session requiere `user: { id }` para resolver
+   * el FK correctamente. Usar `createSession()` en su lugar.
+   */
+  override async create(_data: Partial<Session>): Promise<never> {
+    throw new Error(
+      "SessionsRepository: usar createSession() en lugar de create()",
+    );
+  }
+
+  /**
+   * Crea una nueva sesión asociando explícitamente la relación `user`
+   * para que TypeORM resuelva el FK `user_id` correctamente en el INSERT.
+   */
+  async createSession(dto: CreateSessionDto): Promise<Session> {
+    const session = this.repository.create({
+      user: { id: dto.userId },
+      userId: dto.userId,
+      refreshTokenHash: dto.refreshTokenHash,
+      expiresAt: dto.expiresAt,
+      userAgent: dto.userAgent,
+      ipAddress: dto.ipAddress,
+    });
+    return this.repository.save(session);
+  }
+
+  /** Localiza una sesión vigente (no revocada y no expirada) por hash del refresh token. */
+  async findActiveByRefreshHash(hash: string): Promise<Session | null> {
+    const now = new Date();
+    return this.repository
+      .createQueryBuilder("s")
+      .where("s.refreshTokenHash = :hash", { hash })
+      .andWhere("s.revokedAt IS NULL")
+      .andWhere("s.expiresAt > :now", { now })
+      .getOne();
+  }
+
+  /** Marca una sesión como revocada (logout o forzado por admin). */
+  async revoke(id: string): Promise<void> {
+    await this.repository.update(id, { revokedAt: new Date() });
+  }
+
+  /** Revoca todas las sesiones activas de un usuario (cambio de contraseña, ataque, etc.). */
+  async revokeAllForUser(userId: string): Promise<number> {
+    const result = await this.repository
+      .createQueryBuilder()
+      .update(Session)
+      .set({ revokedAt: new Date() })
+      .where("user_id = :userId", { userId })
+      .andWhere("revoked_at IS NULL")
+      .execute();
+    return result.affected ?? 0;
+  }
+
+  /** Borra físicamente sesiones expiradas (job de mantenimiento). */
+  async deleteExpired(): Promise<number> {
+    const result = await this.repository.delete({
+      expiresAt: LessThan(new Date()),
+    });
+    return result.affected ?? 0;
+  }
+}

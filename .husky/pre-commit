@@ -1,0 +1,26 @@
+# ----------------------------------------------------------------------------
+# Husky · pre-commit hook (v9 — sin shebang ni husky.sh shim, removidos para v10)
+# ----------------------------------------------------------------------------
+# Se ejecuta automáticamente antes de cada `git commit`. Si cualquier paso
+# devuelve un código de salida distinto de cero el commit es abortado.
+#
+# Estrategia:
+#   1. `lint-staged` aplica ESLint --fix + Prettier --write SOLO sobre los
+#      archivos staged.
+#   2. `tsc --noEmit` por workspace (cada uno tiene su jsx, paths y lib).
+#
+# Más memoria a Node: el monorepo + typescript-eslint + import-resolver
+# pueden agotar el heap por defecto (1.5 GB) cuando hay muchos archivos
+# staged y matar el proceso (`[KILLED]`).
+# ----------------------------------------------------------------------------
+export NODE_OPTIONS="--max-old-space-size=4096"
+
+echo "[pre-commit] Ejecutando lint-staged..."
+pnpm exec lint-staged || exit 1
+
+echo "[pre-commit] Validando tipos por workspace..."
+pnpm exec tsc --noEmit -p apps/backend/tsconfig.json     || exit 1
+pnpm exec tsc --noEmit -p apps/web/tsconfig.json          || exit 1
+pnpm exec tsc --noEmit -p packages/shared/tsconfig.json   || exit 1
+
+echo "[pre-commit] OK ✔"

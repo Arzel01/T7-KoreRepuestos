@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 import { BaseRepository } from '../../common/repositories/base.repository';
 
 import { User } from './entities/user.entity';
+
+import type { Repository } from 'typeorm';
 
 /**
  * Repositorio concreto de Usuarios.

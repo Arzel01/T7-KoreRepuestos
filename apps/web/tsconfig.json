@@ -9,8 +9,9 @@
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "noEmit": true,
-    "experimentalDecorators": false,
-    "emitDecoratorMetadata": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],

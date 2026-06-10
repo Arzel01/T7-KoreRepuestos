@@ -1,0 +1,18 @@
+# ----------------------------------------------------------------------------
+# Husky · commit-msg hook (v9 — sin shebang ni husky.sh shim, removidos para v10)
+# ----------------------------------------------------------------------------
+# Valida que el mensaje de commit siga la convención Conventional Commits
+# (feat / fix / docs / chore / refactor / test / ci / perf / build).
+# Ver docs/CONVENTIONAL_COMMITS.md.
+# ----------------------------------------------------------------------------
+commit_regex='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9-]+\))?: .{1,100}$'
+error_msg="Mensaje de commit inválido.
+Formato esperado: <tipo>(<scope opcional>): <descripción corta>
+Ejemplo:          feat(auth): añadir endpoint POST /api/auth/login
+
+Tipos válidos: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+
+if ! grep -qE "$commit_regex" "$1"; then
+    echo "$error_msg" >&2
+    exit 1
+fi

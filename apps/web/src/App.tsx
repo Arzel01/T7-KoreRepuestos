@@ -1,10 +1,22 @@
+import { BrowserRouter } from 'react-router-dom';
+
+import { AuthProvider } from '@/features/auth/hooks/AuthContext';
+import { AppRouter } from '@/router/AppRouter';
+
+/**
+ * Raíz de la aplicación.
+ *
+ * Orden de providers:
+ *   BrowserRouter  → habilita useNavigate / useLocation antes de cualquier consumidor.
+ *   AuthProvider   → expone el contexto global de sesión.
+ *   AppRouter      → mapa de rutas declarativo.
+ */
 export default function App(): JSX.Element {
   return (
-    <main className="flex h-full items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-kore-700">Kore Repuestos</h1>
-        <p className="mt-2 text-slate-600">Sprint 0 — entorno listo.</p>
-      </div>
-    </main>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }

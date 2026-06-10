@@ -1,12 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
-import type {
-  DeepPartial,
-  FindOptionsWhere,
-  ObjectLiteral,
-  Repository,
-} from 'typeorm';
 
 import type { IRepository } from '../interfaces/repository.interface';
+import type { DeepPartial, FindOptionsWhere, ObjectLiteral, Repository } from 'typeorm';
 
 /**
  * Implementación base abstracta del patrón Repository sobre TypeORM.
@@ -19,9 +14,7 @@ import type { IRepository } from '../interfaces/repository.interface';
  * el `Repository<T>` desde `@nestjs/typeorm`, cerrando el ciclo de DI
  * sin acoplar el dominio al ORM.
  */
-export abstract class BaseRepository<T extends ObjectLiteral>
-  implements IRepository<T>
-{
+export abstract class BaseRepository<T extends ObjectLiteral> implements IRepository<T> {
   protected constructor(protected readonly repository: Repository<T>) {}
 
   async findAll(filter?: Partial<T>): Promise<T[]> {
@@ -32,7 +25,7 @@ export abstract class BaseRepository<T extends ObjectLiteral>
 
   async findById(id: string): Promise<T | null> {
     return this.repository.findOne({
-      where: { id } as FindOptionsWhere<T>,
+      where: { id } as unknown as FindOptionsWhere<T>,
     });
   }
 
@@ -48,15 +41,10 @@ export abstract class BaseRepository<T extends ObjectLiteral>
   }
 
   async update(id: string, data: Partial<T>): Promise<T> {
-    await this.repository.update(
-      id,
-      data as Parameters<Repository<T>['update']>[1],
-    );
+    await this.repository.update(id, data as Parameters<Repository<T>['update']>[1]);
     const updated = await this.findById(id);
     if (!updated) {
-      throw new NotFoundException(
-        `Entidad con id "${id}" no encontrada tras update`,
-      );
+      throw new NotFoundException(`Entidad con id "${id}" no encontrada tras update`);
     }
     return updated;
   }

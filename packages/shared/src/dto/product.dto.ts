@@ -9,7 +9,7 @@ import {
   Min,
 } from 'class-validator';
 
-import { ProductUnit } from '../enums/product-unit.enum';
+import type { ProductUnit } from '../enums/product-unit.enum';
 
 export class CreateProductDto {
   @IsString()
