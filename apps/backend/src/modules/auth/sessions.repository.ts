@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Repository } from 'typeorm';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { LessThan, Repository } from "typeorm";
 
-import { BaseRepository } from '../../common/repositories/base.repository';
+import { BaseRepository } from "../../common/repositories/base.repository";
 
-import { Session } from './entities/session.entity';
+import { Session } from "./entities/session.entity";
 
 export interface CreateSessionDto {
   userId: string;
@@ -33,10 +33,18 @@ export class SessionsRepository extends BaseRepository<Session> {
   }
 
   /**
+   * Bloqueado intencionalmente: Session requiere `user: { id }` para resolver
+   * el FK correctamente. Usar `createSession()` en su lugar.
+   */
+  override async create(_data: Partial<Session>): Promise<never> {
+    throw new Error(
+      "SessionsRepository: usar createSession() en lugar de create()",
+    );
+  }
+
+  /**
    * Crea una nueva sesión asociando explícitamente la relación `user`
    * para que TypeORM resuelva el FK `user_id` correctamente en el INSERT.
-   * Usar `BaseRepository.create({ userId })` deja `user` en undefined y
-   * TypeORM inserta NULL en `user_id`, violando el FK constraint.
    */
   async createSession(dto: CreateSessionDto): Promise<Session> {
     const session = this.repository.create({
@@ -54,10 +62,10 @@ export class SessionsRepository extends BaseRepository<Session> {
   async findActiveByRefreshHash(hash: string): Promise<Session | null> {
     const now = new Date();
     return this.repository
-      .createQueryBuilder('s')
-      .where('s.refresh_token_hash = :hash', { hash })
-      .andWhere('s.revoked_at IS NULL')
-      .andWhere('s.expires_at > :now', { now })
+      .createQueryBuilder("s")
+      .where("s.refreshTokenHash = :hash", { hash })
+      .andWhere("s.revokedAt IS NULL")
+      .andWhere("s.expiresAt > :now", { now })
       .getOne();
   }
 
@@ -72,8 +80,8 @@ export class SessionsRepository extends BaseRepository<Session> {
       .createQueryBuilder()
       .update(Session)
       .set({ revokedAt: new Date() })
-      .where('user_id = :userId', { userId })
-      .andWhere('revoked_at IS NULL')
+      .where("user_id = :userId", { userId })
+      .andWhere("revoked_at IS NULL")
       .execute();
     return result.affected ?? 0;
   }

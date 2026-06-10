@@ -1,40 +1,24 @@
 # ============================================================================
-# Kore Repuestos — Orquestación de servicios locales
-# Levanta: PostgreSQL 16 (persistente) + pgAdmin opcional para inspección.
+# Kore Repuestos — Servicios locales de desarrollo
+#
+# La base de datos PostgreSQL ahora es externa (Supabase).
+# Configura DATABASE_URL en apps/backend/.env con la cadena de conexión
+# directa (puerto 5432) obtenida en:
+#   Supabase Dashboard → Project Settings → Database → Connection string → URI
+#
+# Este archivo solo levanta herramientas auxiliares de desarrollo:
+#   · pgadmin (perfil "tools") — interfaz gráfica que puede conectarse
+#     tanto a Supabase como a cualquier Postgres local.
+#
 # Uso:
-#   docker compose up -d           # arranca todo
-#   docker compose up -d postgres  # solo BD
-#   docker compose down            # detiene
-#   docker compose down -v         # detiene y borra volúmenes (datos)
+#   docker compose --profile tools up -d   # levanta pgAdmin en :5050
+#   docker compose down                    # detiene
 # ============================================================================
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: kore-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${DB_USERNAME:-kore_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-kore_password}
-      POSTGRES_DB: ${DB_NAME:-kore_repuestos}
-      PGDATA: /var/lib/postgresql/data/pgdata
-    ports:
-      - "${DB_PORT:-5432}:5432"
-    volumes:
-      # Persistencia de datos en volumen nombrado
-      - kore_postgres_data:/var/lib/postgresql/data
-      # Scripts de inicialización (se ejecutan solo en BD vacía)
-      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - kore-network
-
-  # Interfaz gráfica opcional para administrar Postgres en http://localhost:5050
+  # Interfaz gráfica opcional para inspeccionar la BD de Supabase localmente.
+  # Conectar desde pgAdmin usando los datos de:
+  #   Supabase Dashboard → Project Settings → Database → Connection info
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: kore-pgadmin
@@ -46,9 +30,6 @@ services:
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
     ports:
       - "${PGADMIN_PORT:-5050}:80"
-    depends_on:
-      postgres:
-        condition: service_healthy
     volumes:
       - kore_pgadmin_data:/var/lib/pgadmin
     networks:
@@ -57,8 +38,6 @@ services:
       - tools
 
 volumes:
-  kore_postgres_data:
-    name: kore_postgres_data
   kore_pgadmin_data:
     name: kore_pgadmin_data
 
