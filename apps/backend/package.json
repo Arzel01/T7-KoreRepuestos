@@ -5,7 +5,7 @@
   "description": "API REST de Kore Repuestos (NestJS + TypeORM + PostgreSQL)",
   "main": "dist/main.js",
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "rimraf dist tsconfig.tsbuildinfo",
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
