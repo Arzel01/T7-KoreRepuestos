@@ -19,7 +19,8 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "pnpm typeorm migration:generate -d src/config/typeorm.config.ts",
     "migration:run": "pnpm typeorm migration:run -d src/config/typeorm.config.ts",
-    "migration:revert": "pnpm typeorm migration:revert -d src/config/typeorm.config.ts"
+    "migration:revert": "pnpm typeorm migration:revert -d src/config/typeorm.config.ts",
+    "seed:dev": "ts-node -r tsconfig-paths/register src/database/seeds/dev-seed.ts"
   },
   "dependencies": {
     "@kore/shared": "workspace:*",

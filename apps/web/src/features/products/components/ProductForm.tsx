@@ -1,7 +1,7 @@
-import { ProductUnit } from '@kore/shared';
+import { ProductUnit, type CategoryResponse } from '@kore/shared';
 import { useEffect, useState, type FormEvent } from 'react';
 
-import { categoriesApi, type CategoryDto, type CreateProductPayload } from '../server/products.api';
+import { categoriesApi, type CreateProductPayload } from '../server/products.api';
 
 /**
  * Formulario interactivo de creación de productos (US#45).
@@ -33,7 +33,7 @@ export function ProductForm({
   isSubmitting,
   submitError,
 }: ProductFormProps): JSX.Element {
-  const [categories, setCategories] = useState<CategoryDto[]>([]);
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [form, setForm] = useState({
     sku: '',
     name: '',

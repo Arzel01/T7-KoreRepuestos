@@ -9,15 +9,19 @@ import type { ProductResponse } from '@kore/shared';
 
 export function ProductsListPage(): JSX.Element {
   const [items, setItems] = useState<ProductResponse[]>([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     productsApi
-      .list()
-      .then((list) => {
-        if (!cancelled) setItems(list);
+      .list({ page: 1, pageSize: 60 })
+      .then((res) => {
+        if (!cancelled) {
+          setItems(res.items);
+          setTotal(res.total);
+        }
       })
       .catch((err) => {
         if (!cancelled) setError(extractApiErrorMessage(err));
@@ -37,7 +41,7 @@ export function ProductsListPage(): JSX.Element {
           <p className="eyebrow">Inventario · 01</p>
           <h1 className="display mt-3 text-display-md">Productos</h1>
           <p className="mt-2 font-mono text-xs text-ink-400">
-            {loading ? 'Cargando…' : `${items.length} ítems registrados`}
+            {loading ? 'Cargando…' : `${total} ítems registrados`}
           </p>
         </div>
         <Link to="/admin/products/new" className="btn-primary">

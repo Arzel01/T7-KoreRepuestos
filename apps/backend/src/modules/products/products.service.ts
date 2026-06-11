@@ -12,6 +12,9 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './entities/product.entity';
 import { ProductsRepository } from './products.repository';
 
+import type { QueryProductsDto } from './dto/query-products.dto';
+import type { PaginatedResult } from '@kore/shared';
+
 /**
  * Servicio de dominio del catálogo.
  *
@@ -67,8 +70,9 @@ export class ProductsService {
     return product;
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.productsRepository.findAll({ isActive: true });
+  /** Catálogo público: filtros + búsqueda + paginación delegados al repositorio. */
+  async findCatalog(query: QueryProductsDto): Promise<PaginatedResult<Product>> {
+    return this.productsRepository.findCatalog(query);
   }
 
   // ----------------------------------------------------------------------

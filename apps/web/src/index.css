@@ -85,6 +85,12 @@
     --chart-4: oklch(0.371 0 0);
     --chart-5: oklch(0.269 0 0);
     --radius: 0.625rem;
+    /* Derivadas usadas por los size-variants de button.tsx (rounded-[min(var(--radius-md),…)]).
+       shadcn/tailwind.css (sintaxis TW v4) no las define en este setup TW v3. */
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
     --sidebar-primary: oklch(0.205 0 0);
@@ -127,6 +133,28 @@
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
   }
+  /* --------------------------------------------------------------------------
+     Tema claro del STOREFRONT público (catálogo en `/`).
+     Scoped a `.storefront`: hereda las vars claras de :root y solo pisa el
+     color de acción → azul corporativo. El admin/auth (oscuro) no se toca.
+     -------------------------------------------------------------------------- */
+  .storefront {
+    --primary: oklch(0.546 0.245 262.88); /* ≈ #2563eb */
+    --primary-foreground: oklch(0.985 0 0);
+    --ring: oklch(0.623 0.214 259.81);
+    --accent: oklch(0.951 0.026 236.82); /* azul muy claro para hovers */
+    --accent-foreground: oklch(0.379 0.146 265.52);
+  }
+
+  /* Neutralizar las fugas del tema oscuro global dentro del storefront */
+  .storefront input,
+  .storefront textarea {
+    caret-color: oklch(0.546 0.245 262.88);
+  }
+  .storefront *:focus-visible {
+    outline-color: oklch(0.546 0.245 262.88);
+  }
+
   * {
     @apply border-border;
   }

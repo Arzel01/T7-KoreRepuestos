@@ -10,6 +10,7 @@ import {
 } from 'class-validator';
 
 import type { ProductUnit } from '../enums/product-unit.enum';
+import type { PaginationParams } from '../interfaces/api-response.interface';
 
 export class CreateProductDto {
   @IsString()
@@ -71,6 +72,20 @@ export class UpdateProductDto {
   @IsOptional() unit?: ProductUnit;
   @IsOptional() @IsString() imageUrl?: string;
   @IsOptional() @IsBoolean() isActive?: boolean;
+}
+
+/**
+ * Parámetros de consulta del catálogo público (GET /products).
+ * Contrato de wire compartido entre backend (QueryProductsDto lo implementa)
+ * y frontend (productsApi.list lo consume) — alineación en compile-time.
+ * `categoryIds` viaja como string separado por comas en la URL.
+ */
+export interface ProductQueryParams extends PaginationParams {
+  search?: string;
+  categoryIds?: string[];
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
 }
 
 export interface ProductResponse {

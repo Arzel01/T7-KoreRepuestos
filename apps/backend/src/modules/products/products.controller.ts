@@ -8,6 +8,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -15,9 +16,11 @@ import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 
 import { CreateProductDto } from './dto/create-product.dto';
+import { QueryProductsDto } from './dto/query-products.dto';
 import { ProductsService } from './products.service';
 
 import type { Product } from './entities/product.entity';
+import type { PaginatedResult } from '@kore/shared';
 
 /**
  * API HTTP del catálogo de productos.
@@ -38,9 +41,9 @@ export class ProductsController {
 
   @Public()
   @Get()
-  @ApiOperation({ summary: 'Catálogo público de productos activos.' })
-  findAll(): Promise<Product[]> {
-    return this.productsService.findAll();
+  @ApiOperation({ summary: 'Catálogo público de productos activos (filtrable y paginado).' })
+  findAll(@Query() query: QueryProductsDto): Promise<PaginatedResult<Product>> {
+    return this.productsService.findCatalog(query);
   }
 
   @Public()

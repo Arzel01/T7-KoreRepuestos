@@ -34,7 +34,9 @@ describe('ProductsController POST /api/v1/products (e2e)', () => {
   });
 
   beforeEach(async () => {
-    await dataSource.query('TRUNCATE TABLE sessions, products, users RESTART IDENTITY CASCADE');
+    await dataSource.query(
+      'TRUNCATE TABLE sessions, products, product_categories, users RESTART IDENTITY CASCADE',
+    );
 
     // Creamos un admin INSERTANDO directo en BD para saltar el flujo
     // de "register devuelve cliente". Luego logueamos para obtener el JWT.

@@ -1,6 +1,11 @@
 import { api } from '@/lib/api-client';
 
-import type { ProductResponse } from '@kore/shared';
+import type {
+  CategoryResponse,
+  PaginatedResult,
+  ProductQueryParams,
+  ProductResponse,
+} from '@kore/shared';
 
 export interface CreateProductPayload {
   sku: string;
@@ -16,21 +21,29 @@ export interface CreateProductPayload {
   imageUrl?: string;
 }
 
-export interface CategoryDto {
-  id: string;
-  name: string;
-  slug: string;
-  parentId?: string | null;
+/**
+ * Serializa los params del catálogo para la URL: `categoryIds` viaja como
+ * string separado por comas y los valores undefined se omiten (axios los
+ * descarta, y el backend rechaza params desconocidos/vacíos).
+ */
+function toQueryParams(params?: ProductQueryParams): Record<string, unknown> | undefined {
+  if (!params) return undefined;
+  const { categoryIds, ...rest } = params;
+  return {
+    ...rest,
+    categoryIds: categoryIds?.length ? categoryIds.join(',') : undefined,
+  };
 }
 
 export const productsApi = {
-  list: (): Promise<ProductResponse[]> => api.get('/products'),
+  list: (params?: ProductQueryParams): Promise<PaginatedResult<ProductResponse>> =>
+    api.get('/products', toQueryParams(params)),
   getById: (id: string): Promise<ProductResponse> => api.get(`/products/${id}`),
   create: (payload: CreateProductPayload): Promise<ProductResponse> =>
     api.post('/products', payload),
 };
 
 export const categoriesApi = {
-  list: (): Promise<CategoryDto[]> => api.get('/categories'),
-  tree: (): Promise<CategoryDto[]> => api.get('/categories/tree'),
+  list: (): Promise<CategoryResponse[]> => api.get('/categories'),
+  tree: (): Promise<CategoryResponse[]> => api.get('/categories/tree'),
 };

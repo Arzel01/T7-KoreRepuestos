@@ -6,7 +6,7 @@ import { ProductCreatePage } from '@/app/admin/products/ProductCreatePage';
 import { ProductsListPage } from '@/app/admin/products/ProductsListPage';
 import { LoginPage } from '@/app/auth/LoginPage';
 import { RegisterPage } from '@/app/auth/RegisterPage';
-import { HomePage } from '@/app/HomePage';
+import { CatalogPage } from '@/app/CatalogPage';
 import { NotFoundPage } from '@/app/NotFoundPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AdminLayout } from '@/layouts/AdminLayout';
@@ -15,7 +15,7 @@ import { AdminLayout } from '@/layouts/AdminLayout';
  * Mapa de rutas de la aplicación.
  *
  * Convenciones:
- *   · `/`                  → landing pública
+ *   · `/`                  → catálogo público (storefront)
  *   · `/auth/*`            → flujos no autenticados (login, registro)
  *   · `/admin/*`           → panel administrativo · requiere JWT + rol ADMIN
  *   · `*`                  → 404
@@ -28,7 +28,7 @@ export function AppRouter(): JSX.Element {
   return (
     <Routes>
       {/* ── Públicas ───────────────────────────────────────────────────── */}
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<CatalogPage />} />
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/register" element={<RegisterPage />} />
 
