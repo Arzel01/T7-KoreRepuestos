@@ -4,6 +4,12 @@ export class InitialSchema1781137369796 implements MigrationInterface {
   name = 'InitialSchema1781137369796';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    // Extensiones requeridas por el esquema: uuid_generate_v4() y el tipo citext.
+    // Idempotentes — en Supabase citext no viene habilitado por defecto.
+    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "citext"`);
+    // pg_trgm: requerido por similarity() en ProductsRepository.searchByName.
+    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "pg_trgm"`);
     await queryRunner.query(
       `CREATE TYPE "public"."users_role_enum" AS ENUM('admin', 'cliente', 'asesor')`,
     );

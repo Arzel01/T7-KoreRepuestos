@@ -119,7 +119,7 @@ jobs:
       DB_USERNAME: kore_user
       DB_PASSWORD: kore_password
       DB_NAME: kore_test
-      DB_SYNCHRONIZE: 'true'
+      DB_SYNCHRONIZE: 'false'
       JWT_SECRET: ci-jwt-secret-do-not-use-in-prod-32-chars-min
       JWT_EXPIRES_IN: 1h
       JWT_REFRESH_SECRET: ci-jwt-refresh-secret-do-not-use-in-prod-32-chars-min
@@ -138,10 +138,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build:shared
 
-      - name: Apply DB schema
-        run: |
-          PGPASSWORD=kore_password psql -h localhost -U kore_user -d kore_test \
-            -f docker/postgres/init.sql
+      # Aplica el esquema con las migraciones TypeORM reales — las mismas que
+      # se ejecutan contra Supabase. Así CI valida la migración, no un SQL paralelo.
+      - name: Apply DB schema (TypeORM migrations)
+        run: pnpm --filter @kore/backend migration:run
 
       - name: Unit tests
         run: pnpm --filter @kore/backend test
