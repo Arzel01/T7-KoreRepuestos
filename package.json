@@ -12,7 +12,7 @@
     "dev:backend": "pnpm --filter @kore/backend start:dev",
     "dev:web": "pnpm --filter @kore/web dev",
     "build": "pnpm -r build",
-    "build:backend": "pnpm --filter @kore/backend build",
+    "build:backend": "pnpm build:shared && pnpm --filter @kore/backend build",
     "build:web": "pnpm --filter @kore/web build",
     "build:shared": "pnpm --filter @kore/shared build",
     "lint": "eslint \"{apps,packages}/**/*.{ts,tsx}\" --max-warnings=0",

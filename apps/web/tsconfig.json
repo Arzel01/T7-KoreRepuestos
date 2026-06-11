@@ -15,7 +15,7 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
-      "@kore/shared": ["../../packages/shared/src/index"],
+      "@kore/shared": ["../../packages/shared/src/index.ts"],
       "@kore/shared/*": ["../../packages/shared/src/*"]
     }
   },
