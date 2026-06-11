@@ -64,17 +64,26 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 DATABASE_URL=postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres
 ```
 
-### 3. Ejecutar migraciones
+### 3. Compilar el paquete compartido
 
-> Requiere `DATABASE_URL` configurado en el paso anterior.
+El backend consume `@kore/shared` ya compilado, por lo que es necesario al clonar
+el repo o tras modificar `packages/shared` (el frontend lo lee directo del código
+fuente, no requiere este paso):
 
 ```powershell
-# Solo la primera vez (o al clonar el repo)
-pnpm build:backend
+pnpm build:shared
+```
+
+### 4. Ejecutar migraciones
+
+> Requiere `DATABASE_URL` configurado en el paso 2. Solo la primera vez
+> (o cuando existan migraciones nuevas).
+
+```powershell
 pnpm --filter @kore/backend migration:run
 ```
 
-### 4. Levantar servidores de desarrollo
+### 5. Levantar servidores de desarrollo
 
 **Terminal 1 — Backend:**
 
