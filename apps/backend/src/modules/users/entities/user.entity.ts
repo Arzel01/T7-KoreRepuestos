@@ -2,56 +2,48 @@ import { UserRole } from '@kore/shared';
 import {
   Column,
   CreateDateColumn,
-  DeleteDateColumn,
   Entity,
-  Index,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 /**
  * Entidad de dominio: Usuario del sistema.
- * Mapea 1:1 contra la tabla `users` creada por `docker/postgres/init.sql`.
+ * Mapea contra la tabla `usuarios` del schema real.
+ *
+ * Los campos `firstName`/`lastName` del API se combinan en `nombres`
+ * al persistir y se separan por el primer espacio al leer.
  */
-@Entity({ name: 'users' })
+@Entity({ name: 'usuarios' })
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn({ name: 'id_usuario' })
+  id!: number;
 
-  @Index({ unique: true })
-  @Column({ type: 'citext' })
+  @Column({ type: 'varchar', name: 'rol', default: UserRole.CLIENTE })
+  role!: UserRole;
+
+  @Column({ type: 'varchar', unique: true })
   email!: string;
 
-  @Column({ name: 'password_hash', length: 255 })
+  @Column({ name: 'password_hash' })
   passwordHash!: string;
 
-  @Column({ name: 'first_name', length: 100 })
-  firstName!: string;
+  /** Nombre completo almacenado en un solo campo. El servicio combina firstName + lastName. */
+  @Column({ type: 'varchar' })
+  nombres!: string;
 
-  @Column({ name: 'last_name', length: 100 })
-  lastName!: string;
+  @Column({ type: 'varchar', nullable: true })
+  telefono?: string;
 
-  @Column({ length: 30, nullable: true })
-  phone?: string;
-
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.CLIENTE })
-  role!: UserRole;
+  @Column({ type: 'text', nullable: true })
+  direccion?: string;
 
   @Column({ name: 'is_active', default: true })
   isActive!: boolean;
 
-  @Column({ name: 'email_verified', default: false })
-  emailVerified!: boolean;
+  @CreateDateColumn({ name: 'creado_en', type: 'timestamp' })
+  creadoEn!: Date;
 
-  @Column({ name: 'last_login_at', type: 'timestamptz', nullable: true })
-  lastLoginAt?: Date;
-
-  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
-  updatedAt!: Date;
-
-  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
-  deletedAt?: Date;
+  @UpdateDateColumn({ name: 'actualizado_en', type: 'timestamp' })
+  actualizadoEn!: Date;
 }

@@ -6,7 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Post,
   Query,
 } from '@nestjs/common';
@@ -22,18 +22,6 @@ import { ProductsService } from './products.service';
 import type { Product } from './entities/product.entity';
 import type { PaginatedResult } from '@kore/shared';
 
-/**
- * API HTTP del catálogo de productos.
- *
- * Reglas de Sprint 1:
- *   · GET  /api/v1/products        → público (catálogo visible para clientes).
- *   · GET  /api/v1/products/:id    → público.
- *   · POST /api/v1/products        → protegido + rol ADMIN.
- *
- * La protección es declarativa: `@Roles(UserRole.ADMIN)` se combina con
- * el `RolesGuard` global registrado en `AuthModule` para devolver 403 si
- * el JWT corresponde a un usuario sin rol admin.
- */
 @ApiTags('products')
 @Controller('products')
 export class ProductsController {
@@ -49,15 +37,15 @@ export class ProductsController {
   @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Detalle público de un producto.' })
-  findOne(@Param('id', new ParseUUIDPipe()) id: string): Promise<Product> {
+  findOne(@Param('id', new ParseIntPipe()) id: number): Promise<Product> {
     return this.productsService.findById(id);
   }
 
   @Post()
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMINISTRADOR)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Crea un producto. Requiere rol ADMIN.' })
+  @ApiOperation({ summary: 'Crea un producto. Requiere rol Administrador.' })
   create(@Body() dto: CreateProductDto): Promise<Product> {
     return this.productsService.create(dto);
   }

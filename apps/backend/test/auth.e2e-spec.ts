@@ -36,7 +36,7 @@ describe('AuthController (e2e)', () => {
 
   beforeEach(async () => {
     // Aislamiento por test: borra usuarios y sesiones residuales.
-    await dataSource.query('TRUNCATE TABLE sessions, users RESTART IDENTITY CASCADE');
+    await dataSource.query('TRUNCATE TABLE sesiones, usuarios RESTART IDENTITY CASCADE');
   });
 
   // ---------------------------------------------------------------------------
@@ -60,7 +60,7 @@ describe('AuthController (e2e)', () => {
         user: {
           email: validPayload.email,
           firstName: validPayload.firstName,
-          role: 'cliente',
+          role: 'Cliente',
         },
         tokens: {
           accessToken: expect.any(String),
@@ -183,7 +183,7 @@ describe('AuthController (e2e)', () => {
       expect(res.body).toMatchObject({
         sub: expect.any(String),
         email: 'me@kore.test',
-        role: 'cliente',
+        role: 'Cliente',
       });
     });
   });

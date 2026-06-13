@@ -61,7 +61,6 @@ export function ProductsListPage(): JSX.Element {
             <tr className="font-mono text-eyebrow uppercase tracking-eyebrow">
               <th className="px-4 py-3 font-medium">SKU</th>
               <th className="px-4 py-3 font-medium">Nombre</th>
-              <th className="px-4 py-3 font-medium">Marca</th>
               <th className="px-4 py-3 text-right font-medium">Precio</th>
               <th className="px-4 py-3 text-right font-medium">Stock</th>
               <th className="px-4 py-3 font-medium">Estado</th>
@@ -70,7 +69,7 @@ export function ProductsListPage(): JSX.Element {
           <tbody>
             {items.length === 0 && !loading && (
               <tr>
-                <td colSpan={6} className="px-4 py-12 text-center font-mono text-xs text-ink-500">
+                <td colSpan={5} className="px-4 py-12 text-center font-mono text-xs text-ink-500">
                   ── Aún no hay productos. Cree el primero. ──
                 </td>
               </tr>
@@ -82,17 +81,10 @@ export function ProductsListPage(): JSX.Element {
               >
                 <td className="px-4 py-3 font-mono text-sm text-signal-500">{p.sku}</td>
                 <td className="px-4 py-3 text-sm text-ink-100">{p.name}</td>
-                <td className="px-4 py-3 text-sm text-ink-300">{p.brand ?? '—'}</td>
                 <td className="px-4 py-3 text-right font-mono text-sm text-ink-100">
                   S/ {p.price.toFixed(2)}
                 </td>
-                <td
-                  className={`px-4 py-3 text-right font-mono text-sm ${
-                    p.stock <= p.minStock ? 'text-warning-400' : 'text-ink-100'
-                  }`}
-                >
-                  {p.stock}
-                </td>
+                <td className="px-4 py-3 text-right font-mono text-sm text-ink-100">{p.stock}</td>
                 <td className="px-4 py-3">
                   <span
                     className={`tag ${

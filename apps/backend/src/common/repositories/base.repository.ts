@@ -6,15 +6,14 @@ import type { DeepPartial, FindOptionsWhere, ObjectLiteral, Repository } from 't
 /**
  * Implementación base abstracta del patrón Repository sobre TypeORM.
  *
- * Provee las operaciones CRUD genéricas a cualquier repositorio concreto
- * (UsersRepository, ProductsRepository, etc.). Las clases derivadas solo
- * deben implementar métodos específicos del dominio (p. ej. findByEmail).
- *
- * Se inyecta vía Dependency Injection de NestJS — el contenedor resuelve
- * el `Repository<T>` desde `@nestjs/typeorm`, cerrando el ciclo de DI
- * sin acoplar el dominio al ORM.
+ * @typeParam T  - Entidad gestionada.
+ * @typeParam ID - Tipo del identificador primario. `string` para UUIDs,
+ *                `number` para secuencias integer (schema real en español).
  */
-export abstract class BaseRepository<T extends ObjectLiteral> implements IRepository<T> {
+export abstract class BaseRepository<
+  T extends ObjectLiteral,
+  ID extends string | number = string,
+> implements IRepository<T, ID> {
   protected constructor(protected readonly repository: Repository<T>) {}
 
   async findAll(filter?: Partial<T>): Promise<T[]> {
@@ -23,7 +22,7 @@ export abstract class BaseRepository<T extends ObjectLiteral> implements IReposi
     });
   }
 
-  async findById(id: string): Promise<T | null> {
+  async findById(id: ID): Promise<T | null> {
     return this.repository.findOne({
       where: { id } as unknown as FindOptionsWhere<T>,
     });
@@ -40,8 +39,11 @@ export abstract class BaseRepository<T extends ObjectLiteral> implements IReposi
     return this.repository.save(entity);
   }
 
-  async update(id: string, data: Partial<T>): Promise<T> {
-    await this.repository.update(id, data as Parameters<Repository<T>['update']>[1]);
+  async update(id: ID, data: Partial<T>): Promise<T> {
+    await this.repository.update(
+      id as string | number,
+      data as Parameters<Repository<T>['update']>[1],
+    );
     const updated = await this.findById(id);
     if (!updated) {
       throw new NotFoundException(`Entidad con id "${id}" no encontrada tras update`);
@@ -49,8 +51,8 @@ export abstract class BaseRepository<T extends ObjectLiteral> implements IReposi
     return updated;
   }
 
-  async delete(id: string): Promise<boolean> {
-    const result = await this.repository.delete(id);
+  async delete(id: ID): Promise<boolean> {
+    const result = await this.repository.delete(id as string | number);
     return (result.affected ?? 0) > 0;
   }
 

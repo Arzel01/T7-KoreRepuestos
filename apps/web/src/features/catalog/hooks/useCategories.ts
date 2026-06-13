@@ -18,7 +18,7 @@ export function useCategories(): { categories: CategoryResponse[]; loading: bool
     categoriesApi
       .list()
       .then((list) => {
-        if (!cancelled) setCategories(list.filter((c) => c.isActive));
+        if (!cancelled) setCategories(list);
       })
       .catch(() => undefined)
       .finally(() => {

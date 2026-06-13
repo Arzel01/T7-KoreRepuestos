@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { Public } from '../../common/decorators/public.decorator';
@@ -7,10 +7,6 @@ import { CategoriesService } from './categories.service';
 
 import type { Category } from './entities/category.entity';
 
-/**
- * Lectura pública del catálogo jerárquico de categorías.
- * Los endpoints de mutación quedan fuera del Sprint 1.
- */
 @ApiTags('categories')
 @Controller('categories')
 export class CategoriesController {
@@ -33,7 +29,7 @@ export class CategoriesController {
   @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Detalle de una categoría con sus hijos directos.' })
-  findOne(@Param('id', new ParseUUIDPipe()) id: string): Promise<Category> {
+  findOne(@Param('id', new ParseIntPipe()) id: number): Promise<Category> {
     return this.categoriesService.findById(id);
   }
 }

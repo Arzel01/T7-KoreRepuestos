@@ -1,25 +1,8 @@
-import { ProductUnit, type CategoryResponse } from '@kore/shared';
+import { type CategoryResponse } from '@kore/shared';
 import { useEffect, useState, type FormEvent } from 'react';
 
 import { categoriesApi, type CreateProductPayload } from '../server/products.api';
 
-/**
- * Formulario interactivo de creación de productos (US#45).
- *
- * Validación cliente sincronizada con `CreateProductDto`:
- *   · sku   no vacío, solo [A-Z0-9-]
- *   · name  no vacío
- *   · price > 0
- *   · stock > 0
- *
- * El cliente no es la fuente de verdad — el backend reaplica todas las
- * reglas con `class-validator`. Aquí buscamos UX: feedback inmediato y
- * evitar roundtrips obvios.
- *
- * El componente es controlado por su parent (recibe `onSubmit`). Esto lo
- * mantiene desacoplado: una página `ProductCreatePage` decide qué hacer
- * con el payload (crear, mostrar toast, navegar).
- */
 interface ProductFormProps {
   onSubmit: (payload: CreateProductPayload) => Promise<void>;
   isSubmitting: boolean;
@@ -38,18 +21,12 @@ export function ProductForm({
     sku: '',
     name: '',
     description: '',
-    brand: '',
     categoryId: '',
     price: '',
-    cost: '',
     stock: '',
-    minStock: '',
-    unit: ProductUnit.UNIDAD as string,
-    imageUrl: '',
   });
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  // -------------------- Carga inicial de categorías --------------------
   useEffect(() => {
     let cancelled = false;
     void categoriesApi.list().then((list) => {
@@ -60,7 +37,6 @@ export function ProductForm({
     };
   }, []);
 
-  // -------------------- Reglas de validación cliente -------------------
   const errors = {
     sku: !form.sku.trim()
       ? 'SKU obligatorio'
@@ -75,20 +51,10 @@ export function ProductForm({
         : !/^\d+(\.\d{1,2})?$/.test(form.price)
           ? 'Máximo 2 decimales'
           : null,
-    cost:
-      form.cost && Number(form.cost) <= 0
-        ? 'El costo, si se indica, debe ser mayor que cero'
-        : null,
     stock: !form.stock
       ? 'Stock obligatorio'
       : !/^\d+$/.test(form.stock)
         ? 'Stock debe ser un entero'
-        : Number(form.stock) <= 0
-          ? 'El stock debe ser mayor que cero'
-          : null,
-    minStock:
-      form.minStock && (!/^\d+$/.test(form.minStock) || Number(form.minStock) < 0)
-        ? 'Stock mínimo debe ser ≥ 0'
         : null,
   } as const;
 
@@ -109,26 +75,20 @@ export function ProductForm({
       sku: form.sku.trim().toUpperCase(),
       name: form.name.trim(),
       description: form.description.trim() || undefined,
-      brand: form.brand.trim() || undefined,
-      categoryId: form.categoryId || undefined,
+      categoryId: form.categoryId ? Number(form.categoryId) : undefined,
       price: Number(form.price),
-      cost: form.cost ? Number(form.cost) : undefined,
       stock: Number(form.stock),
-      minStock: form.minStock ? Number(form.minStock) : undefined,
-      unit: form.unit,
-      imageUrl: form.imageUrl.trim() || undefined,
     };
     await onSubmit(payload);
   }
 
-  // Helper inline para tocar y mostrar errores tras blur.
   const blur = (k: string) => () => setTouched((t) => ({ ...t, [k]: true }));
   const showError = (k: keyof typeof errors): string | null =>
     touched[k] ? (errors[k] ?? null) : null;
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-8">
-      {/* ─────────────── SKU + Nombre ─────────────── */}
+      {/* SKU + Nombre */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_2fr]">
         <Field id="sku" label="SKU" step="01" required error={showError('sku')}>
           <input
@@ -156,7 +116,7 @@ export function ProductForm({
         </Field>
       </div>
 
-      {/* ─────────────── Descripción ─────────────── */}
+      {/* Descripción */}
       <Field id="description" label="Descripción" step="03">
         <textarea
           id="description"
@@ -168,43 +128,29 @@ export function ProductForm({
         />
       </Field>
 
-      {/* ─────────────── Marca + Categoría ─────────────── */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <Field id="brand" label="Marca" step="04">
-          <input
-            id="brand"
-            type="text"
-            value={form.brand}
-            onChange={(e) => update('brand', e.target.value)}
-            className="input-technical mt-3"
-            placeholder="Bosch / NGK / KYB…"
-            autoComplete="off"
-          />
-        </Field>
-        <Field id="categoryId" label="Categoría" step="05">
-          <select
-            id="categoryId"
-            value={form.categoryId}
-            onChange={(e) => update('categoryId', e.target.value)}
-            className="input-technical mt-3"
-          >
-            <option value="">— sin categoría —</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
+      {/* Categoría */}
+      <Field id="categoryId" label="Categoría" step="04">
+        <select
+          id="categoryId"
+          value={form.categoryId}
+          onChange={(e) => update('categoryId', e.target.value)}
+          className="input-technical mt-3"
+        >
+          <option value="">— sin categoría —</option>
+          {categories.map((c) => (
+            <option key={c.id} value={String(c.id)}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </Field>
 
-      {/* ─────────────── Bloque numérico (sello técnico) ─────────────── */}
+      {/* Datos comerciales */}
       <fieldset className="border border-ink-700 p-6">
         <legend className="px-2 font-mono text-eyebrow uppercase tracking-eyebrow text-signal-500">
-          06 → Datos comerciales
+          05 → Datos comerciales
         </legend>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <Field id="price" label="Precio (S/)" step="" required error={showError('price')}>
             <input
               id="price"
@@ -219,81 +165,23 @@ export function ProductForm({
               inputMode="decimal"
             />
           </Field>
-
-          <Field id="cost" label="Costo (S/)" step="" error={showError('cost')}>
-            <input
-              id="cost"
-              type="number"
-              step="0.01"
-              min="0.01"
-              value={form.cost}
-              onChange={(e) => update('cost', e.target.value)}
-              onBlur={blur('cost')}
-              className="input-technical mt-3 num"
-              placeholder="0.00"
-              inputMode="decimal"
-            />
-          </Field>
-
           <Field id="stock" label="Stock inicial" step="" required error={showError('stock')}>
             <input
               id="stock"
               type="number"
               step="1"
-              min="1"
+              min="0"
               value={form.stock}
               onChange={(e) => update('stock', e.target.value)}
               onBlur={blur('stock')}
-              className="input-technical mt-3 num"
-              placeholder="1"
-              inputMode="numeric"
-            />
-          </Field>
-
-          <Field id="minStock" label="Stock mínimo" step="" error={showError('minStock')}>
-            <input
-              id="minStock"
-              type="number"
-              step="1"
-              min="0"
-              value={form.minStock}
-              onChange={(e) => update('minStock', e.target.value)}
-              onBlur={blur('minStock')}
               className="input-technical mt-3 num"
               placeholder="0"
               inputMode="numeric"
             />
           </Field>
         </div>
-
-        <Field id="unit" label="Unidad" step="" className="mt-6">
-          <select
-            id="unit"
-            value={form.unit}
-            onChange={(e) => update('unit', e.target.value)}
-            className="input-technical mt-3 max-w-xs"
-          >
-            {Object.values(ProductUnit).map((u) => (
-              <option key={u} value={u}>
-                {u}
-              </option>
-            ))}
-          </select>
-        </Field>
       </fieldset>
 
-      <Field id="imageUrl" label="URL de imagen (opcional)" step="07">
-        <input
-          id="imageUrl"
-          type="url"
-          value={form.imageUrl}
-          onChange={(e) => update('imageUrl', e.target.value)}
-          className="input-technical mt-3"
-          placeholder="https://cdn.kore.local/..."
-        />
-      </Field>
-
-      {/* ─────────────── Error global del backend ─────────────── */}
       {submitError && (
         <div
           role="alert"
@@ -303,7 +191,6 @@ export function ProductForm({
         </div>
       )}
 
-      {/* ─────────────── Acciones ─────────────── */}
       <div className="flex items-center justify-end gap-4 border-t border-ink-700 pt-6">
         <button type="reset" className="btn-ghost" disabled={isSubmitting}>
           Limpiar
@@ -317,9 +204,6 @@ export function ProductForm({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Field — wrapper de etiqueta + error consistente para todo el formulario
-// ---------------------------------------------------------------------------
 interface FieldProps {
   id: string;
   label: string;

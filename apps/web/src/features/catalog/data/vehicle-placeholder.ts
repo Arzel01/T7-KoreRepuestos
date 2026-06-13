@@ -28,10 +28,11 @@ export interface PlaceholderRating {
  * siempre muestra las mismas estrellas (evita parpadeos entre renders y
  * resultados distintos por usuario).
  */
-export function getPlaceholderRating(productId: string): PlaceholderRating {
+export function getPlaceholderRating(productId: number | string): PlaceholderRating {
+  const str = String(productId);
   let hash = 0;
-  for (let i = 0; i < productId.length; i++) {
-    hash = (hash * 31 + productId.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
   }
   return {
     stars: 3.5 + (hash % 4) * 0.5,

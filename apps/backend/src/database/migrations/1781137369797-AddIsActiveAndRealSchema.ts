@@ -1,28 +1,22 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 /**
- * Migración de bootstrap.
+ * Garantiza que el schema del backend está completo:
+ *  • Crea las tablas reales (IF NOT EXISTS) para el Postgres efímero de CI.
+ *  • Añade is_active a usuarios (ADD COLUMN IF NOT EXISTS) para Supabase,
+ *    donde la tabla ya existía pero sin esa columna.
  *
- * En Supabase las tablas del negocio ya existen (schema real en español);
- * el `CREATE TABLE IF NOT EXISTS` las deja intactas.
- *
- * En el Postgres efímero de CI (e2e) esta migración crea el schema completo
- * que necesita el backend: usuarios, categorias, productos y sesiones.
+ * Idempotente — seguro de ejecutar en cualquier entorno.
  */
-export class InitialSchema1781137369796 implements MigrationInterface {
-  name = 'InitialSchema1781137369796';
+export class AddIsActiveAndRealSchema1781137369797 implements MigrationInterface {
+  name = 'AddIsActiveAndRealSchema1781137369797';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // ── Extensiones (idempotentes) ──────────────────────────────────────
-    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`);
+    // Extensiones (idempotentes)
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "citext"`);
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "pg_trgm"`);
 
-    // Limpiar tipo residual de la migración antigua si quedó en la BD
-    await queryRunner.query(`DROP TYPE IF EXISTS "public"."users_role_enum"`);
-
-    // ── Tablas del schema real ──────────────────────────────────────────
-
+    // Tabla usuarios — crea en CI, no-op en Supabase (ya existe)
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS public.usuarios (
         id_usuario     serial PRIMARY KEY,
@@ -33,12 +27,18 @@ export class InitialSchema1781137369796 implements MigrationInterface {
         nombres        varchar NOT NULL,
         telefono       varchar,
         direccion      text,
-        is_active      boolean NOT NULL DEFAULT true,
         creado_en      timestamp DEFAULT NOW(),
         actualizado_en timestamp DEFAULT NOW()
       )
     `);
 
+    // is_active — añade en Supabase donde no existe; no-op si ya está
+    await queryRunner.query(`
+      ALTER TABLE public.usuarios
+        ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true
+    `);
+
+    // Tabla categorias
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS public.categorias (
         id_categoria        serial PRIMARY KEY,
@@ -48,6 +48,7 @@ export class InitialSchema1781137369796 implements MigrationInterface {
       )
     `);
 
+    // Tabla productos
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS public.productos (
         id_producto   serial PRIMARY KEY,
@@ -63,6 +64,7 @@ export class InitialSchema1781137369796 implements MigrationInterface {
       )
     `);
 
+    // Tabla sesiones
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS public.sesiones (
         id_sesion           serial PRIMARY KEY,
@@ -85,20 +87,9 @@ export class InitialSchema1781137369796 implements MigrationInterface {
       CREATE INDEX IF NOT EXISTS idx_sesiones_id_usuario
         ON public.sesiones(id_usuario)
     `);
-
-    // Añadir is_active a usuarios si ya existía sin esa columna (Supabase real)
-    await queryRunner.query(`
-      ALTER TABLE public.usuarios
-        ADD COLUMN IF NOT EXISTS is_active boolean NOT NULL DEFAULT true
-    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX IF EXISTS public.idx_sesiones_id_usuario`);
-    await queryRunner.query(`DROP INDEX IF EXISTS public.idx_sesiones_refresh_hash`);
-    await queryRunner.query(`DROP TABLE IF EXISTS public.sesiones`);
-    await queryRunner.query(`DROP TABLE IF EXISTS public.productos`);
-    await queryRunner.query(`DROP TABLE IF EXISTS public.categorias`);
-    await queryRunner.query(`DROP TABLE IF EXISTS public.usuarios`);
+    await queryRunner.query(`ALTER TABLE public.usuarios DROP COLUMN IF EXISTS is_active`);
   }
 }

@@ -7,46 +7,36 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
   Length,
   Max,
   Min,
 } from 'class-validator';
 
-import type { ProductQueryParams } from '@kore/shared';
-
 const SORTABLE_COLUMNS = ['name', 'price', 'createdAt'] as const;
 export type ProductSortBy = (typeof SORTABLE_COLUMNS)[number];
 
-/**
- * Query params del catálogo público (GET /products).
- *
- * `implements ProductQueryParams` garantiza en compile-time que el contrato
- * de wire coincide con lo que el frontend envía (paquete @kore/shared).
- *
- * Los defaults funcionan porque el ValidationPipe global corre con
- * `transform: true` (instancia la clase) — ver `main.ts`.
- */
-export class QueryProductsDto implements ProductQueryParams {
+// Nota: no implementa ProductQueryParams directamente porque categoryIds
+// se transforma de string[] (URL) a number[] (schema real) en el DTO.
+export class QueryProductsDto {
   @IsOptional()
   @IsString()
   @Length(1, 100)
   search?: string;
 
   /**
-   * Acepta tanto `?categoryIds=a,b,c` como `?categoryIds=a&categoryIds=b`.
-   * `filter(Boolean)` descarta vacíos: `?categoryIds=` deviene `[]`,
-   * que el repositorio interpreta como "sin filtro" (evita `IN ()` inválido).
+   * Acepta `?categoryIds=1,2,3` o `?categoryIds=1&categoryIds=2`.
+   * Los IDs son enteros (PK integer del schema real).
    */
   @IsOptional()
   @Transform(({ value }: { value: unknown }) =>
     (Array.isArray(value) ? value : String(value).split(','))
-      .map((v: string) => v.trim())
-      .filter(Boolean),
+      .map((v: string) => parseInt(v.trim(), 10))
+      .filter((n: number) => !isNaN(n)),
   )
   @IsArray()
-  @IsUUID('4', { each: true })
-  categoryIds?: string[];
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  categoryIds?: number[];
 
   @IsOptional()
   @Type(() => Number)
@@ -60,12 +50,6 @@ export class QueryProductsDto implements ProductQueryParams {
   @Min(0)
   maxPrice?: number;
 
-  /**
-   * Transform explícito leyendo de `obj` (el query crudo): con
-   * `enableImplicitConversion`, `value` llega YA convertido — el string
-   * 'false' se vuelve `true` (string no vacío → truthy). `obj.inStock`
-   * conserva el string original y permite resolver el booleano bien.
-   */
   @IsOptional()
   @Transform(({ obj }: { obj: Record<string, unknown> }) => {
     const raw = obj.inStock;

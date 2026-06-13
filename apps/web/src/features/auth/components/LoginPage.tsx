@@ -31,7 +31,7 @@ export function LoginPage(): JSX.Element {
     setError(null);
     try {
       const user = await login({ email, password });
-      const destination = user.role === UserRole.ADMIN ? redirectTo : '/';
+      const destination = user.role === UserRole.ADMINISTRADOR ? redirectTo : '/';
       navigate(destination, { replace: true });
     } catch (err) {
       setError(extractApiErrorMessage(err));

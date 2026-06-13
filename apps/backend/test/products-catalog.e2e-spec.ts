@@ -22,8 +22,8 @@ import type { DataSource } from 'typeorm';
 describe('ProductsController GET /api/v1/products — catálogo (e2e)', () => {
   let app: INestApplication;
   let dataSource: DataSource;
-  let frenosId: string;
-  let filtrosId: string;
+  let frenosId: number;
+  let filtrosId: number;
 
   beforeAll(async () => {
     app = await createTestingApp();
@@ -36,19 +36,19 @@ describe('ProductsController GET /api/v1/products — catálogo (e2e)', () => {
 
   beforeEach(async () => {
     await dataSource.query(
-      'TRUNCATE TABLE sessions, products, product_categories, users RESTART IDENTITY CASCADE',
+      'TRUNCATE TABLE sesiones, productos, categorias, usuarios RESTART IDENTITY CASCADE',
     );
 
-    const cats: Array<{ id: string }> = await dataSource.query(
-      `INSERT INTO product_categories (name, slug)
-       VALUES ('Frenos', 'frenos'), ('Filtros', 'filtros')
-       RETURNING id`,
+    const cats: Array<{ id_categoria: number }> = await dataSource.query(
+      `INSERT INTO categorias (nombre)
+       VALUES ('Frenos'), ('Filtros')
+       RETURNING id_categoria`,
     );
-    [frenosId, filtrosId] = [cats[0].id, cats[1].id];
+    [frenosId, filtrosId] = [cats[0].id_categoria, cats[1].id_categoria];
 
     // 5 productos activos (uno sin stock) + 1 inactivo.
     await dataSource.query(
-      `INSERT INTO products (sku, name, category_id, price, stock, is_active) VALUES
+      `INSERT INTO productos (sku, nombre, id_categoria, precio_base, stock_actual, is_active) VALUES
        ('FIL-001', 'Filtro de aceite',   $2, 10.00,  45, TRUE),
        ('FIL-002', 'Filtro de aire',     $2, 50.00,  10, TRUE),
        ('FRE-001', 'Pastilla de freno',  $1, 200.00,  5, TRUE),
@@ -174,8 +174,9 @@ describe('ProductsController GET /api/v1/products — catálogo (e2e)', () => {
   // ---------------------------------------------------------------------------
   // Validación
   // ---------------------------------------------------------------------------
-  it('rechaza categoryIds que no son UUID (400)', async () => {
-    await get('?categoryIds=not-a-uuid').expect(400);
+  it('rechaza categoryIds con valor 0 (inferior al mínimo permitido) (400)', async () => {
+    // El transform convierte strings a enteros; 0 pasa el parse pero falla @Min(1).
+    await get('?categoryIds=0').expect(400);
   });
 
   it('rechaza minPrice no numérico (400)', async () => {

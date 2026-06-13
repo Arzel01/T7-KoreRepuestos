@@ -1,9 +1,9 @@
 /**
- * Roles de usuario del sistema. Valores idénticos al ENUM `user_role`
- * definido en `docker/postgres/init.sql`.
+ * Roles de usuario del sistema. Valores idénticos al CHECK constraint
+ * definido en la tabla `usuarios` del schema real.
  */
 export enum UserRole {
-  ADMIN = 'admin',
-  CLIENTE = 'cliente',
-  ASESOR = 'asesor',
+  ADMINISTRADOR = 'Administrador',
+  ASESOR_COMERCIAL = 'Asesor Comercial',
+  CLIENTE = 'Cliente',
 }

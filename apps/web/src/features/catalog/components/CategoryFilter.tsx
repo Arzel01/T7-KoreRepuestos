@@ -34,8 +34,8 @@ export function CategoryFilter({
         <div key={cat.id} className="flex items-center gap-2">
           <Checkbox
             id={`cat-${cat.id}`}
-            checked={selectedIds.includes(cat.id)}
-            onCheckedChange={() => onToggle(cat.id)}
+            checked={selectedIds.includes(String(cat.id))}
+            onCheckedChange={() => onToggle(String(cat.id))}
           />
           <Label htmlFor={`cat-${cat.id}`} className="cursor-pointer text-sm font-normal">
             {cat.name}

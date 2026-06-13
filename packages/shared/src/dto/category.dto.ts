@@ -1,13 +1,6 @@
-/**
- * DTO público de categoría de producto, tal como lo expone GET /categories.
- * Compartido entre backend y frontend para mantener el contrato alineado.
- */
 export interface CategoryResponse {
-  id: string;
+  id: number;
   name: string;
-  slug: string;
-  parentId?: string | null;
-  description?: string;
-  isActive: boolean;
+  parentId?: number | null;
   children?: CategoryResponse[];
 }

@@ -7,7 +7,7 @@ import { getPlaceholderRating } from '../data/vehicle-placeholder';
  * El backend aún no tiene reseñas; el valor se deriva determinísticamente
  * del id del producto (ver `data/vehicle-placeholder.ts`).
  */
-export function RatingStars({ productId }: { productId: string }): JSX.Element {
+export function RatingStars({ productId }: { productId: number }): JSX.Element {
   const { stars, count } = getPlaceholderRating(productId);
   const full = Math.floor(stars);
   const hasHalf = stars % 1 !== 0;

@@ -33,7 +33,7 @@ export function AppRouter(): JSX.Element {
       <Route path="/auth/register" element={<RegisterPage />} />
 
       {/* ── Privadas (admin) ───────────────────────────────────────────── */}
-      <Route element={<ProtectedRoute requireRole={UserRole.ADMIN} />}>
+      <Route element={<ProtectedRoute requireRole={UserRole.ADMINISTRADOR} />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />
           <Route path="products" element={<ProductsListPage />} />
