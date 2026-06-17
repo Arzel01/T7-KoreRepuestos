@@ -6,4 +6,5 @@ export * from './enums/user-role.enum';
 export * from './enums/product-unit.enum';
 export * from './dto/user.dto';
 export * from './dto/product.dto';
+export * from './dto/category.dto';
 export * from './interfaces/api-response.interface';

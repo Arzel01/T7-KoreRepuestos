@@ -1,0 +1,10 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+allowBuilds:
+  '@nestjs/core': true
+  bcrypt: true
+  esbuild: true
+  msw: true
+  unrs-resolver: true

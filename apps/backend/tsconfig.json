@@ -7,14 +7,13 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
-      "@kore/shared": ["../../packages/shared/src/index"],
-      "@kore/shared/*": ["../../packages/shared/src/*"]
+      "@kore/shared": ["../../packages/shared/dist/index"],
+      "@kore/shared/*": ["../../packages/shared/dist/*"]
     },
-    "incremental": true,
     "strictNullChecks": true,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src/**/*", "test/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test"]
 }

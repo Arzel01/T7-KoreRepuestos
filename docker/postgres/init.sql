@@ -129,6 +129,27 @@ CREATE TRIGGER trg_products_updated_at
 
 
 -- ============================================================================
+-- 6.b TABLA: sessions (refresh tokens del módulo auth)
+--     Una fila por sesión activa. Se guarda el HASH del refresh token,
+--     nunca el token plano. Permite revocación granular.
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS sessions (
+    id                  UUID         PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id             UUID         NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    refresh_token_hash  VARCHAR(128) NOT NULL UNIQUE,
+    user_agent          TEXT,
+    ip_address          VARCHAR(45),
+    expires_at          TIMESTAMPTZ  NOT NULL,
+    revoked_at          TIMESTAMPTZ,
+    created_at          TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id    ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_sessions_hash       ON sessions(refresh_token_hash);
+
+
+-- ============================================================================
 -- 7. Datos semilla mínimos (solo para entorno local)
 --    El primer usuario admin permite acceder al sistema antes de tener un
 --    flujo de registro. La contraseña en texto plano es: ChangeMe123!

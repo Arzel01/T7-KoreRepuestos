@@ -1,20 +1,6 @@
-import {
-  IsBoolean,
-  IsEmail,
-  IsEnum,
-  IsOptional,
-  IsString,
-  Length,
-  Matches,
-} from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, Length, Matches } from 'class-validator';
 
 import { UserRole } from '../enums/user-role.enum';
-
-/**
- * DTOs compartidos para la entidad Usuario.
- * Se usan tanto en el backend (validación de input) como en los frontends
- * (tipado de payloads de petición/respuesta).
- */
 
 export class CreateUserDto {
   @IsEmail()
@@ -60,21 +46,15 @@ export class UpdateUserDto {
   @IsString()
   @Length(7, 30)
   phone?: string;
-
-  @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
 }
 
 export interface UserResponse {
-  id: string;
+  id: number;
   email: string;
   firstName: string;
   lastName: string;
   phone?: string;
   role: UserRole;
   isActive: boolean;
-  emailVerified: boolean;
   createdAt: string;
-  updatedAt: string;
 }
