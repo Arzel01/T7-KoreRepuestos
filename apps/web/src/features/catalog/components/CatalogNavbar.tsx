@@ -1,27 +1,41 @@
 import { Search, ShoppingCart, User } from 'lucide-react';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { type FormEvent, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 
 interface CatalogNavbarProps {
-  initialSearch: string;
-  onSearch: (term: string) => void;
+  initialSearch?: string;
+  onSearch?: (term: string) => void;
 }
 
 /**
  * Barra de navegación del storefront: logo · búsqueda central redondeada ·
  * acciones "Cuenta" y "Carrito" en azul corporativo.
  *
+ * `onSearch` y `initialSearch` son opcionales: cuando no se proveen (ej. en
+ * LandingPage), el submit de búsqueda navega a `/catalog?search=<term>`.
+ *
  * El carrito es UI-only por ahora (no existe el feature en backend).
  */
-export function CatalogNavbar({ initialSearch, onSearch }: CatalogNavbarProps): JSX.Element {
+export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarProps): JSX.Element {
   const { isAuthenticated, isAdmin, user } = useAuth();
+  const navigate = useNavigate();
   const [term, setTerm] = useState(initialSearch);
 
   const accountTo = isAuthenticated && isAdmin ? '/admin' : '/auth/login';
   const accountLabel = isAuthenticated ? (user?.firstName ?? 'Cuenta') : 'Cuenta';
+
+  function handleSubmit(e: FormEvent): void {
+    e.preventDefault();
+    if (onSearch) {
+      onSearch(term);
+    } else {
+      const q = term.trim();
+      navigate(q ? `/catalog?search=${encodeURIComponent(q)}` : '/catalog');
+    }
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background shadow-sm">
@@ -34,15 +48,16 @@ export function CatalogNavbar({ initialSearch, onSearch }: CatalogNavbarProps): 
           </span>
         </Link>
 
-        {/* Búsqueda central */}
-        <form
-          role="search"
-          className="relative mx-auto w-full max-w-xl"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSearch(term);
-          }}
+        {/* Nav link catálogo */}
+        <Link
+          to="/catalog"
+          className="hidden shrink-0 text-sm font-medium text-muted-foreground hover:text-primary sm:block"
         >
+          Catálogo
+        </Link>
+
+        {/* Búsqueda central */}
+        <form role="search" className="relative mx-auto w-full max-w-xl" onSubmit={handleSubmit}>
           <Search
             className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
             aria-hidden="true"
