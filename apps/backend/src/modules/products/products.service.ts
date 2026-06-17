@@ -54,6 +54,15 @@ export class ProductsService {
     return this.productsRepository.findCatalog(query);
   }
 
+  async deactivate(id: number): Promise<Product> {
+    await this.findById(id); // 404 si no existe o ya está inactivo
+    const updated = await this.productsRepository.update(id, {
+      isActive: false,
+    } as Partial<Product>);
+    this.logger.log(`Producto desactivado: ${updated.sku} (${updated.id})`);
+    return updated;
+  }
+
   private assertPositive(field: string, value: number): void {
     if (!Number.isFinite(value) || value <= 0) {
       throw new BadRequestException(`El campo ${field} debe ser mayor que cero`);
