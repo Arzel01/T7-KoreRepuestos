@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { BaseRepository } from '../../common/repositories/base.repository';
 
+import { ImagenProducto } from './entities/imagen-producto.entity';
 import { Product } from './entities/product.entity';
 
 import type { QueryProductsDto } from './dto/query-products.dto';
@@ -88,5 +89,40 @@ export class ProductsRepository extends BaseRepository<Product, number> {
       .andWhere('p.is_active = TRUE')
       .orderBy('p.stock_actual', 'ASC')
       .getMany();
+  }
+
+  async addImage(
+    productId: number,
+    imageUrl: string,
+    esPrincipal: boolean = false,
+  ): Promise<Product> {
+    const product = await this.findById(productId);
+    if (!product) {
+      throw new Error('Producto no encontrado');
+    }
+
+    const imageRepo = this.repository.manager.getRepository(ImagenProducto);
+
+    if (esPrincipal) {
+      await imageRepo
+        .createQueryBuilder()
+        .update(ImagenProducto)
+        .set({ esPrincipal: false })
+        .where('id_producto = :productId', { productId })
+        .execute();
+    }
+
+    const image = imageRepo.create({
+      urlImagen: imageUrl,
+      esPrincipal: !!esPrincipal,
+      producto: { id: productId } as unknown as Product,
+    });
+    await imageRepo.save(image);
+
+    const updated = await this.findById(productId);
+    if (!updated) {
+      throw new Error('Producto no encontrado tras agregar imagen');
+    }
+    return updated;
   }
 }

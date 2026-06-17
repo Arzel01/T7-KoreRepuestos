@@ -15,6 +15,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 
+import { CreateImageDto } from './dto/create-image.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { QueryProductsDto } from './dto/query-products.dto';
 import { ProductsService } from './products.service';
@@ -48,5 +49,18 @@ export class ProductsController {
   @ApiOperation({ summary: 'Crea un producto. Requiere rol Administrador.' })
   create(@Body() dto: CreateProductDto): Promise<Product> {
     return this.productsService.create(dto);
+  }
+
+  @Post(':id/images')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Agrega una imagen a un producto. Requiere rol Administrador.' })
+  create_images(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body() dto: CreateImageDto,
+  ): Promise<Product> {
+    dto.id_producto = id;
+    return this.productsService.create_image(id, dto);
   }
 }
