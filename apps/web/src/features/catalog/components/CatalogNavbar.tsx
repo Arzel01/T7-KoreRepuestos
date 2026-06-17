@@ -1,8 +1,16 @@
-import { Search, ShoppingCart, User } from 'lucide-react';
+import { LogOut, Search, Settings, ShoppingCart, User } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 
 interface CatalogNavbarProps {
@@ -10,22 +18,10 @@ interface CatalogNavbarProps {
   onSearch?: (term: string) => void;
 }
 
-/**
- * Barra de navegación del storefront: logo · búsqueda central redondeada ·
- * acciones "Cuenta" y "Carrito" en azul corporativo.
- *
- * `onSearch` y `initialSearch` son opcionales: cuando no se proveen (ej. en
- * LandingPage), el submit de búsqueda navega a `/catalog?search=<term>`.
- *
- * El carrito es UI-only por ahora (no existe el feature en backend).
- */
 export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarProps): JSX.Element {
-  const { isAuthenticated, isAdmin, user } = useAuth();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const navigate = useNavigate();
   const [term, setTerm] = useState(initialSearch);
-
-  const accountTo = isAuthenticated && isAdmin ? '/admin' : '/auth/login';
-  const accountLabel = isAuthenticated ? (user?.firstName ?? 'Cuenta') : 'Cuenta';
 
   function handleSubmit(e: FormEvent): void {
     e.preventDefault();
@@ -33,8 +29,13 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
       onSearch(term);
     } else {
       const q = term.trim();
-      navigate(q ? `/catalog?search=${encodeURIComponent(q)}` : '/catalog');
+      navigate(q ? `/?search=${encodeURIComponent(q)}` : '/');
     }
+  }
+
+  async function handleLogout(): Promise<void> {
+    await logout();
+    navigate('/');
   }
 
   return (
@@ -50,7 +51,7 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
 
         {/* Nav link catálogo */}
         <Link
-          to="/catalog"
+          to="/"
           className="hidden shrink-0 text-sm font-medium text-muted-foreground hover:text-primary sm:block"
         >
           Catálogo
@@ -76,12 +77,48 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
 
         {/* Acciones */}
         <div className="flex shrink-0 items-center gap-2">
-          <Button asChild variant="default" size="sm" className="gap-1.5">
-            <Link to={accountTo}>
-              <User className="size-4" aria-hidden="true" />
-              <span className="hidden sm:inline">{accountLabel}</span>
-            </Link>
-          </Button>
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                className={buttonVariants({ variant: 'default', size: 'sm', className: 'gap-1.5' })}
+              >
+                <User className="size-4" aria-hidden="true" />
+                <span className="hidden sm:inline">{user?.firstName ?? 'Cuenta'}</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel className="font-normal">
+                  <p className="text-sm font-medium leading-none">
+                    {user?.firstName} {user?.lastName}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">{user?.email}</p>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin" className="flex items-center gap-2 cursor-pointer">
+                      <Settings className="size-4" />
+                      Panel admin
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem
+                  onClick={() => void handleLogout()}
+                  className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
+                >
+                  <LogOut className="size-4" />
+                  Cerrar sesión
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button asChild variant="default" size="sm" className="gap-1.5">
+              <Link to="/auth/login">
+                <User className="size-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Cuenta</span>
+              </Link>
+            </Button>
+          )}
+
           {/* TODO(catalog): carrito real — por ahora solo UI */}
           <Button variant="default" size="sm" className="gap-1.5" title="Carrito (próximamente)">
             <ShoppingCart className="size-4" aria-hidden="true" />

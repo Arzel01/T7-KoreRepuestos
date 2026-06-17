@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import type { ProductQueryParams } from '@kore/shared';
@@ -33,6 +33,9 @@ export interface CatalogFiltersState {
  *   · Búsqueda del navbar aplica al submit del formulario.
  *   · Cualquier cambio de filtro resetea a la página 1.
  */
+const STORAGE_KEY = 'kore.catalog.filters';
+const FILTER_KEYS = ['search', 'categoryIds', 'minPrice', 'maxPrice', 'inStock'] as const;
+
 export function useCatalogFilters(): CatalogFiltersState {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -57,6 +60,32 @@ export function useCatalogFilters(): CatalogFiltersState {
     min: searchParams.get('minPrice') ?? '',
     max: searchParams.get('maxPrice') ?? '',
   }));
+
+  // Restaura los filtros guardados al montar si la URL llega vacía.
+  useEffect(() => {
+    const hasUrlFilters = FILTER_KEYS.some((k) => searchParams.has(k));
+    if (hasUrlFilters) return;
+
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return;
+
+    const savedParams = new URLSearchParams(saved);
+    if (!FILTER_KEYS.some((k) => savedParams.has(k))) return;
+
+    setSearchParams(savedParams, { replace: true });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sincroniza cada cambio de URL al storage (sin `page`).
+  useEffect(() => {
+    const toSave = new URLSearchParams(searchParams);
+    toSave.delete('page');
+
+    if (FILTER_KEYS.some((k) => toSave.has(k))) {
+      localStorage.setItem(STORAGE_KEY, toSave.toString());
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, [searchParams]);
 
   /**
    * Escribe cambios en la URL omitiendo valores vacíos (URLs limpias y el
