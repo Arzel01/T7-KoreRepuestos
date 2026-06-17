@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   ParseIntPipe,
   Post,
   Query,
@@ -49,6 +50,17 @@ export class ProductsController {
   @ApiOperation({ summary: 'Crea un producto. Requiere rol Administrador.' })
   create(@Body() dto: CreateProductDto): Promise<Product> {
     return this.productsService.create(dto);
+  }
+
+  @Patch(':id/deactivate')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR_COMERCIAL)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Elimina lógicamente un producto (isActive=false). Requiere Administrador o Asesor Comercial.',
+  })
+  deactivate(@Param('id', new ParseIntPipe()) id: number): Promise<Product> {
+    return this.productsService.deactivate(id);
   }
 
   @Post(':id/images')
