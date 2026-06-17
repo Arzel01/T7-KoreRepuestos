@@ -8,6 +8,7 @@ import {
 
 import { CategoriesService } from '../categories/categories.service';
 
+import { CreateImageDto } from './dto/create-image.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './entities/product.entity';
 import { ProductsRepository } from './products.repository';
@@ -57,5 +58,17 @@ export class ProductsService {
     if (!Number.isFinite(value) || value <= 0) {
       throw new BadRequestException(`El campo ${field} debe ser mayor que cero`);
     }
+  }
+
+  async create_image(id: number, dto: CreateImageDto): Promise<Product> {
+    const product = await this.findById(id);
+
+    const updatedProduct = await this.productsRepository.addImage(
+      product.id,
+      dto.url_imagen,
+      dto.es_principal,
+    );
+    this.logger.log(`Imagen agregada al producto ${product.sku} (${product.id})`);
+    return updatedProduct;
   }
 }
