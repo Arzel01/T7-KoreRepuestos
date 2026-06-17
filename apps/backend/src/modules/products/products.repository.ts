@@ -77,6 +77,10 @@ export class ProductsRepository extends BaseRepository<Product, number> {
     return this.repository.findOne({ where: { sku } });
   }
 
+  async findActiveById(id: number): Promise<Product | null> {
+    return this.repository.findOne({ where: { id, isActive: true } });
+  }
+
   async findLowStock(): Promise<Product[]> {
     return this.repository
       .createQueryBuilder('p')

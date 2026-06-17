@@ -37,7 +37,7 @@ export class ProductsController {
   @Public()
   @Get(':id')
   @ApiOperation({ summary: 'Detalle público de un producto.' })
-  findOne(@Param('id', new ParseIntPipe()) id: number): Promise<Product> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Product> {
     return this.productsService.findById(id);
   }
 
