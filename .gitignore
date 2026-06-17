@@ -145,3 +145,7 @@ storybook-static/
 secrets/
 
 .claude
+
+# Uploaded files (keep directory via .gitkeep)
+apps/backend/uploads/*
+!apps/backend/uploads/.gitkeep

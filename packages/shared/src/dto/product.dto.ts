@@ -63,3 +63,17 @@ export interface ProductResponse {
   imageUrl?: string;
   createdAt: string;
 }
+
+export interface ProductImageResponse {
+  id: number;
+  productId: number;
+  url: string;
+  isPrimary: boolean;
+}
+
+export interface TechnicalSheetEntryResponse {
+  id: number;
+  productId: number;
+  attribute: string;
+  value: string;
+}

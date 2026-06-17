@@ -3,7 +3,11 @@ import { useEffect, useState, type FormEvent } from 'react';
 
 import { categoriesApi, type CreateProductPayload } from '../server/products.api';
 
+import { DescriptionEditor } from './DescriptionEditor';
+
 interface ProductFormProps {
+  mode?: 'create' | 'edit';
+  initialValues?: Partial<CreateProductPayload & { id: number }>;
   onSubmit: (payload: CreateProductPayload) => Promise<void>;
   isSubmitting: boolean;
   submitError: string | null;
@@ -12,18 +16,20 @@ interface ProductFormProps {
 const SKU_REGEX = /^[A-Z0-9-]+$/i;
 
 export function ProductForm({
+  mode = 'create',
+  initialValues,
   onSubmit,
   isSubmitting,
   submitError,
 }: ProductFormProps): JSX.Element {
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [form, setForm] = useState({
-    sku: '',
-    name: '',
-    description: '',
-    categoryId: '',
-    price: '',
-    stock: '',
+    sku: initialValues?.sku ?? '',
+    name: initialValues?.name ?? '',
+    description: initialValues?.description ?? '',
+    categoryId: initialValues?.categoryId ? String(initialValues.categoryId) : '',
+    price: initialValues?.price ? String(initialValues.price) : '',
+    stock: initialValues?.stock !== undefined ? String(initialValues.stock) : '',
   });
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
@@ -97,7 +103,8 @@ export function ProductForm({
             value={form.sku}
             onChange={(e) => update('sku', e.target.value.toUpperCase())}
             onBlur={blur('sku')}
-            className="input-technical mt-3 font-mono tracking-wider"
+            disabled={mode === 'edit'}
+            className="input-technical mt-3 font-mono tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="PAS-001"
             autoComplete="off"
           />
@@ -118,13 +125,9 @@ export function ProductForm({
 
       {/* Descripción */}
       <Field id="description" label="Descripción" step="03">
-        <textarea
-          id="description"
-          rows={3}
+        <DescriptionEditor
           value={form.description}
-          onChange={(e) => update('description', e.target.value)}
-          className="input-technical mt-3 resize-none"
-          placeholder="Detalle técnico, compatibilidad, garantía…"
+          onChange={(text) => update('description', text)}
         />
       </Field>
 
@@ -165,7 +168,7 @@ export function ProductForm({
               inputMode="decimal"
             />
           </Field>
-          <Field id="stock" label="Stock inicial" step="" required error={showError('stock')}>
+          <Field id="stock" label="Stock" step="" required error={showError('stock')}>
             <input
               id="stock"
               type="number"
@@ -196,7 +199,7 @@ export function ProductForm({
           Limpiar
         </button>
         <button type="submit" className="btn-primary" disabled={isSubmitting || !isValid}>
-          {isSubmitting ? 'Guardando…' : 'Crear producto'}
+          {isSubmitting ? 'Guardando…' : mode === 'edit' ? 'Guardar cambios' : 'Crear producto'}
           <span aria-hidden>→</span>
         </button>
       </div>

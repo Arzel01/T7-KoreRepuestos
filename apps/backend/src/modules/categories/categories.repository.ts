@@ -29,6 +29,14 @@ export class CategoriesRepository extends BaseRepository<Category, number> {
     });
   }
 
+  async countProductsByCategory(categoryId: number): Promise<number> {
+    const result: Array<{ count: string }> = await this.repository.query(
+      'SELECT COUNT(*) AS count FROM productos WHERE id_categoria = $1 AND is_active = TRUE',
+      [categoryId],
+    );
+    return Number(result[0]?.count ?? 0);
+  }
+
   /**
    * Árbol completo en una única query con CTE recursivo sobre `categorias`.
    */

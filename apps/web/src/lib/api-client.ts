@@ -57,7 +57,13 @@ export const api = {
   patch: <T>(url: string, body?: unknown): Promise<T> =>
     instance.patch<T>(url, body).then((r) => r.data),
 
+  put: <T>(url: string, body?: unknown): Promise<T> =>
+    instance.put<T>(url, body).then((r) => r.data),
+
   delete: <T>(url: string): Promise<T> => instance.delete<T>(url).then((r) => r.data),
+
+  postForm: <T>(url: string, form: FormData): Promise<T> =>
+    instance.post<T>(url, form).then((r) => r.data),
 };
 
 /** Extrae mensajes de error legibles del payload normalizado de NestJS. */

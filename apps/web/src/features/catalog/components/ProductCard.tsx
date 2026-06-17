@@ -35,7 +35,7 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
       </div>
 
       {/* Información */}
-      <CardContent className="flex-1 space-y-2 pt-4">
+      <CardContent className="flex-1 space-y-2 px-5 pt-4 pb-2">
         <h3 className="font-semibold leading-snug">{product.name}</h3>
         <p className="font-mono text-xs text-muted-foreground">{product.sku}</p>
         <RatingStars productId={product.id} />
@@ -45,7 +45,7 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
       </CardContent>
 
       {/* Footer */}
-      <CardFooter className="flex-col items-stretch gap-3 pt-0">
+      <CardFooter className="flex-col items-stretch gap-3 px-5 pt-2 pb-5">
         <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-primary">${product.price.toFixed(2)}</span>
           {available ? (

@@ -103,6 +103,36 @@ pnpm dev:web
 | Swagger  | http://localhost:3000/docs   |
 | Web      | http://localhost:5173        |
 
+## Endpoints disponibles
+
+| Método   | Ruta                                          | Auth          | Descripción                                 |
+| -------- | --------------------------------------------- | ------------- | ------------------------------------------- |
+| `POST`   | `/api/v1/auth/register`                       | Público       | Registro de usuario                         |
+| `POST`   | `/api/v1/auth/login`                          | Público       | Login, devuelve access + refresh tokens     |
+| `POST`   | `/api/v1/auth/logout`                         | JWT           | Cierra la sesión                            |
+| `GET`    | `/api/v1/auth/me`                             | JWT           | Perfil del usuario autenticado              |
+| `GET`    | `/api/v1/products`                            | Público       | Catálogo paginado y filtrable               |
+| `GET`    | `/api/v1/products/:id`                        | Público       | Detalle de un producto                      |
+| `POST`   | `/api/v1/products`                            | Administrador | Crear producto                              |
+| `PATCH`  | `/api/v1/products/:id`                        | Administrador | Actualizar producto                         |
+| `DELETE` | `/api/v1/products/:id`                        | Administrador | Soft delete (`isActive = false`)            |
+| `GET`    | `/api/v1/products/:id/images`                 | Público       | Imágenes del producto                       |
+| `POST`   | `/api/v1/products/:id/images`                 | Administrador | Subir imagen (multipart, max 5 MB)          |
+| `DELETE` | `/api/v1/products/:id/images/:imageId`        | Administrador | Eliminar imagen                             |
+| `GET`    | `/api/v1/products/:id/technical-sheet`        | Público       | Ficha técnica del producto                  |
+| `POST`   | `/api/v1/products/:id/technical-sheet`        | Administrador | Añadir entrada a la ficha técnica           |
+| `DELETE` | `/api/v1/products/:id/technical-sheet/:entId` | Administrador | Eliminar entrada de la ficha técnica        |
+| `GET`    | `/api/v1/categories`                          | Público       | Categorías raíz (planas)                    |
+| `GET`    | `/api/v1/categories/tree`                     | Público       | Árbol completo de categorías                |
+| `GET`    | `/api/v1/categories/:id`                      | Público       | Detalle de una categoría                    |
+| `POST`   | `/api/v1/categories`                          | Administrador | Crear categoría                             |
+| `PATCH`  | `/api/v1/categories/:id`                      | Administrador | Actualizar categoría                        |
+| `DELETE` | `/api/v1/categories/:id`                      | Administrador | Eliminar categoría (sin hijos ni productos) |
+
+> Las imágenes subidas se sirven estáticamente desde `http://localhost:3000/uploads/<filename>`.  
+> Los thumbnails (200×200) se generan automáticamente como `thumb_<filename>`.  
+> La carpeta `apps/backend/uploads/` está en `.gitignore` (solo se versiona el `.gitkeep`).
+
 ## Herramientas opcionales
 
 **pgAdmin** (inspección visual de la base de datos):

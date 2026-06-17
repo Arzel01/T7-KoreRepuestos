@@ -5,10 +5,14 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
 import { Category } from '../../categories/entities/category.entity';
+
+import { ProductImage } from './product-image.entity';
+import { TechnicalSheetEntry } from './technical-sheet-entry.entity';
 
 /**
  * Entidad de dominio: Producto del catálogo de repuestos.
@@ -60,4 +64,10 @@ export class Product {
 
   @CreateDateColumn({ name: 'creado_en', type: 'timestamp' })
   createdAt!: Date;
+
+  @OneToMany(() => ProductImage, (img) => img.product)
+  images?: ProductImage[];
+
+  @OneToMany(() => TechnicalSheetEntry, (e) => e.product)
+  technicalSheet?: TechnicalSheetEntry[];
 }

@@ -397,8 +397,11 @@ pnpm --filter @kore/backend migration:revert
 src/modules/
 ├── auth/             # Autenticación, JWT, refresh tokens
 ├── users/            # Gestión de usuarios
-├── products/         # Catálogo de repuestos
-├── categories/       # Categorías de productos
+├── products/         # Catálogo, imágenes y fichas técnicas
+│   ├── entities/     # Product, ProductImage, TechnicalSheetEntry
+│   └── dto/          # CreateProductDto, UpdateProductDto, CreateTechnicalSheetEntryDto
+├── categories/       # Categorías jerárquicas (CRUD completo)
+├── audit/            # AuditLog → logs_auditoria (INSERT/UPDATE/DELETE de productos y categorías)
 ├── inventory/        # Stock y movimientos (pendiente)
 ├── maintenance/      # Planes de mantenimiento (pendiente)
 ├── quotes/           # Cotizaciones (pendiente)
@@ -425,9 +428,18 @@ src/features/
 │   ├── hooks/        # AuthContext
 │   └── server/       # auth.api.ts
 ├── dashboard/        # Panel principal
-├── products/         # Catálogo y búsqueda
+├── products/         # Gestión de productos y categorías
 │   ├── components/
-│   └── server/       # products.api.ts
+│   │   ├── ProductsListPage.tsx      # Listado con búsqueda, editar y eliminar
+│   │   ├── ProductCreatePage.tsx     # Formulario de creación
+│   │   ├── ProductEditPage.tsx       # Formulario de edición + imágenes + ficha técnica
+│   │   ├── ProductForm.tsx           # Formulario reutilizable (create/edit mode)
+│   │   ├── DescriptionEditor.tsx     # TipTap en modo plain-text
+│   │   ├── ImageUploader.tsx         # Galería con drag-drop y gestión de imágenes
+│   │   ├── TechnicalSheetEditor.tsx  # Tabla de atributo/valor con add y delete
+│   │   └── CategoriesPage.tsx        # Árbol jerárquico con CRUD completo
+│   └── server/       # products.api.ts (incluye categoriesApi)
+├── catalog/          # Storefront público (CatalogPage, filtros, paginación)
 ├── home/
 ├── inventory/        # (pendiente)
 ├── maintenance/      # (pendiente)
@@ -474,15 +486,19 @@ Estado actual: **configurado y funcional** tras los fixes de CI en la rama `deve
 
 ### Módulos Implementados
 
-| Módulo     | Backend | Frontend |
-| ---------- | ------- | -------- |
-| Auth       | ✅      | ✅       |
-| Users      | ✅      | —        |
-| Products   | ✅      | ✅       |
-| Categories | ✅      | —        |
-| Inventory  | —       | —        |
-| Quotes     | —       | —        |
-| Orders     | —       | —        |
+| Módulo            | Backend | Frontend |
+| ----------------- | ------- | -------- |
+| Auth              | ✅      | ✅       |
+| Users             | ✅      | —        |
+| Products (CRUD)   | ✅      | ✅       |
+| Product Images    | ✅      | ✅       |
+| Technical Sheets  | ✅      | ✅       |
+| Categories (CRUD) | ✅      | ✅       |
+| Audit Log         | ✅      | —        |
+| Catalog público   | ✅      | ✅       |
+| Inventory         | —       | —        |
+| Quotes            | —       | —        |
+| Orders            | —       | —        |
 
 ---
 
@@ -541,4 +557,4 @@ npm install -g pnpm
 
 ---
 
-**Última actualización:** 2026-06-10
+**Última actualización:** 2026-06-17

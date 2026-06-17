@@ -1,8 +1,10 @@
 import { UserRole } from '@kore/shared';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+import { CategoriesPage } from '@/app/admin/CategoriesPage';
 import { DashboardPage } from '@/app/admin/DashboardPage';
 import { ProductCreatePage } from '@/app/admin/products/ProductCreatePage';
+import { ProductEditPage } from '@/app/admin/products/ProductEditPage';
 import { ProductsListPage } from '@/app/admin/products/ProductsListPage';
 import { LoginPage } from '@/app/auth/LoginPage';
 import { RegisterPage } from '@/app/auth/RegisterPage';
@@ -11,19 +13,6 @@ import { NotFoundPage } from '@/app/NotFoundPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AdminLayout } from '@/layouts/AdminLayout';
 
-/**
- * Mapa de rutas de la aplicación.
- *
- * Convenciones:
- *   · `/`                  → catálogo público (storefront)
- *   · `/auth/*`            → flujos no autenticados (login, registro)
- *   · `/admin/*`           → panel administrativo · requiere JWT + rol ADMIN
- *   · `*`                  → 404
- *
- * Las rutas protegidas se anidan dentro de `<ProtectedRoute>`. El componente
- * verifica autenticación + rol y redirige según corresponda. React Router v6
- * renderiza `<Outlet />` de la ruta padre como hijo.
- */
 export function AppRouter(): JSX.Element {
   return (
     <Routes>
@@ -38,8 +27,8 @@ export function AppRouter(): JSX.Element {
           <Route index element={<DashboardPage />} />
           <Route path="products" element={<ProductsListPage />} />
           <Route path="products/new" element={<ProductCreatePage />} />
-          {/* Atajos no implementados → redirección al dashboard */}
-          <Route path="categories" element={<Navigate to="/admin" replace />} />
+          <Route path="products/:id/edit" element={<ProductEditPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
           <Route path="users" element={<Navigate to="/admin" replace />} />
         </Route>
       </Route>

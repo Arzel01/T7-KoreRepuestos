@@ -47,10 +47,10 @@ export function CatalogPage(): JSX.Element {
     <div className="storefront min-h-screen bg-muted text-foreground">
       <CatalogNavbar initialSearch={filters.applied.search ?? ''} onSearch={filters.submitSearch} />
 
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:grid lg:grid-cols-[280px_1fr] lg:gap-8">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10 lg:grid lg:grid-cols-[280px_1fr] lg:gap-10">
         {/* Sidebar desktop */}
         <aside className="hidden lg:block">
-          <div className="sticky top-20 rounded-lg border bg-background p-5">{sidebar}</div>
+          <div className="sticky top-20 rounded-lg border bg-background p-6">{sidebar}</div>
         </aside>
 
         {/* Contenido */}
