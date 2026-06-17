@@ -13,6 +13,19 @@ interface ProductFormProps {
   submitError: string | null;
 }
 
+interface FlatCategory {
+  id: number;
+  name: string;
+  depth: number;
+}
+
+function flattenCategoryTree(nodes: CategoryResponse[], depth = 0): FlatCategory[] {
+  return nodes.flatMap((node) => [
+    { id: node.id, name: node.name, depth },
+    ...flattenCategoryTree(node.children ?? [], depth + 1),
+  ]);
+}
+
 const SKU_REGEX = /^[A-Z0-9-]+$/i;
 
 export function ProductForm({
@@ -22,7 +35,7 @@ export function ProductForm({
   isSubmitting,
   submitError,
 }: ProductFormProps): JSX.Element {
-  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [flatCategories, setFlatCategories] = useState<FlatCategory[]>([]);
   const [form, setForm] = useState({
     sku: initialValues?.sku ?? '',
     name: initialValues?.name ?? '',
@@ -35,8 +48,8 @@ export function ProductForm({
 
   useEffect(() => {
     let cancelled = false;
-    void categoriesApi.list().then((list) => {
-      if (!cancelled) setCategories(list);
+    void categoriesApi.tree().then((tree) => {
+      if (!cancelled) setFlatCategories(flattenCategoryTree(tree));
     });
     return () => {
       cancelled = true;
@@ -140,8 +153,9 @@ export function ProductForm({
           className="input-technical mt-3"
         >
           <option value="">— sin categoría —</option>
-          {categories.map((c) => (
+          {flatCategories.map((c) => (
             <option key={c.id} value={String(c.id)}>
+              {'— '.repeat(c.depth)}
               {c.name}
             </option>
           ))}

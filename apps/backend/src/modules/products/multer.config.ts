@@ -10,14 +10,9 @@ export const UPLOADS_DIR = path.resolve(process.cwd(), 'uploads');
 
 const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
+// Usa memoryStorage para poder validar magic bytes antes de persistir al disco.
 export const multerOptions: MulterOptions = {
-  storage: multer.diskStorage({
-    destination: UPLOADS_DIR,
-    filename: (_req: Request, file: Express.Multer.File, cb) => {
-      const ext = path.extname(file.originalname).toLowerCase();
-      cb(null, `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`);
-    },
-  }),
+  storage: multer.memoryStorage(),
   fileFilter: (_req: Request, file: Express.Multer.File, cb) => {
     if (ALLOWED_MIMES.includes(file.mimetype)) {
       cb(null, true);
