@@ -63,7 +63,7 @@ export function LoginPage(): JSX.Element {
               <span className="text-white/70">repuestos en línea</span>
             </h1>
             <p className="max-w-md text-base leading-relaxed text-white/80">
-              Miles de repuestos disponibles. Encontrá todo lo que necesitás para mantener tu
+              Miles de repuestos disponibles. Encuentra todo lo que necesitas para mantener tu
               vehículo en marcha.
             </p>
 
@@ -91,7 +91,7 @@ export function LoginPage(): JSX.Element {
 
             <h2 className="text-2xl font-bold tracking-tight text-foreground">Iniciar sesión</h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              Accedé con tu cuenta para gestionar el catálogo.
+              Accede con tu cuenta para gestionar el catálogo.
             </p>
 
             <form
@@ -168,7 +168,7 @@ export function LoginPage(): JSX.Element {
             </form>
 
             <p className="mt-6 text-center text-sm text-muted-foreground">
-              ¿No tenés cuenta?{' '}
+              ¿No tienes cuenta?{' '}
               <Link to="/auth/register" className="font-medium text-primary hover:underline">
                 Registrate
               </Link>

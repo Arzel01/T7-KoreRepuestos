@@ -84,136 +84,171 @@ export function RegisterPage(): JSX.Element {
   }
 
   return (
-    <main className="min-h-screen bg-ink-950 px-6 py-16 sm:px-12">
-      <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-16 lg:grid-cols-[1fr_1.2fr]">
-        <aside className="space-y-8">
-          <p className="eyebrow">Kore · Alta de usuario</p>
-          <h1 className="display text-display-lg text-balance">
-            Cree su <span className="text-signal-500">cuenta</span>.
-          </h1>
-          <p className="max-w-md font-sans text-base leading-relaxed text-ink-300">
-            Acceda al catálogo, gestione sus cotizaciones y reciba alertas de stock bajo. Toma menos
-            de un minuto.
-          </p>
+    <div className="storefront">
+      <main className="grid min-h-screen grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
+        <aside
+          className="relative hidden flex-col justify-between overflow-hidden bg-primary p-12 lg:flex"
+          aria-hidden="true"
+        >
+          <div className="absolute -right-20 -top-20 size-72 rounded-full bg-white/10" />
+          <div className="absolute -bottom-16 -left-16 size-56 rounded-full bg-white/10" />
 
-          <ul className="space-y-3 border-l-2 border-signal-500 pl-5 font-mono text-xs uppercase tracking-wider text-ink-300">
-            <li>↳ 01 · Datos personales</li>
-            <li>↳ 02 · Credenciales</li>
-            <li>↳ 03 · Activación inmediata</li>
-          </ul>
+          <div className="relative">
+            <Link to="/" className="text-3xl font-extrabold tracking-tight text-white">
+              KORE
+              <span className="ml-2 text-base font-normal text-white/70">Repuestos</span>
+            </Link>
+          </div>
+
+          <div className="relative space-y-6">
+            <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-white lg:text-5xl">
+              Crea tu <br />
+              <span className="text-white/70">cuenta</span>
+            </h1>
+            <p className="max-w-md text-base leading-relaxed text-white/80">
+              Accede al catálogo, gestiona tus cotizaciones y recibe alertas de mantenimiento a tu
+              vehículo.
+            </p>
+
+            <div className="flex gap-3 border-t border-white/20 pt-6 text-sm text-white/60">
+              <span>Catálogo completo</span>
+              <span aria-hidden>·</span>
+              <span>Soporte rápido</span>
+              <span aria-hidden>·</span>
+              <span>Acceso inmediato</span>
+            </div>
+          </div>
+
+          <p className="relative text-xs text-white/40">© 2026 Kore Repuestos</p>
         </aside>
 
-        <section className="panel p-8 lg:p-10">
-          <form onSubmit={handleSubmit} noValidate className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <FieldText
-                id="firstName"
-                label="Nombre"
-                step="01"
-                value={form.firstName}
-                onChange={(v) => update('firstName', v)}
-                onBlur={() => setTouched((t) => ({ ...t, firstName: true }))}
-                error={touched.firstName ? errors.firstName : null}
-                autoComplete="given-name"
-                required
-              />
-              <FieldText
-                id="lastName"
-                label="Apellido"
-                step="02"
-                value={form.lastName}
-                onChange={(v) => update('lastName', v)}
-                onBlur={() => setTouched((t) => ({ ...t, lastName: true }))}
-                error={touched.lastName ? errors.lastName : null}
-                autoComplete="family-name"
-                required
-              />
-            </div>
+        <section className="flex items-center justify-center bg-background px-6 py-16 sm:px-12">
+          <div className="w-full max-w-xl animate-fade-in-up">
+            <Link
+              to="/"
+              className="mb-8 block text-2xl font-extrabold tracking-tight text-primary lg:hidden"
+            >
+              KORE <span className="text-sm font-normal text-muted-foreground">Repuestos</span>
+            </Link>
 
-            <FieldText
-              id="email"
-              label="Email corporativo"
-              step="03"
-              type="email"
-              value={form.email}
-              onChange={(v) => update('email', v)}
-              onBlur={() => setTouched((t) => ({ ...t, email: true }))}
-              error={touched.email ? errors.email : null}
-              autoComplete="email"
-              required
-            />
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">Registro</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Completa tus datos para crear tu cuenta.
+            </p>
 
-            <FieldText
-              id="phone"
-              label="Teléfono (opcional)"
-              step="04"
-              type="tel"
-              value={form.phone}
-              onChange={(v) => update('phone', v)}
-              onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
-              error={touched.phone ? errors.phone : null}
-              autoComplete="tel"
-            />
-
-            <FieldText
-              id="password"
-              label="Contraseña"
-              step="05"
-              type="password"
-              value={form.password}
-              onChange={(v) => update('password', v)}
-              onBlur={() => setTouched((t) => ({ ...t, password: true }))}
-              error={touched.password ? errors.password : null}
-              autoComplete="new-password"
-              hint="Mínimo 8 caracteres, 1 mayúscula y 1 dígito."
-              required
-            />
-
-            <FieldText
-              id="confirm"
-              label="Confirmar contraseña"
-              step="06"
-              type="password"
-              value={form.confirm}
-              onChange={(v) => update('confirm', v)}
-              onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
-              error={touched.confirm ? errors.confirm : null}
-              autoComplete="new-password"
-              required
-            />
-
-            {error && (
-              <div
-                role="alert"
-                className="border-l-2 border-danger-500 bg-danger-700/10 px-4 py-3 font-mono text-xs uppercase tracking-wider text-danger-500"
-              >
-                ✕ {error}
+            <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-5">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <FieldText
+                  id="firstName"
+                  label="Nombre"
+                  value={form.firstName}
+                  onChange={(v) => update('firstName', v)}
+                  onBlur={() => setTouched((t) => ({ ...t, firstName: true }))}
+                  error={touched.firstName ? errors.firstName : null}
+                  autoComplete="given-name"
+                  required
+                />
+                <FieldText
+                  id="lastName"
+                  label="Apellido"
+                  value={form.lastName}
+                  onChange={(v) => update('lastName', v)}
+                  onBlur={() => setTouched((t) => ({ ...t, lastName: true }))}
+                  error={touched.lastName ? errors.lastName : null}
+                  autoComplete="family-name"
+                  required
+                />
               </div>
-            )}
 
-            <div className="flex flex-col-reverse items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <Link
-                to="/auth/login"
-                className="font-mono text-xs uppercase tracking-wider text-ink-400 hover:text-signal-500"
+              <FieldText
+                id="email"
+                label="Email"
+                type="email"
+                value={form.email}
+                onChange={(v) => update('email', v)}
+                onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+                error={touched.email ? errors.email : null}
+                autoComplete="email"
+                required
+              />
+
+              <FieldText
+                id="phone"
+                label="Teléfono"
+                type="tel"
+                value={form.phone}
+                onChange={(v) => update('phone', v)}
+                onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
+                error={touched.phone ? errors.phone : null}
+                autoComplete="tel"
+              />
+
+              <FieldText
+                id="password"
+                label="Contraseña"
+                type="password"
+                value={form.password}
+                onChange={(v) => update('password', v)}
+                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                error={touched.password ? errors.password : null}
+                autoComplete="new-password"
+                hint="Mínimo 8 caracteres, 1 mayúscula y 1 dígito (número)."
+                required
+              />
+
+              <FieldText
+                id="confirm"
+                label="Confirmar contraseña"
+                type="password"
+                value={form.confirm}
+                onChange={(v) => update('confirm', v)}
+                onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
+                error={touched.confirm ? errors.confirm : null}
+                autoComplete="new-password"
+                required
+              />
+
+              {error && (
+                <div
+                  id="register-error"
+                  role="alert"
+                  className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                >
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading || !isValid}
+                className="mt-2 h-10 w-full rounded-lg bg-primary font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                ← Ya tengo cuenta
-              </Link>
-              <button type="submit" disabled={isLoading || !isValid} className="btn-primary">
                 {isLoading ? 'Creando…' : 'Crear cuenta'}
-                <span aria-hidden>→</span>
               </button>
-            </div>
-          </form>
+            </form>
+
+            <p className="mt-6 text-center text-sm text-muted-foreground">
+              ¿Ya tienes cuenta?{' '}
+              <Link to="/auth/login" className="font-medium text-primary hover:underline">
+                Iniciar sesión
+              </Link>
+            </p>
+
+            <p className="mt-4 text-center text-sm text-muted-foreground">
+              <Link to="/" className="hover:underline">
+                ← Volver al catálogo
+              </Link>
+            </p>
+          </div>
         </section>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }
 
 interface FieldTextProps {
   id: string;
   label: string;
-  step: string;
   type?: string;
   value: string;
   onChange: (v: string) => void;
@@ -227,7 +262,6 @@ interface FieldTextProps {
 function FieldText({
   id,
   label,
-  step,
   type = 'text',
   value,
   onChange,
@@ -238,13 +272,10 @@ function FieldText({
   hint,
 }: FieldTextProps): JSX.Element {
   return (
-    <div>
-      <label
-        htmlFor={id}
-        className="block font-mono text-eyebrow uppercase tracking-eyebrow text-ink-400"
-      >
-        <span className="mr-2 text-signal-500">{step} →</span>
+    <div className="space-y-1.5">
+      <label htmlFor={id} className="block text-sm font-medium text-foreground">
         {label}
+        {required ? <span className="ml-1 text-destructive">*</span> : null}
       </label>
       <input
         id={id}
@@ -256,14 +287,14 @@ function FieldText({
         required={required}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
-        className="input-technical mt-3"
+        className="h-10 w-full rounded-lg border border-border bg-muted/40 px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
       {error ? (
-        <p id={`${id}-error`} role="alert" className="mt-2 font-mono text-xs text-danger-500">
-          ✕ {error}
+        <p id={`${id}-error`} role="alert" className="text-xs text-destructive">
+          {error}
         </p>
       ) : hint ? (
-        <p id={`${id}-hint`} className="mt-2 font-mono text-[11px] text-ink-500">
+        <p id={`${id}-hint`} className="text-xs text-muted-foreground">
           {hint}
         </p>
       ) : null}
