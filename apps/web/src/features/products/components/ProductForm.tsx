@@ -168,7 +168,7 @@ export function ProductForm({
           05 → Datos comerciales
         </legend>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <Field id="price" label="Precio (S/)" step="" required error={showError('price')}>
+          <Field id="price" label="Precio ($)" step="" required error={showError('price')}>
             <input
               id="price"
               type="number"
