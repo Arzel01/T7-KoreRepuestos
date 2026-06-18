@@ -76,15 +76,19 @@ export function ProductEditPage(): JSX.Element {
 
   return (
     <div className="mx-auto max-w-4xl px-8 py-12 animate-fade-in-up">
-      <header className="mb-10 border-b border-ink-700 pb-6">
-        <p className="eyebrow">Inventario · Editar</p>
-        <h1 className="display mt-3 text-display-md">{product.name}</h1>
-        <p className="mt-1 font-mono text-xs text-ink-400">{product.sku}</p>
+      <header className="mb-10 border-b border-border pb-6">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+          Inventario · Editar
+        </p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
+          {product.name}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">{product.sku}</p>
       </header>
 
       {/* Datos del producto */}
       <section className="mb-12">
-        <h2 className="mb-6 font-mono text-eyebrow uppercase tracking-eyebrow text-ink-400">
+        <h2 className="mb-6 text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           01 → Datos generales
         </h2>
         <ProductForm
@@ -105,16 +109,16 @@ export function ProductEditPage(): JSX.Element {
       </section>
 
       {/* Imágenes */}
-      <section className="mb-12 border-t border-ink-700 pt-10">
-        <h2 className="mb-6 font-mono text-eyebrow uppercase tracking-eyebrow text-ink-400">
+      <section className="mb-12 border-t border-border pt-10">
+        <h2 className="mb-6 text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           02 → Imágenes
         </h2>
         <ImageUploader productId={productId} />
       </section>
 
       {/* Ficha técnica */}
-      <section className="border-t border-ink-700 pt-10">
-        <h2 className="mb-6 font-mono text-eyebrow uppercase tracking-eyebrow text-ink-400">
+      <section className="border-t border-border pt-10">
+        <h2 className="mb-6 text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
           03 → Ficha técnica
         </h2>
         <TechnicalSheetEditor productId={productId} />

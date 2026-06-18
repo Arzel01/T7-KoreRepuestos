@@ -5,25 +5,22 @@ export function Topbar(): JSX.Element {
   const segments = location.pathname.split('/').filter(Boolean);
 
   return (
-    <header className="flex items-center justify-between border-b border-ink-700 bg-ink-900 px-8 py-4">
-      <nav
-        aria-label="Ubicación actual"
-        className="flex items-center gap-3 font-mono text-xs uppercase tracking-eyebrow"
-      >
-        <span className="text-ink-500">PATH</span>
-        <span aria-hidden className="text-ink-600">
+    <header className="flex items-center justify-between border-b border-white/10 bg-[oklch(0.55_0.22_264.376)] px-6 py-4">
+      <nav aria-label="Ubicación actual" className="flex items-center gap-2 text-sm text-white/80">
+        <span className="font-semibold uppercase tracking-[0.2em] text-white">Ruta</span>
+        <span aria-hidden className="text-white/50">
           /
         </span>
         {segments.length === 0 ? (
-          <span className="text-ink-100">root</span>
+          <span className="text-white">Inicio</span>
         ) : (
           segments.map((seg, idx) => (
-            <span key={`${seg}-${idx}`} className="flex items-center gap-3">
-              <span className={idx === segments.length - 1 ? 'text-signal-500' : 'text-ink-300'}>
+            <span key={`${seg}-${idx}`} className="flex items-center gap-2">
+              <span className={idx === segments.length - 1 ? 'text-white' : 'text-white/80'}>
                 {seg}
               </span>
               {idx < segments.length - 1 && (
-                <span aria-hidden className="text-ink-600">
+                <span aria-hidden className="text-white/50">
                   /
                 </span>
               )}
@@ -32,12 +29,12 @@ export function Topbar(): JSX.Element {
         )}
       </nav>
 
-      <div className="flex items-center gap-4">
-        <span className="tag border-success-500/40 text-success-500">
-          <span className="h-1.5 w-1.5 animate-pulse bg-success-500" aria-hidden />
-          LIVE
+      <div className="flex items-center gap-3">
+        <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" aria-hidden />
+          En línea
         </span>
-        <span className="font-mono text-xs text-ink-500">
+        <span className="text-sm text-white/80">
           {new Date().toLocaleDateString('es-PE', {
             day: '2-digit',
             month: 'short',

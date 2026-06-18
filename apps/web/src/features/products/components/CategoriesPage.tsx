@@ -116,41 +116,49 @@ export function CategoriesPage(): JSX.Element {
 
   return (
     <div className="mx-auto max-w-4xl px-8 py-12 animate-fade-in-up">
-      <header className="mb-10 flex items-end justify-between border-b border-ink-700 pb-6">
+      <header className="mb-10 flex items-end justify-between border-b border-border pb-6">
         <div>
-          <p className="eyebrow">Catálogo · 02</p>
-          <h1 className="display mt-3 text-display-md">Categorías</h1>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
+            Catálogo · 02
+          </p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">Categorías</h1>
         </div>
-        <button type="button" className="btn-primary" onClick={() => openCreate(null)}>
+        <button
+          type="button"
+          className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          onClick={() => openCreate(null)}
+        >
           + Nueva categoría
         </button>
       </header>
 
       {error && (
-        <div className="mb-6 border-l-2 border-danger-500 bg-danger-700/10 px-4 py-3 font-mono text-xs uppercase tracking-wider text-danger-500">
+        <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           ✕ {error}
         </div>
       )}
 
       {loading ? (
-        <p className="font-mono text-xs text-ink-400">Cargando…</p>
+        <p className="text-sm text-muted-foreground">Cargando…</p>
       ) : tree.length === 0 ? (
-        <p className="font-mono text-xs text-ink-500">
+        <p className="text-sm text-muted-foreground">
           ── Aún no hay categorías. Crea la primera. ──
         </p>
       ) : (
-        <ul className="space-y-1">
-          {tree.map((node) => (
-            <CategoryNode
-              key={node.id}
-              node={node}
-              depth={0}
-              onEdit={openEdit}
-              onDelete={setDeleteTarget}
-              onAddChild={(id) => openCreate(id)}
-            />
-          ))}
-        </ul>
+        <div className="rounded-xl border border-border bg-card">
+          <ul className="divide-y divide-border">
+            {tree.map((node) => (
+              <CategoryNode
+                key={node.id}
+                node={node}
+                depth={0}
+                onEdit={openEdit}
+                onDelete={setDeleteTarget}
+                onAddChild={(id) => openCreate(id)}
+              />
+            ))}
+          </ul>
+        </div>
       )}
 
       {/* Diálogo crear/editar */}
@@ -165,25 +173,25 @@ export function CategoriesPage(): JSX.Element {
             <div>
               <label
                 htmlFor="category-name"
-                className="font-mono text-eyebrow uppercase tracking-eyebrow text-ink-400"
+                className="block text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground"
               >
-                Nombre *
+                Nombre <span className="text-primary">*</span>
               </label>
               <input
                 id="category-name"
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                className="input-technical mt-2 w-full"
+                className="mt-2 h-10 w-full rounded-lg border border-border bg-muted/30 px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
                 onKeyDown={(e) => e.key === 'Enter' && void handleSubmit()}
               />
             </div>
-            {formError && <p className="font-mono text-xs text-danger-500">✕ {formError}</p>}
+            {formError && <p className="text-sm text-destructive">✕ {formError}</p>}
           </div>
           <DialogFooter>
             <button
               type="button"
-              className="btn-ghost"
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-border bg-background px-4 text-sm font-medium text-foreground hover:bg-muted"
               onClick={() => setDialogOpen(false)}
               disabled={submitting}
             >
@@ -191,7 +199,7 @@ export function CategoriesPage(): JSX.Element {
             </button>
             <button
               type="button"
-              className="btn-primary"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
               onClick={() => void handleSubmit()}
               disabled={submitting}
             >
@@ -217,7 +225,7 @@ export function CategoriesPage(): JSX.Element {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-danger-700 hover:bg-danger-600"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => deleteTarget && void handleDelete(deleteTarget)}
             >
               Eliminar
@@ -247,32 +255,32 @@ function CategoryNode({
   return (
     <li>
       <div
-        className="flex items-center gap-3 border-b border-ink-700/40 py-2 hover:bg-ink-900/50"
+        className="flex items-center gap-3 border-b border-border/60 py-2 hover:bg-muted/30"
         style={{ paddingLeft: `${16 + depth * 24}px` }}
       >
-        <span className="flex-1 text-sm text-ink-100">{node.name}</span>
+        <span className="flex-1 text-sm text-foreground">{node.name}</span>
         {node.children && node.children.length > 0 && (
-          <span className="font-mono text-xs text-ink-500">
+          <span className="text-xs text-muted-foreground">
             {node.children.length} sub{node.children.length === 1 ? '' : 's'}
           </span>
         )}
         <button
           type="button"
-          className="font-mono text-xs text-ink-400 hover:text-signal-500"
+          className="text-xs font-medium text-primary hover:text-primary/80"
           onClick={() => onAddChild(node.id)}
         >
           + Sub
         </button>
         <button
           type="button"
-          className="font-mono text-xs text-ink-400 hover:text-ink-100"
+          className="text-xs font-medium text-foreground hover:text-primary"
           onClick={() => onEdit(node)}
         >
           Editar
         </button>
         <button
           type="button"
-          className="font-mono text-xs text-danger-500 hover:text-danger-400"
+          className="text-xs font-medium text-destructive hover:text-destructive/80"
           onClick={() => onDelete(node)}
         >
           Eliminar

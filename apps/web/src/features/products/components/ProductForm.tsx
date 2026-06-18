@@ -117,7 +117,7 @@ export function ProductForm({
             onChange={(e) => update('sku', e.target.value.toUpperCase())}
             onBlur={blur('sku')}
             disabled={mode === 'edit'}
-            className="input-technical mt-3 font-mono tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-3 h-10 w-full rounded-lg border border-border bg-muted/30 px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
             placeholder="PAS-001"
             autoComplete="off"
           />
@@ -129,7 +129,7 @@ export function ProductForm({
             value={form.name}
             onChange={(e) => update('name', e.target.value)}
             onBlur={blur('name')}
-            className="input-technical mt-3"
+            className="mt-3 h-10 w-full rounded-lg border border-border bg-muted/30 px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
             placeholder="Pastilla de freno delantera"
             autoComplete="off"
           />
@@ -150,7 +150,7 @@ export function ProductForm({
           id="categoryId"
           value={form.categoryId}
           onChange={(e) => update('categoryId', e.target.value)}
-          className="input-technical mt-3"
+          className="mt-3 h-10 w-full rounded-lg border border-border bg-muted/30 px-3 text-sm text-foreground focus:border-primary focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
         >
           <option value="">— sin categoría —</option>
           {flatCategories.map((c) => (
@@ -163,8 +163,8 @@ export function ProductForm({
       </Field>
 
       {/* Datos comerciales */}
-      <fieldset className="border border-ink-700 p-6">
-        <legend className="px-2 font-mono text-eyebrow uppercase tracking-eyebrow text-signal-500">
+      <fieldset className="rounded-2xl border border-border p-6">
+        <legend className="px-2 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
           05 → Datos comerciales
         </legend>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -177,7 +177,7 @@ export function ProductForm({
               value={form.price}
               onChange={(e) => update('price', e.target.value)}
               onBlur={blur('price')}
-              className="input-technical mt-3 num"
+              className="mt-3 h-10 w-full rounded-lg border border-border bg-muted/30 px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
               placeholder="0.00"
               inputMode="decimal"
             />
@@ -191,7 +191,7 @@ export function ProductForm({
               value={form.stock}
               onChange={(e) => update('stock', e.target.value)}
               onBlur={blur('stock')}
-              className="input-technical mt-3 num"
+              className="mt-3 h-10 w-full rounded-lg border border-border bg-muted/30 px-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
               placeholder="0"
               inputMode="numeric"
             />
@@ -202,17 +202,25 @@ export function ProductForm({
       {submitError && (
         <div
           role="alert"
-          className="border-l-2 border-danger-500 bg-danger-700/10 px-4 py-3 font-mono text-xs uppercase tracking-wider text-danger-500"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
         >
           ✕ {submitError}
         </div>
       )}
 
-      <div className="flex items-center justify-end gap-4 border-t border-ink-700 pt-6">
-        <button type="reset" className="btn-ghost" disabled={isSubmitting}>
+      <div className="flex items-center justify-end gap-4 border-t border-border pt-6">
+        <button
+          type="reset"
+          className="inline-flex h-10 items-center justify-center rounded-lg border border-border bg-background px-4 text-sm font-medium text-foreground hover:bg-muted"
+          disabled={isSubmitting}
+        >
           Limpiar
         </button>
-        <button type="submit" className="btn-primary" disabled={isSubmitting || !isValid}>
+        <button
+          type="submit"
+          className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={isSubmitting || !isValid}
+        >
           {isSubmitting ? 'Guardando…' : mode === 'edit' ? 'Guardar cambios' : 'Crear producto'}
           <span aria-hidden>→</span>
         </button>
@@ -236,17 +244,17 @@ function Field({ id, label, step, required, error, className, children }: FieldP
     <div className={className}>
       <label
         htmlFor={id}
-        className="flex items-baseline gap-2 font-mono text-eyebrow uppercase tracking-eyebrow text-ink-400"
+        className="flex items-baseline gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground"
       >
-        {step && <span className="text-signal-500">{step} →</span>}
+        {step && <span className="text-primary">{step} →</span>}
         <span>
           {label}
-          {required && <span className="ml-1 text-signal-500">*</span>}
+          {required && <span className="ml-1 text-primary">*</span>}
         </span>
       </label>
       {children}
       {error && (
-        <p id={`${id}-error`} role="alert" className="mt-2 font-mono text-xs text-danger-500">
+        <p id={`${id}-error`} role="alert" className="mt-2 text-xs text-destructive">
           ✕ {error}
         </p>
       )}
