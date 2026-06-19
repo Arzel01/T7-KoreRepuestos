@@ -21,10 +21,26 @@ import {
  */
 export function VehicleSelector(): JSX.Element {
   const groups: Array<{ id: string; label: string; options: readonly string[] }> = [
-    { id: 'vehicle-brand', label: 'Marca', options: VEHICLE_BRANDS },
-    { id: 'vehicle-model', label: 'Modelo', options: VEHICLE_MODELS },
-    { id: 'vehicle-type', label: 'Tipo', options: VEHICLE_TYPES },
-    { id: 'vehicle-year', label: 'Año', options: VEHICLE_YEARS },
+    {
+      id: 'vehicle-brand',
+      label: 'Marca',
+      options: [...VEHICLE_BRANDS].sort((a, b) => a.localeCompare(b)),
+    },
+    {
+      id: 'vehicle-model',
+      label: 'Modelo',
+      options: [...VEHICLE_MODELS].sort((a, b) => a.localeCompare(b)),
+    },
+    {
+      id: 'vehicle-type',
+      label: 'Tipo',
+      options: [...VEHICLE_TYPES].sort((a, b) => a.localeCompare(b)),
+    },
+    {
+      id: 'vehicle-year',
+      label: 'Año',
+      options: [...VEHICLE_YEARS].sort((a, b) => b.localeCompare(a)),
+    },
   ];
 
   return (
