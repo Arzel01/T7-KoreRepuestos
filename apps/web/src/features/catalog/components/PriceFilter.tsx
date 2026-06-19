@@ -75,7 +75,13 @@ export function PriceFilter({ draft, onDraftChange, onApply }: PriceFilterProps)
         />
       </div>
 
-      <Button type="submit" size="sm" className="h-9 px-3" title="Aplicar rango de precio">
+      <Button
+        type="submit"
+        size="sm"
+        className="h-9 px-3"
+        title="Aplicar rango de precio"
+        variant="outline"
+      >
         <span>
           <ChevronRight />
         </span>
