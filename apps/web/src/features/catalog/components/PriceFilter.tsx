@@ -15,6 +15,10 @@ interface PriceFilterProps {
  * (según el diseño — evita refetch en cada tecla).
  */
 export function PriceFilter({ draft, onDraftChange, onApply }: PriceFilterProps): JSX.Element {
+  const isValidPrice = (value: string): boolean => {
+    return value === '' || /^\d{0,4}(\.\d{0,2})?$/.test(value);
+  };
+
   return (
     <form
       className="flex items-end gap-2"
@@ -30,13 +34,20 @@ export function PriceFilter({ draft, onDraftChange, onApply }: PriceFilterProps)
         <Input
           id="price-min"
           type="number"
+          pattern="\d{1,4}"
           min={0}
+          max="9999.99"
           step="0.01"
           inputMode="decimal"
           placeholder="0"
           className="h-9 bg-background"
           value={draft.min}
-          onChange={(e) => onDraftChange({ ...draft, min: e.target.value })}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (isValidPrice(val)) {
+              onDraftChange({ ...draft, min: val });
+            }
+          }}
         />
       </div>
 
@@ -47,13 +58,20 @@ export function PriceFilter({ draft, onDraftChange, onApply }: PriceFilterProps)
         <Input
           id="price-max"
           type="number"
+          pattern="\d{1,4}"
           min={0}
+          max="9999.99"
           step="0.01"
           inputMode="decimal"
-          placeholder="999"
+          placeholder="9999"
           className="h-9 bg-background"
           value={draft.max}
-          onChange={(e) => onDraftChange({ ...draft, max: e.target.value })}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (isValidPrice(val)) {
+              onDraftChange({ ...draft, max: val });
+            }
+          }}
         />
       </div>
 
