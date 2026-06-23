@@ -88,10 +88,26 @@ export class ProductsController {
   }
 
   @Put(':id')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Reemplaza un producto (PUT). Requiere rol Administrador.' })
+  @ApiResponse({ status: 200, description: 'Producto actualizado.' })
+  @ApiResponse({ status: 400, description: 'Payload inválido (ej. price = 0).' })
+  @ApiResponse({ status: 401, description: 'No autenticado.' })
+  @ApiResponse({ status: 403, description: 'Sin permiso (requiere Administrador).' })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado.' })
+  replace(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body() dto: UpdateProductDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<Product> {
+    return this.productsService.update(id, dto, Number(user.sub));
+  }
+
   @Patch(':id')
   @Roles(UserRole.ADMINISTRADOR)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Actualiza un producto (PUT o PATCH). Requiere rol Administrador.' })
+  @ApiOperation({ summary: 'Actualiza un producto (PATCH). Requiere rol Administrador.' })
   @ApiResponse({ status: 200, description: 'Producto actualizado.' })
   @ApiResponse({ status: 400, description: 'Payload inválido (ej. price = 0).' })
   @ApiResponse({ status: 401, description: 'No autenticado.' })
