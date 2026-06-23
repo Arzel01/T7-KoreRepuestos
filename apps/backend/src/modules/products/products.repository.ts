@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { BaseRepository } from '../../common/repositories/base.repository';
 
+import { ImagenProducto } from './entities/imagen-producto.entity';
 import { Product } from './entities/product.entity';
 
 import type { QueryProductsDto } from './dto/query-products.dto';

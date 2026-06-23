@@ -9,6 +9,7 @@ import {
 import { AuditLogService } from '../audit/audit-log.service';
 import { CategoriesService } from '../categories/categories.service';
 
+import { CreateImageDto } from './dto/create-image.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
@@ -99,9 +100,30 @@ export class ProductsService {
     return this.productsRepository.findCatalog(query);
   }
 
+  async deactivate(id: number): Promise<Product> {
+    await this.findById(id); // 404 si no existe o ya está inactivo
+    const updated = await this.productsRepository.update(id, {
+      isActive: false,
+    } as Partial<Product>);
+    this.logger.log(`Producto desactivado: ${updated.sku} (${updated.id})`);
+    return updated;
+  }
+
   private assertPositive(field: string, value: number): void {
     if (!Number.isFinite(value) || value <= 0) {
       throw new BadRequestException(`El campo ${field} debe ser mayor que cero`);
     }
+  }
+
+  async create_image(id: number, dto: CreateImageDto): Promise<Product> {
+    const product = await this.findById(id);
+
+    const updatedProduct = await this.productsRepository.addImage(
+      product.id,
+      dto.url_imagen,
+      dto.es_principal,
+    );
+    this.logger.log(`Imagen agregada al producto ${product.sku} (${product.id})`);
+    return updatedProduct;
   }
 }
