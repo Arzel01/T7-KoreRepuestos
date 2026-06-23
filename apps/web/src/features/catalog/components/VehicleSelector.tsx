@@ -14,33 +14,35 @@ import {
   VEHICLE_YEARS,
 } from '../data/vehicle-placeholder';
 
+import type { VehicleFilters } from '../hooks/useCatalogFilters';
+
+interface VehicleSelectorProps {
+  vehicle: VehicleFilters;
+  onVehicleChange: (field: keyof VehicleFilters, value: string) => void;
+}
+
 /**
- * Selector de vehículo — PLACEHOLDER visual.
- * El backend no tiene datos de compatibilidad vehicular todavía: los
- * dropdowns muestran opciones estáticas y no afectan los resultados.
+ * Selector de vehículo controlado — cada cambio escribe su valor en la URL
+ * (vía `onVehicleChange`) y el catálogo se refresca automáticamente.
+ *
+ * "Modelo" se resetea al cambiar "Marca" para evitar combinaciones inválidas
+ * (ej. Kia + Corolla). La lógica de reset vive en `useCatalogFilters.setVehicle`.
+ *
+ * Nota: las opciones son estáticas por ahora (datos de muestra de
+ * `vehicle-placeholder.ts`). Cuando el backend tenga compatibilidad vehicular
+ * real, bastará con reemplazar las listas por props o un hook de fetch.
  */
-export function VehicleSelector(): JSX.Element {
-  const groups: Array<{ id: string; label: string; options: readonly string[] }> = [
-    {
-      id: 'vehicle-brand',
-      label: 'Marca',
-      options: [...VEHICLE_BRANDS].sort((a, b) => a.localeCompare(b)),
-    },
-    {
-      id: 'vehicle-model',
-      label: 'Modelo',
-      options: [...VEHICLE_MODELS].sort((a, b) => a.localeCompare(b)),
-    },
-    {
-      id: 'vehicle-type',
-      label: 'Tipo',
-      options: [...VEHICLE_TYPES].sort((a, b) => a.localeCompare(b)),
-    },
-    {
-      id: 'vehicle-year',
-      label: 'Año',
-      options: [...VEHICLE_YEARS].sort((a, b) => b.localeCompare(a)),
-    },
+export function VehicleSelector({ vehicle, onVehicleChange }: VehicleSelectorProps): JSX.Element {
+  const groups: Array<{
+    id: string;
+    label: string;
+    field: keyof VehicleFilters;
+    options: readonly string[];
+  }> = [
+    { id: 'vehicle-brand', label: 'Marca', field: 'brand', options: VEHICLE_BRANDS },
+    { id: 'vehicle-model', label: 'Modelo', field: 'model', options: VEHICLE_MODELS },
+    { id: 'vehicle-type', label: 'Tipo', field: 'type', options: VEHICLE_TYPES },
+    { id: 'vehicle-year', label: 'Año', field: 'year', options: VEHICLE_YEARS },
   ];
 
   return (
@@ -50,7 +52,10 @@ export function VehicleSelector(): JSX.Element {
           <Label htmlFor={g.id} className="text-xs text-muted-foreground">
             {g.label}
           </Label>
-          <Select>
+          <Select
+            value={vehicle[g.field] || undefined}
+            onValueChange={(val) => onVehicleChange(g.field, val)}
+          >
             <SelectTrigger id={g.id} className="w-full bg-background">
               <SelectValue placeholder={`Seleccione ${g.label.toLowerCase()}`} />
             </SelectTrigger>
@@ -64,9 +69,6 @@ export function VehicleSelector(): JSX.Element {
           </Select>
         </div>
       ))}
-      <p className="text-[11px] italic text-muted-foreground">
-        Búsqueda por vehículo disponible próximamente.
-      </p>
     </div>
   );
 }

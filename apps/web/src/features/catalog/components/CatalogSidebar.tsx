@@ -29,7 +29,7 @@ export function CatalogSidebar({
     <div className="space-y-6">
       <section>
         <h3 className="mb-3 text-sm font-semibold">Busca tu vehículo</h3>
-        <VehicleSelector />
+        <VehicleSelector vehicle={filters.vehicle} onVehicleChange={filters.setVehicle} />
       </section>
 
       <Separator />
@@ -47,6 +47,17 @@ export function CatalogSidebar({
       <Separator />
 
       <section>
+        <h3 className="mb-3 text-sm font-semibold">Costo</h3>
+        <PriceFilter
+          draft={filters.draftPrice}
+          onDraftChange={filters.setDraftPrice}
+          onApply={filters.applyPrice}
+        />
+      </section>
+
+      <Separator />
+
+      <section>
         <h3 className="mb-3 text-sm font-semibold">Estado</h3>
         <div className="flex items-center gap-2">
           <Checkbox
@@ -58,17 +69,6 @@ export function CatalogSidebar({
             Solo en stock
           </Label>
         </div>
-      </section>
-
-      <Separator />
-
-      <section>
-        <h3 className="mb-3 text-sm font-semibold">Costo</h3>
-        <PriceFilter
-          draft={filters.draftPrice}
-          onDraftChange={filters.setDraftPrice}
-          onApply={filters.applyPrice}
-        />
       </section>
     </div>
   );
