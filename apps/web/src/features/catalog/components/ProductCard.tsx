@@ -26,6 +26,7 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
             src={product.imageUrl}
             alt={product.name}
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover"
             onError={() => setImageFailed(true)}
           />
