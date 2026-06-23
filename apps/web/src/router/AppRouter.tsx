@@ -9,6 +9,8 @@ import { ProductsListPage } from '@/app/admin/products/ProductsListPage';
 import { LoginPage } from '@/app/auth/LoginPage';
 import { RegisterPage } from '@/app/auth/RegisterPage';
 import { CatalogPage } from '@/app/CatalogPage';
+import { CalendarPage } from '@/app/garage/CalendarPage';
+import { GaragePage } from '@/app/garage/GaragePage';
 import { NotFoundPage } from '@/app/NotFoundPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AdminLayout } from '@/layouts/AdminLayout';
@@ -21,6 +23,12 @@ export function AppRouter(): JSX.Element {
       <Route path="/catalog" element={<Navigate to="/" replace />} />
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/register" element={<RegisterPage />} />
+
+      {/* ── Privadas (cualquier usuario autenticado) ──────────────────── */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/garage" element={<GaragePage />} />
+        <Route path="/garage/:vehicleId/calendar" element={<CalendarPage />} />
+      </Route>
 
       {/* ── Privadas (admin) ───────────────────────────────────────────── */}
       <Route element={<ProtectedRoute requireRole={UserRole.ADMINISTRADOR} />}>

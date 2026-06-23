@@ -1,4 +1,4 @@
-import { LogOut, Search, Settings, ShoppingCart, User } from 'lucide-react';
+import { Car, LogOut, Search, Settings, User } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -49,7 +49,7 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
           </span>
         </Link>
 
-        {/* Nav link catálogo */}
+        {/* Nav links */}
         <Link
           to="/"
           className="hidden shrink-0 text-sm font-medium text-muted-foreground hover:text-primary sm:block"
@@ -77,6 +77,14 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
 
         {/* Acciones */}
         <div className="flex shrink-0 items-center gap-2">
+          {isAuthenticated && (
+            <Button asChild variant="outline" size="sm" className="gap-1.5">
+              <Link to="/garage">
+                <Car className="size-4" aria-hidden="true" />
+                <span className="hidden sm:inline">Mi Garaje</span>
+              </Link>
+            </Button>
+          )}
           {isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -118,12 +126,6 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
               </Link>
             </Button>
           )}
-
-          {/* TODO(catalog): carrito real — por ahora solo UI */}
-          <Button variant="default" size="sm" className="gap-1.5" title="Carrito (próximamente)">
-            <ShoppingCart className="size-4" aria-hidden="true" />
-            <span className="hidden sm:inline">Carrito</span>
-          </Button>
         </div>
       </div>
     </header>
