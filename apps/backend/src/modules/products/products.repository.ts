@@ -89,4 +89,15 @@ export class ProductsRepository extends BaseRepository<Product, number> {
       .orderBy('p.stock_actual', 'ASC')
       .getMany();
   }
+
+  /**
+   * Obtiene un producto con sus imágenes y ficha técnica.
+   * Usado para la página de detalles del producto.
+   */
+  async findByIdWithRelations(id: number): Promise<Product | null> {
+    return this.repository.findOne({
+      where: { id },
+      relations: ['images', 'technicalSheet'],
+    });
+  }
 }

@@ -42,7 +42,7 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
     <header className="sticky top-0 z-40 border-b bg-background shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
         {/* Logo */}
-        <Link to="/" className="shrink-0 text-2xl font-bold tracking-tight text-primary">
+        <Link to="/landing" className="shrink-0 text-2xl font-bold tracking-tight text-primary">
           KORE
           <span className="ml-1 hidden text-sm font-normal text-muted-foreground sm:inline">
             Repuestos

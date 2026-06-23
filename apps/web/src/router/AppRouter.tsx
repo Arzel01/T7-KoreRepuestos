@@ -11,7 +11,9 @@ import { RegisterPage } from '@/app/auth/RegisterPage';
 import { CatalogPage } from '@/app/CatalogPage';
 import { CalendarPage } from '@/app/garage/CalendarPage';
 import { GaragePage } from '@/app/garage/GaragePage';
+import { LandingPage } from '@/app/LandingPage';
 import { NotFoundPage } from '@/app/NotFoundPage';
+import { ProductDetailsPage } from '@/app/ProductDetailsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AdminLayout } from '@/layouts/AdminLayout';
 
@@ -20,7 +22,9 @@ export function AppRouter(): JSX.Element {
     <Routes>
       {/* ── Públicas ───────────────────────────────────────────────────── */}
       <Route path="/" element={<CatalogPage />} />
+      <Route path="/landing" element={<LandingPage />} />
       <Route path="/catalog" element={<Navigate to="/" replace />} />
+      <Route path="/product/:id" element={<ProductDetailsPage />} />
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/register" element={<RegisterPage />} />
 

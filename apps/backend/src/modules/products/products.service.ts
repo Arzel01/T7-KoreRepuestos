@@ -88,7 +88,7 @@ export class ProductsService {
   }
 
   async findById(id: number): Promise<Product> {
-    const product = await this.productsRepository.findById(id);
+    const product = await this.productsRepository.findByIdWithRelations(id);
     if (!product) {
       throw new NotFoundException('Producto no encontrado');
     }

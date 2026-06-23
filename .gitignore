@@ -149,3 +149,10 @@ secrets/
 # Uploaded files (keep directory via .gitkeep)
 apps/backend/uploads/*
 !apps/backend/uploads/.gitkeep
+
+# Another files
+.agents/
+AGENTS.MD
+API_DOCUMENTATION.md
+skills-lock.json
+IMPLEMENTATION_SUMMARY.md

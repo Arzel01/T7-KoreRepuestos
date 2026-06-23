@@ -94,7 +94,7 @@ export function RegisterPage(): JSX.Element {
           <div className="absolute -bottom-16 -left-16 size-56 rounded-full bg-white/10" />
 
           <div className="relative">
-            <Link to="/" className="text-3xl font-extrabold tracking-tight text-white">
+            <Link to="/landing" className="text-3xl font-extrabold tracking-tight text-white">
               KORE
               <span className="ml-2 text-base font-normal text-white/70">Repuestos</span>
             </Link>

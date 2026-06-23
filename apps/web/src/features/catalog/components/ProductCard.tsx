@@ -1,5 +1,6 @@
 import { ImageOff, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import type { ProductResponse } from '@kore/shared';
  */
 export function ProductCard({ product }: { product: ProductResponse }): JSX.Element {
   const [imageFailed, setImageFailed] = useState(false);
+  const navigate = useNavigate();
   const available = product.stock > 0;
 
   return (
@@ -26,6 +28,7 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
             src={product.imageUrl}
             alt={product.name}
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover"
             onError={() => setImageFailed(true)}
           />
@@ -59,8 +62,11 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
           )}
         </div>
         <div className="flex gap-2">
-          {/* TODO(catalog): página de detalle /products/:id */}
-          <Button variant="outline" className="flex-1" title="Detalle (próximamente)">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => navigate(`/product/${product.id}`)}
+          >
             Ver Detalles
           </Button>
           {/* TODO(catalog): carrito real */}

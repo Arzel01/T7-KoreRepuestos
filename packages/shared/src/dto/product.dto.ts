@@ -64,6 +64,11 @@ export interface ProductResponse {
   createdAt: string;
 }
 
+export interface ProductDetailResponse extends ProductResponse {
+  images?: ProductImageResponse[];
+  technicalSheet?: TechnicalSheetEntryResponse[];
+}
+
 export interface ProductImageResponse {
   id: number;
   productId: number;
