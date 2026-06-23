@@ -1,5 +1,6 @@
 import { ImageOff, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import type { ProductResponse } from '@kore/shared';
  */
 export function ProductCard({ product }: { product: ProductResponse }): JSX.Element {
   const [imageFailed, setImageFailed] = useState(false);
+  const navigate = useNavigate();
   const available = product.stock > 0;
 
   return (
@@ -26,6 +28,7 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
             src={product.imageUrl}
             alt={product.name}
             loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover"
             onError={() => setImageFailed(true)}
           />
@@ -35,7 +38,7 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
       </div>
 
       {/* Información */}
-      <CardContent className="flex-1 space-y-2 pt-4">
+      <CardContent className="flex-1 space-y-2 px-5 pt-4 pb-2">
         <h3 className="font-semibold leading-snug">{product.name}</h3>
         <p className="font-mono text-xs text-muted-foreground">{product.sku}</p>
         <RatingStars productId={product.id} />
@@ -45,7 +48,7 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
       </CardContent>
 
       {/* Footer */}
-      <CardFooter className="flex-col items-stretch gap-3 pt-0">
+      <CardFooter className="flex-col items-stretch gap-3 px-5 pt-2 pb-5">
         <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-primary">${product.price.toFixed(2)}</span>
           {available ? (
@@ -59,8 +62,11 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
           )}
         </div>
         <div className="flex gap-2">
-          {/* TODO(catalog): página de detalle /products/:id */}
-          <Button variant="outline" className="flex-1" title="Detalle (próximamente)">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => navigate(`/product/${product.id}`)}
+          >
             Ver Detalles
           </Button>
           {/* TODO(catalog): carrito real */}

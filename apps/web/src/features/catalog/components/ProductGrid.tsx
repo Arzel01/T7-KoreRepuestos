@@ -28,7 +28,7 @@ export function ProductGrid({
 }: ProductGridProps): JSX.Element {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true">
         {Array.from({ length: 6 }, (_, i) => (
           <Card key={i} className="overflow-hidden">
             <Skeleton className="h-44 w-full rounded-none" />
@@ -82,7 +82,7 @@ export function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
       {items.map((p) => (
         <ProductCard key={p.id} product={p} />
       ))}

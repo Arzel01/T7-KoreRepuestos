@@ -1,13 +1,16 @@
+import * as path from 'path';
+
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
   });
 
@@ -20,7 +23,12 @@ async function bootstrap(): Promise<void> {
     .filter(Boolean);
 
   app.setGlobalPrefix(apiPrefix);
-  app.use(helmet());
+
+  // Servir imágenes subidas desde /uploads
+  const uploadsDir = path.resolve(process.cwd(), 'uploads');
+  app.useStaticAssets(uploadsDir, { prefix: '/uploads' });
+
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.enableCors({ origin: corsOrigins.length ? corsOrigins : true, credentials: true });
   app.useGlobalPipes(
     new ValidationPipe({

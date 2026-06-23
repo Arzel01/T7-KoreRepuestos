@@ -29,7 +29,7 @@ export function CatalogSidebar({
     <div className="space-y-6">
       <section>
         <h3 className="mb-3 text-sm font-semibold">Busca tu vehículo</h3>
-        <VehicleSelector />
+        <VehicleSelector vehicle={filters.vehicle} onVehicleChange={filters.setVehicle} />
       </section>
 
       <Separator />

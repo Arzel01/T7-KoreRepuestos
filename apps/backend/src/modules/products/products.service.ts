@@ -6,9 +6,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { AuditLogService } from '../audit/audit-log.service';
 import { CategoriesService } from '../categories/categories.service';
 
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { ProductsRepository } from './products.repository';
 
@@ -22,9 +24,10 @@ export class ProductsService {
   constructor(
     private readonly productsRepository: ProductsRepository,
     private readonly categoriesService: CategoriesService,
+    private readonly auditLogService: AuditLogService,
   ) {}
 
-  async create(dto: CreateProductDto): Promise<Product> {
+  async create(dto: CreateProductDto, userId?: number): Promise<Product> {
     this.assertPositive('price', dto.price);
 
     const skuTaken = await this.productsRepository.findBySku(dto.sku);
@@ -38,11 +41,54 @@ export class ProductsService {
 
     const product = await this.productsRepository.create({ ...dto });
     this.logger.log(`Producto creado: ${product.sku} (${product.id})`);
+
+    await this.auditLogService.log({
+      userId,
+      tableName: 'productos',
+      action: 'INSERT',
+      description: `Producto ${product.sku} creado`,
+    });
+
     return product;
   }
 
+  async update(id: number, dto: UpdateProductDto, userId?: number): Promise<Product> {
+    const existing = await this.productsRepository.findById(id);
+    if (!existing) throw new NotFoundException('Producto no encontrado');
+
+    if (dto.price !== undefined) this.assertPositive('price', dto.price);
+    if (dto.categoryId !== undefined) {
+      await this.categoriesService.assertExists(dto.categoryId);
+    }
+
+    const updated = await this.productsRepository.update(id, dto);
+
+    await this.auditLogService.log({
+      userId,
+      tableName: 'productos',
+      action: 'UPDATE',
+      description: `Producto ${id} actualizado`,
+    });
+
+    return updated;
+  }
+
+  async remove(id: number, userId?: number): Promise<void> {
+    const existing = await this.productsRepository.findById(id);
+    if (!existing) throw new NotFoundException('Producto no encontrado');
+
+    await this.productsRepository.update(id, { isActive: false });
+
+    await this.auditLogService.log({
+      userId,
+      tableName: 'productos',
+      action: 'DELETE',
+      description: `Producto ${id} desactivado`,
+    });
+  }
+
   async findById(id: number): Promise<Product> {
-    const product = await this.productsRepository.findActiveById(id);
+    const product = await this.productsRepository.findByIdWithRelations(id);
     if (!product) {
       throw new NotFoundException('Producto no encontrado');
     }

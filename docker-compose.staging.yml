@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: kore-backend-staging
+    restart: unless-stopped
+    env_file: ./apps/backend/.env.staging
+    ports:
+      - '3000:3000'
+    networks:
+      - kore-network
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-https://api.staging.kore-repuestos.com/api/v1}
+    container_name: kore-web-staging
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+    networks:
+      - kore-network
+
+networks:
+  kore-network:
+    name: kore-network-staging
+    driver: bridge

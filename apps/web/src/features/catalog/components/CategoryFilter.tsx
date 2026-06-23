@@ -1,4 +1,7 @@
+import { useState } from 'react';
+
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -18,6 +21,12 @@ export function CategoryFilter({
   selectedIds,
   onToggle,
 }: CategoryFilterProps): JSX.Element {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredCategories = categories.filter((cat) =>
+    cat.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   if (loading) {
     return (
       <div className="space-y-2.5">
@@ -29,21 +38,32 @@ export function CategoryFilter({
   }
 
   return (
-    <div className="space-y-2.5">
-      {categories.map((cat) => (
-        <div key={cat.id} className="flex items-center gap-2">
-          <Checkbox
-            id={`cat-${cat.id}`}
-            checked={selectedIds.includes(String(cat.id))}
-            onCheckedChange={() => onToggle(String(cat.id))}
-          />
-          <Label htmlFor={`cat-${cat.id}`} className="cursor-pointer text-sm font-normal">
-            {cat.name}
-          </Label>
+    <div className="space-y-3">
+      <Input
+        placeholder="Buscar categoría..."
+        className="h-8 text-xs bg-background"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      {filteredCategories.length > 0 ? (
+        <div className="max-h-40 overflow-y-auto pr-1">
+          <div className="space-y-2.5">
+            {filteredCategories.map((cat) => (
+              <div key={cat.id} className="flex items-center gap-2">
+                <Checkbox
+                  id={`cat-${cat.id}`}
+                  checked={selectedIds.includes(String(cat.id))}
+                  onCheckedChange={() => onToggle(String(cat.id))}
+                />
+                <Label htmlFor={`cat-${cat.id}`} className="cursor-pointer text-sm font-normal">
+                  {cat.name}
+                </Label>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
-      {categories.length === 0 && (
-        <p className="text-xs text-muted-foreground">Sin categorías disponibles.</p>
+      ) : (
+        <p className="text-xs text-muted-foreground">No se encontraron categorías.</p>
       )}
     </div>
   );

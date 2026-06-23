@@ -3,6 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 
 import type { ProductQueryParams } from '@kore/shared';
 
+export interface VehicleFilters {
+  brand: string;
+  model: string;
+  type: string;
+  year: string;
+}
+
 export interface CatalogFiltersState {
   /** Filtros APLICADOS, parseados desde la URL — lo que realmente se consulta. */
   applied: ProductQueryParams;
@@ -11,12 +18,14 @@ export interface CatalogFiltersState {
   selectedCategoryIds: string[];
   inStock: boolean;
   /** Borrador local de precio: solo se aplica con el botón "Buscar". */
+  vehicle: VehicleFilters;
   draftPrice: { min: string; max: string };
   hasActiveFilters: boolean;
   setDraftPrice: (price: { min: string; max: string }) => void;
   applyPrice: () => void;
   toggleCategory: (id: string) => void;
   setInStock: (value: boolean) => void;
+  setVehicle: (field: keyof VehicleFilters, value: string) => void;
   submitSearch: (term: string) => void;
   setPage: (page: number) => void;
   clearAll: () => void;
@@ -33,36 +42,54 @@ export interface CatalogFiltersState {
  *   · Búsqueda del navbar aplica al submit del formulario.
  *   · Cualquier cambio de filtro resetea a la página 1.
  */
+
+function composeSearch(
+  manualSearch: string | undefined,
+  vehicle: VehicleFilters,
+): string | undefined {
+  if (manualSearch?.trim()) return manualSearch.trim();
+  const terms = [vehicle.brand, vehicle.model, vehicle.type, vehicle.year]
+    .map((v) => v.trim())
+    .filter(Boolean);
+  return terms.length > 0 ? terms.join(' ') : undefined;
+}
+
 export function useCatalogFilters(): CatalogFiltersState {
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const vehicle = useMemo<VehicleFilters>(
+    () => ({
+      brand: searchParams.get('vehicleBrand') ?? '',
+      model: searchParams.get('vehicleModel') ?? '',
+      type: searchParams.get('vehicleType') ?? '',
+      year: searchParams.get('vehicleYear') ?? '',
+    }),
+    [searchParams],
+  );
+
   const applied = useMemo<ProductQueryParams>(() => {
-    const search = searchParams.get('search') ?? undefined;
+    const manualSearch = searchParams.get('search') ?? undefined;
     const categoryIds = searchParams.get('categoryIds')?.split(',').filter(Boolean);
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
     const page = searchParams.get('page');
 
     return {
-      search,
+      // `search` combina texto manual + vehículo según la estrategia de composeSearch
+      search: composeSearch(manualSearch, vehicle),
       categoryIds: categoryIds?.length ? categoryIds : undefined,
       minPrice: minPrice !== null ? Number(minPrice) : undefined,
       maxPrice: maxPrice !== null ? Number(maxPrice) : undefined,
       inStock: searchParams.get('inStock') === 'true' ? true : undefined,
       page: page !== null ? Number(page) : undefined,
     };
-  }, [searchParams]);
+  }, [searchParams, vehicle]);
 
   const [draftPrice, setDraftPrice] = useState<{ min: string; max: string }>(() => ({
     min: searchParams.get('minPrice') ?? '',
     max: searchParams.get('maxPrice') ?? '',
   }));
 
-  /**
-   * Escribe cambios en la URL omitiendo valores vacíos (URLs limpias y el
-   * backend nunca recibe params vacíos). Salvo que se indique lo contrario,
-   * todo cambio resetea `page`.
-   */
   const update = useCallback(
     (changes: Record<string, string | undefined>, { keepPage = false } = {}) => {
       setSearchParams(
@@ -98,6 +125,25 @@ export function useCatalogFilters(): CatalogFiltersState {
     [update],
   );
 
+  const setVehicle = useCallback(
+    (field: keyof VehicleFilters, value: string) => {
+      const urlKey: Record<keyof VehicleFilters, string> = {
+        brand: 'vehicleBrand',
+        model: 'vehicleModel',
+        type: 'vehicleType',
+        year: 'vehicleYear',
+      };
+      const changes: Record<string, string | undefined> = {
+        [urlKey[field]]: value || undefined,
+      };
+      // Si cambia la marca, resetear modelo (ya no es válido para la nueva marca)
+      if (field === 'brand') {
+        changes.vehicleModel = undefined;
+      }
+      update(changes);
+    },
+    [update],
+  );
   const submitSearch = useCallback(
     (term: string) => update({ search: term.trim() || undefined }),
     [update],
@@ -127,12 +173,14 @@ export function useCatalogFilters(): CatalogFiltersState {
     appliedKey: searchParams.toString(),
     selectedCategoryIds,
     inStock: applied.inStock === true,
+    vehicle,
     draftPrice,
     hasActiveFilters,
     setDraftPrice,
     applyPrice,
     toggleCategory,
     setInStock,
+    setVehicle,
     submitSearch,
     setPage,
     clearAll,
