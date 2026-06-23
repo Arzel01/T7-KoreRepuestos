@@ -2,7 +2,6 @@ import { UserRole } from '@kore/shared';
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -12,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  Delete,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
