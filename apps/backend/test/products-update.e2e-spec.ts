@@ -7,7 +7,7 @@ import type { INestApplication } from '@nestjs/common';
 import type { DataSource } from 'typeorm';
 
 /**
- * Tests e2e para PATCH /api/v1/products/:id y DELETE /api/v1/products/:id.
+ * Tests e2e para PUT+PATCH /api/v1/products/:id y DELETE /api/v1/products/:id.
  *
  * Criterios de aceptación:
  *   ✓ PATCH sin token → 401
@@ -15,11 +15,16 @@ import type { DataSource } from 'typeorm';
  *   ✓ PATCH Admin + payload válido → 200 con campos actualizados
  *   ✓ PATCH price = 0 → 400
  *   ✓ PATCH producto inexistente → 404
+ *   ✓ PUT sin token → 401
+ *   ✓ PUT con token de Cliente → 403
+ *   ✓ PUT Admin + payload válido → 200 con campos actualizados
+ *   ✓ PUT price = 0 → 400
+ *   ✓ PUT producto inexistente → 404
  *   ✓ DELETE sin token → 401
  *   ✓ DELETE Admin → 204 y producto queda isActive=false
  *   ✓ DELETE producto inexistente → 404
  */
-describe('ProductsController PATCH & DELETE /api/v1/products/:id (e2e)', () => {
+describe('ProductsController PUT+PATCH & DELETE /api/v1/products/:id (e2e)', () => {
   let app: INestApplication;
   let dataSource: DataSource;
   let adminToken: string;
@@ -116,6 +121,54 @@ describe('ProductsController PATCH & DELETE /api/v1/products/:id (e2e)', () => {
   it('PATCH producto inexistente → 404', async () => {
     await request(app.getHttpServer())
       .patch('/api/v1/products/9999')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'X' })
+      .expect(404);
+  });
+
+  // ── PUT ────────────────────────────────────────────────────────────────────
+
+  it('PUT sin token → 401', async () => {
+    await request(app.getHttpServer())
+      .put(`/api/v1/products/${productId}`)
+      .send({ name: 'Nuevo nombre' })
+      .expect(401);
+  });
+
+  it('PUT con token de Cliente → 403', async () => {
+    await request(app.getHttpServer())
+      .put(`/api/v1/products/${productId}`)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send({ name: 'Nuevo nombre' })
+      .expect(403);
+  });
+
+  it('PUT Admin + payload válido → 200 con campos actualizados', async () => {
+    const res = await request(app.getHttpServer())
+      .put(`/api/v1/products/${productId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'Nombre via PUT', price: 99.9 })
+      .expect(200);
+
+    expect(res.body).toMatchObject({
+      id: productId,
+      name: 'Nombre via PUT',
+      price: 99.9,
+      sku: 'UPD-001',
+    });
+  });
+
+  it('PUT price = 0 → 400', async () => {
+    await request(app.getHttpServer())
+      .put(`/api/v1/products/${productId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ price: 0 })
+      .expect(400);
+  });
+
+  it('PUT producto inexistente → 404', async () => {
+    await request(app.getHttpServer())
+      .put('/api/v1/products/9999')
       .set('Authorization', `Bearer ${adminToken}`)
       .send({ name: 'X' })
       .expect(404);

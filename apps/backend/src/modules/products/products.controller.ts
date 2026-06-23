@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseInterceptors,
@@ -86,10 +87,11 @@ export class ProductsController {
     return this.productsService.create(dto, Number(user.sub));
   }
 
+  @Put(':id')
   @Patch(':id')
   @Roles(UserRole.ADMINISTRADOR)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Actualiza un producto. Requiere rol Administrador.' })
+  @ApiOperation({ summary: 'Actualiza un producto (PUT o PATCH). Requiere rol Administrador.' })
   @ApiResponse({ status: 200, description: 'Producto actualizado.' })
   @ApiResponse({ status: 400, description: 'Payload inválido (ej. price = 0).' })
   @ApiResponse({ status: 401, description: 'No autenticado.' })
