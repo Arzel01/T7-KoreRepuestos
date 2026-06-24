@@ -8,7 +8,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { MaintenanceLog } from './maintenance-log.entity';
+import { MaintenanceLog } from '../../maintenance/entities/maintenance-log.entity';
+
 import { Modelo } from './modelo.entity';
 
 @Entity({ name: 'vehiculos_usuario' })

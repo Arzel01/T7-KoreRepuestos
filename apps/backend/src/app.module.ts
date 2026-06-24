@@ -6,6 +6,7 @@ import { typeOrmConfigFactory } from './config/typeorm.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { GarageModule } from './modules/garage/garage.module';
+import { MaintenanceModule } from './modules/maintenance/maintenance.module';
 import { ProductsModule } from './modules/products/products.module';
 import { UsersModule } from './modules/users/users.module';
 
@@ -34,6 +35,7 @@ import { UsersModule } from './modules/users/users.module';
     CategoriesModule,
     ProductsModule,
     GarageModule,
+    MaintenanceModule,
   ],
 })
 export class AppModule {}

@@ -1,7 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
+import { Modelo } from '../../../modules/garage/entities/modelo.entity';
+
 import { MaintenancePlan } from './maintenance-plan.entity';
-import { Modelo } from './modelo.entity';
 
 @Entity({ name: 'guias_mantenimiento' })
 export class MaintenanceGuide {

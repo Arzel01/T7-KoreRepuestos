@@ -13,8 +13,8 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { CreateMaintenanceLogDto } from '../maintenance/dto/create-maintenance-log.dto';
 
-import { CreateMaintenanceLogDto } from './dto/create-maintenance-log.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
 import { VehiclesService } from './vehicles.service';

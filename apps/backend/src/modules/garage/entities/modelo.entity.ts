@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-import { MaintenanceGuide } from './maintenance-guide.entity';
+import { MaintenanceGuide } from '../../maintenance/entities/maintenance-guide.entity';
+
 import { Marca } from './marca.entity';
 
 @Entity({ name: 'modelos' })

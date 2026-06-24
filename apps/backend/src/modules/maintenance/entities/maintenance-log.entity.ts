@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-import { VehicleUser } from './vehicle-user.entity';
+import { VehicleUser } from '../../../modules/garage/entities/vehicle-user.entity';
 
 @Entity({ name: 'historial_mantenimiento' })
 export class MaintenanceLog {

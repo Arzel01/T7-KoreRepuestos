@@ -1,8 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 
+import { MaintenancePlan } from '../../maintenance/entities/maintenance-plan.entity';
 import { Product } from '../../products/entities/product.entity';
-
-import { MaintenancePlan } from './maintenance-plan.entity';
 
 @Entity({ name: 'productos_tarea' })
 export class ProductTask {

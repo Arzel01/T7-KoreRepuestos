@@ -13,6 +13,19 @@ export interface MaintenanceLogResponse {
   notes?: string;
 }
 
+export interface MaintenanceTaskResponse {
+  id: number;
+  brandId: number;
+  modelId: number;
+  brandName: string;
+  modelName: string;
+  mileageInterval: number;
+  monthInterval?: number;
+  description: string;
+  isCritical: boolean;
+  parts: number;
+}
+
 export interface CalendarItemDto {
   planId: number;
   description: string;
@@ -23,4 +36,14 @@ export interface CalendarItemDto {
   nextServiceDate: string;
   lastLog?: MaintenanceLogResponse;
   products: CalendarProductDto[];
+}
+
+export interface MaintenanceGuideResponse {
+  id: number;
+  modelId: number;
+  modelName: string;
+  brandId: number;
+  brandName: string;
+  description?: string;
+  tasks: MaintenanceTaskResponse[];
 }

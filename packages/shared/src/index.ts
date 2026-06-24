@@ -9,4 +9,5 @@ export * from './dto/product.dto';
 export * from './dto/category.dto';
 export * from './interfaces/api-response.interface';
 export * from './dto/vehicle.dto';
+export * from './dto/maintenance.dto';
 export * from './dto/garage.dto';

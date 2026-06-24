@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { CategoriesPage } from '@/app/admin/CategoriesPage';
 import { DashboardPage } from '@/app/admin/DashboardPage';
+import { MaintenanceCreatePage } from '@/app/admin/maintenance/MaintenanceCreatePage';
 import { ProductCreatePage } from '@/app/admin/products/ProductCreatePage';
 import { ProductEditPage } from '@/app/admin/products/ProductEditPage';
 import { ProductsListPage } from '@/app/admin/products/ProductsListPage';
@@ -22,7 +23,7 @@ export function AppRouter(): JSX.Element {
       {/* ── Públicas ───────────────────────────────────────────────────── */}
       <Route path="/" element={<CatalogPage />} />
       <Route path="/landing" element={<LandingPage />} />
-      <Route path="/catalog" element={<Navigate to="/" replace />} />
+      <Route path="/catalog" element={<CatalogPage />} />
       <Route path="/auth/login" element={<LoginPage />} />
       <Route path="/auth/register" element={<RegisterPage />} />
 
@@ -39,6 +40,7 @@ export function AppRouter(): JSX.Element {
           <Route path="products" element={<ProductsListPage />} />
           <Route path="products/new" element={<ProductCreatePage />} />
           <Route path="products/:id/edit" element={<ProductEditPage />} />
+          <Route path="maintenance" element={<MaintenanceCreatePage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="users" element={<Navigate to="/admin" replace />} />
         </Route>

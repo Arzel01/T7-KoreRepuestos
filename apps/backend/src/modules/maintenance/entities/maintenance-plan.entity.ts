@@ -1,7 +1,8 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
+import { ProductTask } from '../../../modules/garage/entities/product-task.entity';
+
 import { MaintenanceGuide } from './maintenance-guide.entity';
-import { ProductTask } from './product-task.entity';
 
 @Entity({ name: 'tareas_mantenimiento' })
 export class MaintenancePlan {

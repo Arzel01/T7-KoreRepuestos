@@ -7,10 +7,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { CreateMaintenanceLogDto } from './dto/create-maintenance-log.dto';
+import { CreateMaintenanceLogDto } from '../maintenance/dto/create-maintenance-log.dto';
+import { MaintenancePlan } from '../maintenance/entities/maintenance-plan.entity';
+
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
-import { MaintenancePlan } from './entities/maintenance-plan.entity';
 import { Marca } from './entities/marca.entity';
 import { Modelo } from './entities/modelo.entity';
 import { VehicleUser } from './entities/vehicle-user.entity';
