@@ -22,7 +22,11 @@ const buildOptions = (config?: ConfigService): DataSourceOptions => {
   // Cambiar a false solo en entornos sin ca-certificates actualizados (ej. Alpine antiguo).
   const rejectUnauthorized = get('DB_SSL_REJECT_UNAUTHORIZED', 'true') !== 'false';
 
-  const databaseUrl = get('DATABASE_URL');
+  // En modo test ignoramos DATABASE_URL aunque esté en .env, para evitar que los
+  // e2e tests (que hacen TRUNCATE) se conecten a la base de datos real de Supabase.
+  // CI ya provee DB_HOST/DB_PORT/etc. apuntando al postgres efímero.
+  const nodeEnv = get('NODE_ENV', 'development');
+  const databaseUrl = nodeEnv !== 'test' ? get('DATABASE_URL') : '';
   if (databaseUrl) {
     // Supabase: siempre Direct Connection (puerto 5432) para TypeORM.
     // Transaction Mode (6543) no soporta prepared statements.

@@ -28,6 +28,7 @@ import {
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { ParsePositiveIntPipe } from '../../common/pipes/parse-positive-int.pipe';
 
 import { CreateProductDto } from './dto/create-product.dto';
 import { CreateTechnicalSheetEntryDto } from './dto/create-technical-sheet-entry.dto';
@@ -65,11 +66,12 @@ export class ProductsController {
 
   @Public()
   @Get(':id')
-  @ApiOperation({ summary: 'Detalle público de un producto.' })
+  @ApiOperation({ summary: 'Detalle público de un producto activo.' })
   @ApiResponse({ status: 200, description: 'Producto encontrado.' })
-  @ApiResponse({ status: 404, description: 'Producto no encontrado.' })
-  findOne(@Param('id', new ParseIntPipe()) id: number): Promise<Product> {
-    return this.productsService.findById(id);
+  @ApiResponse({ status: 400, description: 'ID inválido (no numérico, negativo o cero).' })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado o inactivo.' })
+  findOne(@Param('id', ParsePositiveIntPipe) id: number): Promise<Product> {
+    return this.productsService.findActiveById(id);
   }
 
   // ── CRUD admin ─────────────────────────────────────────────────────────────

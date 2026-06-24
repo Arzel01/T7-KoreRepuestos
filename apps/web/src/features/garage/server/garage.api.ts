@@ -2,8 +2,10 @@ import { api } from '@/lib/api-client';
 
 import type {
   CalendarItemDto,
+  CreateMaintenanceGuidePayload,
   CreateMaintenanceLogDto,
   CreateVehicleDto,
+  MaintenanceGuideResponse,
   MaintenanceLogResponse,
   MarcaResponse,
   ModeloResponse,
@@ -34,4 +36,11 @@ export const garageApi = {
 
   getCalendar: (vehicleId: number): Promise<CalendarItemDto[]> =>
     api.get(`/vehicles/${vehicleId}/calendar`),
+
+  getGuides: (): Promise<MaintenanceGuideResponse[]> => api.get('/maintenance/guides'),
+
+  getGuide: (id: number): Promise<MaintenanceGuideResponse> => api.get(`/maintenance/guides/${id}`),
+
+  createGuide: (payload: CreateMaintenanceGuidePayload): Promise<MaintenanceGuideResponse> =>
+    api.post('/maintenance/guides', payload),
 };

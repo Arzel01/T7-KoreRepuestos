@@ -13,8 +13,9 @@ const NAV: NavItem[] = [
   { id: '00', label: 'Dashboard', to: '/admin', icon: '◧' },
   { id: '01', label: 'Productos', to: '/admin/products', icon: '◆' },
   { id: '02', label: 'Categorías', to: '/admin/categories', icon: '⊞' },
-  { id: '03', label: 'Usuarios', to: '/admin/users', icon: '◉' },
-  { id: '04', label: 'Mi Garaje', to: '/garage', icon: '🚗' },
+  { id: '03', label: 'Mantenimiento', to: '/admin/maintenance', icon: '⚙' },
+  { id: '04', label: 'Usuarios', to: '/admin/users', icon: '◉' },
+  { id: '05', label: 'Mi Garaje', to: '/garage', icon: '🚗' },
 ];
 
 export function Sidebar(): JSX.Element {

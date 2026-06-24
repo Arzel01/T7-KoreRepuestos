@@ -95,6 +95,14 @@ export class ProductsService {
     return product;
   }
 
+  async findActiveById(id: number): Promise<Product> {
+    const product = await this.productsRepository.findActiveById(id);
+    if (!product) {
+      throw new NotFoundException('Producto no encontrado');
+    }
+    return product;
+  }
+
   async findCatalog(query: QueryProductsDto): Promise<PaginatedResult<Product>> {
     return this.productsRepository.findCatalog(query);
   }

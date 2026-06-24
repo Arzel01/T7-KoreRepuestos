@@ -3,6 +3,8 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { CategoriesPage } from '@/app/admin/CategoriesPage';
 import { DashboardPage } from '@/app/admin/DashboardPage';
+import { MaintenanceGuideNewPage } from '@/app/admin/maintenance/MaintenanceGuideNewPage';
+import { MaintenanceGuidesListPage } from '@/app/admin/maintenance/MaintenanceGuidesListPage';
 import { ProductCreatePage } from '@/app/admin/products/ProductCreatePage';
 import { ProductEditPage } from '@/app/admin/products/ProductEditPage';
 import { ProductsListPage } from '@/app/admin/products/ProductsListPage';
@@ -42,6 +44,8 @@ export function AppRouter(): JSX.Element {
           <Route path="products/new" element={<ProductCreatePage />} />
           <Route path="products/:id/edit" element={<ProductEditPage />} />
           <Route path="categories" element={<CategoriesPage />} />
+          <Route path="maintenance" element={<MaintenanceGuidesListPage />} />
+          <Route path="maintenance/new" element={<MaintenanceGuideNewPage />} />
           <Route path="users" element={<Navigate to="/admin" replace />} />
         </Route>
       </Route>
