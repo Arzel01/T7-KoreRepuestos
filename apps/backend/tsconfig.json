@@ -14,6 +14,11 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*",
+    "test/product-detail.e2e-spec.ts",
+    "test/products-deactivate.e2e-spec.ts",
+    "test/product.entity.e2e-spec.ts"
+  ],
   "exclude": ["node_modules", "dist", "test"]
 }

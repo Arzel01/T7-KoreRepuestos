@@ -10,6 +10,9 @@ import { Marca } from './entities/marca.entity';
 import { Modelo } from './entities/modelo.entity';
 import { ProductTask } from './entities/product-task.entity';
 import { VehicleUser } from './entities/vehicle-user.entity';
+import { MaintenanceGuideRepository } from './maintenance-guide.repository';
+import { MaintenanceGuidesController } from './maintenance-guides.controller';
+import { MaintenanceGuidesService } from './maintenance-guides.service';
 import { MaintenanceLogRepository } from './maintenance-log.repository';
 import { VehiclesController } from './vehicles.controller';
 import { VehiclesRepository } from './vehicles.repository';
@@ -28,7 +31,13 @@ import { VehiclesService } from './vehicles.service';
       Product,
     ]),
   ],
-  controllers: [VehiclesController],
-  providers: [VehiclesRepository, MaintenanceLogRepository, VehiclesService],
+  controllers: [VehiclesController, MaintenanceGuidesController],
+  providers: [
+    VehiclesRepository,
+    MaintenanceLogRepository,
+    VehiclesService,
+    MaintenanceGuideRepository,
+    MaintenanceGuidesService,
+  ],
 })
 export class GarageModule {}
