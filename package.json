@@ -31,6 +31,8 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "class-validator": "^0.14.1",
+    "class-transformer": "^0.5.1",
     "@eslint/js": "^9.28.0",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
     "@typescript-eslint/parser": "^8.33.1",
