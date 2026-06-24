@@ -8,7 +8,7 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
-  Patch,
+  Patch as HttpPatch,
   Post,
   Put,
   Query,
@@ -104,7 +104,7 @@ export class ProductsController {
     return this.productsService.update(id, dto, Number(user.sub));
   }
 
-  @Patch(':id')
+  @HttpPatch(':id')
   @Roles(UserRole.ADMINISTRADOR)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Actualiza un producto (PATCH). Requiere rol Administrador.' })
