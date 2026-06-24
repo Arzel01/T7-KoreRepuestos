@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   ParseIntPipe,
   Patch,
   Post,
@@ -30,6 +31,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { ParsePositiveIntPipe } from '../../common/pipes/parse-positive-int.pipe';
 
+import { CreateImageDto } from './dto/create-image.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { CreateTechnicalSheetEntryDto } from './dto/create-technical-sheet-entry.dto';
 import { QueryProductsDto } from './dto/query-products.dto';
@@ -242,5 +244,29 @@ export class ProductsController {
     @CurrentUser() user: JwtPayload,
   ): Promise<void> {
     return this.technicalSheetsService.remove(productId, entryId, Number(user.sub));
+  }
+
+  @Patch(':id/deactivate')
+  @Roles(UserRole.ADMINISTRADOR, UserRole.ASESOR_COMERCIAL)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Elimina lógicamente un producto (isActive=false). Requiere Administrador o Asesor Comercial.',
+  })
+  deactivate(@Param('id', new ParseIntPipe()) id: number): Promise<Product> {
+    return this.productsService.deactivate(id);
+  }
+
+  @Post(':id/images')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Agrega una imagen a un producto. Requiere rol Administrador.' })
+  create_images(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body() dto: CreateImageDto,
+  ): Promise<Product> {
+    dto.id_producto = id;
+    return this.productsService.create_image(id, dto);
   }
 }
