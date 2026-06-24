@@ -1,7 +1,17 @@
 import { UserRole } from '@kore/shared';
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 
 import { CreateMaintenanceGuideDto } from './dto/create-maintenance-guide.dto';
@@ -22,6 +32,23 @@ import type { MaintenanceGuide } from './entities/maintenance-guide.entity';
 @Controller('maintenance')
 export class MaintenanceGuidesController {
   constructor(private readonly guidesService: MaintenanceGuidesService) {}
+
+  @Get('guides')
+  @Public()
+  @ApiOperation({ summary: 'Listar todas las guías de mantenimiento.' })
+  @ApiResponse({ status: 200, description: 'Lista de guías con su modelo y marca.' })
+  findAll(): Promise<MaintenanceGuide[]> {
+    return this.guidesService.findAll();
+  }
+
+  @Get('guides/:id')
+  @Public()
+  @ApiOperation({ summary: 'Obtener una guía de mantenimiento por ID.' })
+  @ApiResponse({ status: 200, description: 'Guía con sus tareas y modelo.' })
+  @ApiResponse({ status: 404, description: 'Guía no encontrada.' })
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<MaintenanceGuide> {
+    return this.guidesService.findOne(id);
+  }
 
   @Post('guides')
   @Roles(UserRole.ADMINISTRADOR)

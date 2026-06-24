@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { MaintenanceGuide } from './entities/maintenance-guide.entity';
 import { MaintenancePlan } from './entities/maintenance-plan.entity';
+import { ProductTask } from './entities/product-task.entity';
 
 @Injectable()
 export class MaintenanceGuideRepository {
@@ -19,7 +20,9 @@ export class MaintenanceGuideRepository {
   async createWithPlans(
     guideData: Pick<MaintenanceGuide, 'modeloId' | 'descripcion'>,
     plansData?: Array<
-      Pick<MaintenancePlan, 'description' | 'mileageInterval' | 'monthInterval' | 'isCritical'>
+      Pick<MaintenancePlan, 'description' | 'mileageInterval' | 'monthInterval' | 'isCritical'> & {
+        parts?: Array<{ productId: number; quantity?: number }>;
+      }
     >,
   ): Promise<MaintenanceGuide> {
     return this.guides.manager.transaction(async (em) => {
@@ -27,16 +30,28 @@ export class MaintenanceGuideRepository {
       const savedGuide = await em.save(guide);
 
       if (plansData?.length) {
-        const planEntities = plansData.map((p) =>
-          em.create(MaintenancePlan, { ...p, guideId: savedGuide.id }),
-        );
-        await em.save(planEntities);
+        for (const { parts, ...planData } of plansData) {
+          const savedPlan = await em.save(
+            em.create(MaintenancePlan, { ...planData, guideId: savedGuide.id }),
+          );
+
+          if (parts?.length) {
+            const partEntities = parts.map((p) =>
+              em.create(ProductTask, {
+                taskId: savedPlan.id,
+                productId: p.productId,
+                cantidad: p.quantity ?? 1,
+              }),
+            );
+            await em.save(partEntities);
+          }
+        }
       }
 
-      // Devolver la guía completa con sus planes hidratados
+      // Devolver la guía completa con sus planes e partes hidratados
       return em.findOneOrFail(MaintenanceGuide, {
         where: { id: savedGuide.id },
-        relations: { plans: true, modelo: { marca: true } },
+        relations: { plans: { productTasks: { product: true } }, modelo: { marca: true } },
       });
     });
   }
@@ -52,6 +67,13 @@ export class MaintenanceGuideRepository {
     return this.guides.find({
       where: { modeloId },
       relations: { plans: true },
+      order: { id: 'ASC' },
+    });
+  }
+
+  findAll(): Promise<MaintenanceGuide[]> {
+    return this.guides.find({
+      relations: { modelo: { marca: true } },
       order: { id: 'ASC' },
     });
   }

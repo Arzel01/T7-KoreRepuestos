@@ -1,5 +1,7 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+
+const LS_KEY = 'kore_catalog_filters';
 
 import type { ProductQueryParams } from '@kore/shared';
 
@@ -81,6 +83,33 @@ function composeSearch(
  */
 export function useCatalogFilters(): CatalogFiltersState {
   const [searchParams, setSearchParams] = useSearchParams();
+
+  // Restore persisted filters on first mount when URL has no params
+  useEffect(() => {
+    if (searchParams.toString()) return;
+    try {
+      const saved = localStorage.getItem(LS_KEY);
+      if (saved) setSearchParams(new URLSearchParams(saved), { replace: true });
+    } catch {
+      // localStorage unavailable — silently skip
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist filters (excluding page) whenever params change
+  useEffect(() => {
+    try {
+      const withoutPage = new URLSearchParams(searchParams);
+      withoutPage.delete('page');
+      if (withoutPage.toString()) {
+        localStorage.setItem(LS_KEY, withoutPage.toString());
+      } else {
+        localStorage.removeItem(LS_KEY);
+      }
+    } catch {
+      // localStorage unavailable — silently skip
+    }
+  }, [searchParams]);
 
   const vehicle = useMemo<VehicleFilters>(
     () => ({
@@ -208,6 +237,11 @@ export function useCatalogFilters(): CatalogFiltersState {
   const clearAll = useCallback(() => {
     setDraftPrice({ min: '', max: '' });
     setSearchParams(new URLSearchParams(), { replace: false });
+    try {
+      localStorage.removeItem(LS_KEY);
+    } catch {
+      /* ignore */
+    }
   }, [setSearchParams]);
 
   const hasActiveFilters = [...searchParams.keys()].some((k) => k !== 'page');

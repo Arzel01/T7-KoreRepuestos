@@ -1,5 +1,18 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsOptional, IsPositive, IsString, Length, Min } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Length,
+  Min,
+  ValidateNested,
+} from 'class-validator';
+
+import { CreateTaskPartDto } from './create-task-part.dto';
 
 /**
  * Una tarea individual dentro de una guía de mantenimiento.
@@ -32,4 +45,14 @@ export class CreateMaintenancePlanDto {
   @IsOptional()
   @IsBoolean()
   isCritical?: boolean;
+
+  @ApiPropertyOptional({
+    type: () => [CreateTaskPartDto],
+    description: 'Productos (repuestos) requeridos para esta tarea.',
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateTaskPartDto)
+  parts?: CreateTaskPartDto[];
 }

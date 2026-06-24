@@ -38,7 +38,20 @@ export class MaintenanceGuidesService {
         mileageInterval: p.mileageInterval,
         monthInterval: p.monthInterval,
         isCritical: p.isCritical ?? false,
+        parts: p.parts?.map((pt) => ({ productId: pt.productId, quantity: pt.quantity })),
       })),
     );
+  }
+
+  findAll(): Promise<MaintenanceGuide[]> {
+    return this.guidesRepo.findAll();
+  }
+
+  async findOne(id: number): Promise<MaintenanceGuide> {
+    const guide = await this.guidesRepo.findById(id);
+    if (!guide) {
+      throw new NotFoundException(`Guía de mantenimiento con id ${id} no encontrada`);
+    }
+    return guide;
   }
 }
