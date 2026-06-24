@@ -11,6 +11,7 @@ import {
 
 import { Category } from '../../categories/entities/category.entity';
 
+import { Compatibility } from './compatibility.entity';
 import { ProductImage } from './product-image.entity';
 import { TechnicalSheetEntry } from './technical-sheet-entry.entity';
 
@@ -70,4 +71,7 @@ export class Product {
 
   @OneToMany(() => TechnicalSheetEntry, (e) => e.product)
   technicalSheet?: TechnicalSheetEntry[];
+
+  @OneToMany(() => Compatibility, (c) => c.product)
+  compatibilities?: Compatibility[];
 }

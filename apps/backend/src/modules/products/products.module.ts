@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuditModule } from '../audit/audit.module';
 import { CategoriesModule } from '../categories/categories.module';
 
+import { Compatibility } from './entities/compatibility.entity';
 import { ProductImage } from './entities/product-image.entity';
 import { Product } from './entities/product.entity';
 import { TechnicalSheetEntry } from './entities/technical-sheet-entry.entity';
@@ -15,7 +16,7 @@ import { TechnicalSheetsService } from './technical-sheets.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, ProductImage, TechnicalSheetEntry]),
+    TypeOrmModule.forFeature([Product, ProductImage, TechnicalSheetEntry, Compatibility]),
     CategoriesModule,
     AuditModule,
   ],
