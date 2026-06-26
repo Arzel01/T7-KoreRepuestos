@@ -3,7 +3,6 @@ import * as path from 'path';
 
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import sharp from 'sharp';
 import { Repository } from 'typeorm';
 
 import { AuditLogService } from '../audit/audit-log.service';
@@ -42,9 +41,14 @@ export class ProductImagesService {
 
     // Genera thumbnail desde el buffer (sin leer el disco de nuevo)
     const thumbFilename = `thumb_${filename}`;
-    await sharp(file.buffer)
-      .resize(200, 200, { fit: 'cover' })
-      .toFile(path.join(UPLOADS_DIR, thumbFilename));
+    try {
+      const sharp = (await import('sharp')).default;
+      await sharp(file.buffer)
+        .resize(200, 200, { fit: 'cover' })
+        .toFile(path.join(UPLOADS_DIR, thumbFilename));
+    } catch {
+      // sharp no disponible en este entorno (serverless sin binario nativo)
+    }
 
     const count = await this.imageRepo.count({ where: { productId } });
     const isPrimary = count === 0;
