@@ -1,3 +1,6 @@
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -25,8 +28,30 @@ export function CatalogSidebar({
   categories,
   categoriesLoading,
 }: CatalogSidebarProps): JSX.Element {
+  const [categoryFilterResetKey, setCategoryFilterResetKey] = useState(0);
+
+  const handleClearFilters = () => {
+    filters.clearAll();
+    filters.setDraftPrice({ min: '', max: '' });
+    setCategoryFilterResetKey((prev) => prev + 1);
+  };
+
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-semibold">Filtros</h2>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleClearFilters}
+          disabled={!filters.hasActiveFilters}
+          className="h-8 px-3 text-xs"
+        >
+          Limpiar filtros
+        </Button>
+      </div>
+
       <section>
         <h3 className="mb-3 text-sm font-semibold">Busca tu vehículo</h3>
         <VehicleSelector vehicle={filters.vehicle} onVehicleChange={filters.setVehicle} />
@@ -41,6 +66,7 @@ export function CatalogSidebar({
           loading={categoriesLoading}
           selectedIds={filters.selectedCategoryIds}
           onToggle={filters.toggleCategory}
+          resetTrigger={categoryFilterResetKey}
         />
       </section>
 

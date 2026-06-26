@@ -19,73 +19,94 @@ export function PriceFilter({ draft, onDraftChange, onApply }: PriceFilterProps)
     return value === '' || /^\d{0,4}(\.\d{0,2})?$/.test(value);
   };
 
+  const allSelected = draft.min === '' && draft.max === '';
+
   return (
     <form
-      className="flex items-end gap-2"
+      className="space-y-3"
       onSubmit={(e) => {
         e.preventDefault();
         onApply();
       }}
     >
-      <div className="flex-1 space-y-1.5">
-        <Label htmlFor="price-min" className="text-[11px] text-muted-foreground">
-          Mín
-        </Label>
-        <Input
-          id="price-min"
-          type="number"
-          pattern="\d{1,4}"
-          min={0}
-          max="9999.99"
-          step="0.01"
-          inputMode="decimal"
-          placeholder="0"
-          className="h-9 bg-background"
-          value={draft.min}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (isValidPrice(val)) {
-              onDraftChange({ ...draft, min: val });
-            }
+      <div className="flex items-center gap-2 pb-1">
+        <input
+          type="radio"
+          id="price-all"
+          name="price-option"
+          checked={allSelected}
+          onChange={() => {
+            onDraftChange({ min: '', max: '' });
+            // No call onApply here, let user control when to apply
           }}
+          className="h-4 w-4"
         />
+        <Label htmlFor="price-all" className="cursor-pointer text-sm font-normal">
+          Todos
+        </Label>
       </div>
 
-      <div className="flex-1 space-y-1.5">
-        <Label htmlFor="price-max" className="text-[11px] text-muted-foreground">
-          Máx
-        </Label>
-        <Input
-          id="price-max"
-          type="number"
-          pattern="\d{1,4}"
-          min={0}
-          max="9999.99"
-          step="0.01"
-          inputMode="decimal"
-          placeholder="9999"
-          className="h-9 bg-background"
-          value={draft.max}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (isValidPrice(val)) {
-              onDraftChange({ ...draft, max: val });
-            }
-          }}
-        />
-      </div>
+      <div className="flex items-end gap-2">
+        <div className="flex-1 space-y-1.5">
+          <Label htmlFor="price-min" className="text-[11px] text-muted-foreground">
+            Mín
+          </Label>
+          <Input
+            id="price-min"
+            type="number"
+            pattern="\d{1,4}"
+            min={0}
+            max="9999.99"
+            step="0.01"
+            inputMode="decimal"
+            placeholder="0"
+            className="h-9 bg-background"
+            value={draft.min}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (isValidPrice(val)) {
+                onDraftChange({ ...draft, min: val });
+              }
+            }}
+          />
+        </div>
 
-      <Button
-        type="submit"
-        size="sm"
-        className="h-9 px-3"
-        title="Aplicar rango de precio"
-        variant="outline"
-      >
-        <span>
-          <ChevronRight />
-        </span>
-      </Button>
+        <div className="flex-1 space-y-1.5">
+          <Label htmlFor="price-max" className="text-[11px] text-muted-foreground">
+            Máx
+          </Label>
+          <Input
+            id="price-max"
+            type="number"
+            pattern="\d{1,4}"
+            min={0}
+            max="9999.99"
+            step="0.01"
+            inputMode="decimal"
+            placeholder="9999"
+            className="h-9 bg-background"
+            value={draft.max}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (isValidPrice(val)) {
+                onDraftChange({ ...draft, max: val });
+              }
+            }}
+          />
+        </div>
+
+        <Button
+          type="submit"
+          size="sm"
+          className="h-9 px-3"
+          title="Aplicar rango de precio"
+          variant="outline"
+        >
+          <span>
+            <ChevronRight />
+          </span>
+        </Button>
+      </div>
     </form>
   );
 }
