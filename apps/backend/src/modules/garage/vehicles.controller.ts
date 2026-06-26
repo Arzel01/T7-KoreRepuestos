@@ -13,6 +13,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Public } from '../../common/decorators/public.decorator';
 
 import { CreateMaintenanceLogDto } from './dto/create-maintenance-log.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
@@ -27,6 +28,7 @@ import type { JwtPayload } from '../auth/dto/auth-response.dto';
 export class VehiclesController {
   constructor(private readonly vehiclesService: VehiclesService) {}
 
+  @Public()
   @Get('brands')
   @ApiOperation({ summary: 'Listar todas las marcas de vehículos.' })
   @ApiResponse({ status: 200 })
@@ -34,6 +36,7 @@ export class VehiclesController {
     return this.vehiclesService.listBrands();
   }
 
+  @Public()
   @Get('brands/:brandId/models')
   @ApiOperation({ summary: 'Listar modelos de una marca.' })
   @ApiResponse({ status: 200 })

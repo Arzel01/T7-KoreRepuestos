@@ -69,7 +69,8 @@ export function VehicleSelector({ vehicle, onVehicleChange }: VehicleSelectorPro
     : VEHICLE_YEARS;
 
   function handleBrandChange(brandName: string) {
-    onVehicleChange('brand', brandName);
+    const actualBrand = brandName === '__all__' ? '' : brandName;
+    onVehicleChange('brand', actualBrand);
     onVehicleChange('model', '');
   }
 
@@ -84,11 +85,12 @@ export function VehicleSelector({ vehicle, onVehicleChange }: VehicleSelectorPro
         <Label htmlFor="vehicle-brand" className="text-xs text-muted-foreground">
           Marca
         </Label>
-        <Select value={vehicle.brand || undefined} onValueChange={handleBrandChange}>
+        <Select value={vehicle.brand ? vehicle.brand : '__all__'} onValueChange={handleBrandChange}>
           <SelectTrigger id="vehicle-brand" className="w-full bg-background">
             <SelectValue placeholder="Seleccione marca" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="__all__">Todos</SelectItem>
             {brands.map((b) => (
               <SelectItem key={b.id} value={b.nombre}>
                 {b.nombre}
@@ -104,8 +106,8 @@ export function VehicleSelector({ vehicle, onVehicleChange }: VehicleSelectorPro
           Modelo
         </Label>
         <Select
-          value={vehicle.model || undefined}
-          onValueChange={(val) => onVehicleChange('model', val)}
+          value={vehicle.model ? vehicle.model : '__all__'}
+          onValueChange={(val) => onVehicleChange('model', val === '__all__' ? '' : val)}
           disabled={!vehicle.brand}
         >
           <SelectTrigger id="vehicle-model" className="w-full bg-background">
@@ -114,6 +116,7 @@ export function VehicleSelector({ vehicle, onVehicleChange }: VehicleSelectorPro
             />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="__all__">Todos</SelectItem>
             {models.map((m) => (
               <SelectItem key={m.id} value={m.nombre}>
                 {m.nombre}
@@ -129,13 +132,14 @@ export function VehicleSelector({ vehicle, onVehicleChange }: VehicleSelectorPro
           Tipo
         </Label>
         <Select
-          value={vehicle.type || undefined}
-          onValueChange={(val) => onVehicleChange('type', val)}
+          value={vehicle.type ? vehicle.type : '__all__'}
+          onValueChange={(val) => onVehicleChange('type', val === '__all__' ? '' : val)}
         >
           <SelectTrigger id="vehicle-type" className="w-full bg-background">
             <SelectValue placeholder="Seleccione tipo" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="__all__">Todos</SelectItem>
             {VEHICLE_TYPES.map((opt) => (
               <SelectItem key={opt} value={opt}>
                 {opt}
@@ -173,13 +177,14 @@ export function VehicleSelector({ vehicle, onVehicleChange }: VehicleSelectorPro
 
         <div className="flex items-center gap-2">
           <Select
-            value={vehicle.year || undefined}
-            onValueChange={(val) => onVehicleChange('year', val)}
+            value={vehicle.year ? vehicle.year : '__all__'}
+            onValueChange={(val) => onVehicleChange('year', val === '__all__' ? '' : val)}
           >
             <SelectTrigger id="vehicle-year" className="bg-background">
               <SelectValue placeholder="Desde" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="__all__">Todos</SelectItem>
               {VEHICLE_YEARS.map((y) => (
                 <SelectItem key={y} value={y}>
                   {y}

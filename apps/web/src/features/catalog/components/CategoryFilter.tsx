@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ interface CategoryFilterProps {
   loading: boolean;
   selectedIds: string[];
   onToggle: (id: string) => void;
+  resetTrigger?: number;
 }
 
 /** Checkboxes de categoría — aplican el filtro al instante. */
@@ -20,8 +21,13 @@ export function CategoryFilter({
   loading,
   selectedIds,
   onToggle,
+  resetTrigger = 0,
 }: CategoryFilterProps): JSX.Element {
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    setSearchTerm('');
+  }, [resetTrigger]);
 
   const filteredCategories = categories.filter((cat) =>
     cat.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -45,6 +51,23 @@ export function CategoryFilter({
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
+      <div className="flex items-center gap-2 pb-2">
+        <Checkbox
+          id="cat-all"
+          checked={selectedIds.length === 0}
+          onCheckedChange={(checked) => {
+            if (checked) {
+              // Deseleccionar todas para mostrar todas las categorías
+              selectedIds.forEach((id) => onToggle(id));
+            } else {
+              // No hacer nada si desmarca "Todos"
+            }
+          }}
+        />
+        <Label htmlFor="cat-all" className="cursor-pointer text-sm font-normal">
+          Todos
+        </Label>
+      </div>
       {filteredCategories.length > 0 ? (
         <div className="max-h-40 overflow-y-auto pr-1">
           <div className="space-y-2.5">
