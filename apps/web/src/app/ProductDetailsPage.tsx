@@ -57,10 +57,10 @@ export function ProductDetailsPage(): JSX.Element {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100">
         <div className="text-center">
-          <Loader className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-slate-600 font-medium">Cargando detalles del producto...</p>
+          <Loader className="w-12 h-12 text-navy-600 animate-spin mx-auto mb-4" />
+          <p className="text-neutral-600 font-medium">Cargando detalles del producto...</p>
         </div>
       </div>
     );
@@ -68,7 +68,7 @@ export function ProductDetailsPage(): JSX.Element {
 
   if (error || !product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100 px-4">
         <Card className="w-full max-w-md border-red-200 bg-red-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-red-700">
@@ -92,29 +92,29 @@ export function ProductDetailsPage(): JSX.Element {
   const canAddToCart = isInStock && quantity > 0 && quantity <= product.stock;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100">
       {/* Navigation Header */}
-      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-neutral-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="text-slate-600 hover:text-slate-900"
+            className="text-neutral-600 hover:text-neutral-900"
           >
             ← Volver
           </Button>
-          <div className="text-sm font-medium text-slate-500">{product.sku}</div>
+          <div className="text-sm font-medium text-neutral-500">{product.sku}</div>
         </div>
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         {/* Breadcrumb */}
-        <nav className="mb-8 text-sm text-slate-600">
-          <button onClick={() => navigate('/')} className="hover:text-blue-600 transition-colors">
+        <nav className="mb-8 text-sm text-neutral-600">
+          <button onClick={() => navigate('/')} className="hover:text-navy-600 transition-colors">
             Catálogo
           </button>
           <span className="mx-2">/</span>
-          <span className="text-slate-900 font-medium">{product.name}</span>
+          <span className="text-neutral-900 font-medium">{product.name}</span>
         </nav>
 
         {/* Product Grid */}
@@ -128,9 +128,9 @@ export function ProductDetailsPage(): JSX.Element {
           <div className="space-y-6">
             {/* Header Info */}
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">{product.name}</h1>
-              <p className="text-slate-600">
-                SKU: <span className="font-mono text-slate-700">{product.sku}</span>
+              <h1 className="text-3xl font-bold text-neutral-900 mb-2">{product.name}</h1>
+              <p className="text-neutral-600">
+                SKU: <span className="font-mono text-neutral-700">{product.sku}</span>
               </p>
             </div>
 
@@ -138,22 +138,22 @@ export function ProductDetailsPage(): JSX.Element {
             {user && <CompatibilityCheck productId={product.id} categoryId={product.categoryId} />}
 
             {/* Pricing Card */}
-            <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+            <Card className="border-2 border-navy-200 bg-gradient-to-br from-navy-50 to-cyan-50">
               <CardHeader>
-                <CardTitle className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
+                <CardTitle className="text-sm font-semibold text-neutral-600 uppercase tracking-wide">
                   Precio
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="text-4xl font-bold text-blue-700">${product.price.toFixed(2)}</div>
-                <p className="text-sm text-slate-600">+ Impuesto (IVA no incluido)</p>
+                <div className="text-4xl font-bold text-navy-700">${product.price.toFixed(2)}</div>
+                <p className="text-sm text-neutral-600">+ Impuesto (IVA no incluido)</p>
               </CardContent>
             </Card>
 
             {/* Stock Status */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-slate-700">Estado de stock</span>
+                <span className="text-sm font-medium text-neutral-700">Estado de stock</span>
                 <div className="flex items-center gap-2">
                   {isInStock ? (
                     <>
@@ -179,21 +179,21 @@ export function ProductDetailsPage(): JSX.Element {
               )}
 
               {!isLowStock && isInStock && (
-                <p className="text-sm text-slate-600">{product.stock} unidades disponibles</p>
+                <p className="text-sm text-neutral-600">{product.stock} unidades disponibles</p>
               )}
             </div>
 
             {/* Quantity Selector */}
             {isInStock && (
               <div className="space-y-3">
-                <label htmlFor="quantity" className="block text-sm font-medium text-slate-700">
+                <label htmlFor="quantity" className="block text-sm font-medium text-neutral-700">
                   Cantidad
                 </label>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
-                    className="px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-slate-900 font-bold text-lg"
+                    className="px-3 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-neutral-900 font-bold text-lg"
                   >
                     −
                   </button>
@@ -209,12 +209,12 @@ export function ProductDetailsPage(): JSX.Element {
                         setQuantity(val);
                       }
                     }}
-                    className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-center font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 border border-neutral-300 rounded-lg text-center font-medium text-neutral-900 focus:outline-none focus:ring-2 focus:ring-navy-500"
                   />
                   <button
                     onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
                     disabled={quantity >= product.stock}
-                    className="px-3 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-slate-900 font-bold text-lg"
+                    className="px-3 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-neutral-900 font-bold text-lg"
                   >
                     +
                   </button>
@@ -234,10 +234,10 @@ export function ProductDetailsPage(): JSX.Element {
             </Button>
 
             {/* Wishlist / Share */}
-            <div className="flex gap-2 pt-2 border-t border-slate-200">
+            <div className="flex gap-2 pt-2 border-t border-neutral-200">
               <Button
                 variant="outline"
-                className="flex-1 text-slate-900"
+                className="flex-1 text-neutral-900"
                 onClick={() => {
                   const url = window.location.href;
                   try {
@@ -267,12 +267,12 @@ export function ProductDetailsPage(): JSX.Element {
 
         {/* Description Section */}
         {product.description && (
-          <Card className="mb-12 border-slate-200">
+          <Card className="mb-12 border-neutral-200">
             <CardHeader>
               <CardTitle>Descripción del producto</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose prose-sm max-w-none text-slate-700 leading-relaxed">
+              <div className="prose prose-sm max-w-none text-neutral-700 leading-relaxed">
                 {product.description}
               </div>
             </CardContent>

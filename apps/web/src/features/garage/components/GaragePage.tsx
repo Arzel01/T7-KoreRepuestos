@@ -53,8 +53,8 @@ export function GaragePage() {
       <div className="mx-auto max-w-4xl px-4 py-8">
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Mi Garaje</h1>
-            <p className="mt-1 text-gray-500">
+            <h1 className="text-3xl font-bold text-neutral-900">Mi Garaje</h1>
+            <p className="mt-1 text-neutral-500">
               Gestiona tus vehículos y mantén el control del mantenimiento
             </p>
           </div>
@@ -70,8 +70,8 @@ export function GaragePage() {
         )}
 
         {!loading && vehicles.length === 0 && (
-          <div className="rounded-2xl border-2 border-dashed border-gray-200 px-8 py-16 text-center">
-            <p className="text-gray-500">No tienes vehículos registrados.</p>
+          <div className="rounded-2xl border-2 border-dashed border-neutral-200 px-8 py-16 text-center">
+            <p className="text-neutral-500">No tienes vehículos registrados.</p>
             <Button className="mt-4" onClick={() => setShowAdd(true)}>
               + Agregar tu primer vehículo
             </Button>

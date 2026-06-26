@@ -26,7 +26,7 @@ export function CalendarItem({
 
   const borderClass = item.isCritical
     ? 'border-orange-300 bg-orange-50'
-    : 'border-gray-200 bg-white';
+    : 'border-neutral-200 bg-white';
 
   function formatDate(dateStr: string) {
     const [y, m, d] = dateStr.split('-');
@@ -39,35 +39,35 @@ export function CalendarItem({
         <CardHeader className="px-5 pt-4 pb-2 flex flex-row items-start justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <h3
-              className={`font-semibold text-gray-900 ${isCompleted ? 'line-through text-gray-400' : ''}`}
+              className={`font-semibold text-neutral-900 ${isCompleted ? 'line-through text-neutral-400' : ''}`}
             >
               {item.description}
             </h3>
             {item.isCritical && <Badge className="bg-orange-500 text-white text-xs">Crítico</Badge>}
             {isCompleted && <Badge className="bg-green-500 text-white text-xs">Completado</Badge>}
           </div>
-          <span className="text-xs text-gray-500 whitespace-nowrap">
+          <span className="text-xs text-neutral-500 whitespace-nowrap">
             {formatDate(item.nextServiceDate)}
           </span>
         </CardHeader>
 
         <CardContent className="px-5 pb-5 space-y-3">
-          <div className="flex gap-4 text-sm text-gray-600">
+          <div className="flex gap-4 text-sm text-neutral-600">
             <span>Programado: {item.mileageInterval.toLocaleString()} km</span>
             {item.monthInterval && <span>/ {item.monthInterval} meses</span>}
           </div>
-          <div className="text-sm font-medium text-gray-700">
-            Faltan: <span className="text-blue-600">{item.kmRemaining.toLocaleString()} km</span>
+          <div className="text-sm font-medium text-neutral-700">
+            Faltan: <span className="text-navy-600">{item.kmRemaining.toLocaleString()} km</span>
           </div>
 
           {item.products.length > 0 && (
-            <div className="rounded-xl bg-gray-50 p-3">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+            <div className="rounded-xl bg-neutral-50 p-3">
+              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">
                 Repuestos Necesarios
               </p>
               <ul className="space-y-1">
                 {item.products.map((p) => (
-                  <li key={p.id} className="flex justify-between text-sm text-gray-700">
+                  <li key={p.id} className="flex justify-between text-sm text-neutral-700">
                     <span>
                       {p.name} {p.quantity > 1 && `(x${p.quantity})`}
                     </span>
@@ -102,7 +102,7 @@ export function CalendarItem({
                 ✔ Marcar Completado
               </Button>
             )}
-            <Button size="sm" variant="outline" className="text-blue-600 border-blue-200">
+            <Button size="sm" variant="outline" className="text-navy-600 border-navy-200">
               Agregar Repuestos
             </Button>
           </div>

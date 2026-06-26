@@ -1,6 +1,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/inter';
+@import '../globals.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -24,20 +25,20 @@
   body {
     /* Textura sutil tipo papel/grain — añade carácter sin saturar */
     background-image:
-      radial-gradient(ellipse at top left, rgba(255, 94, 31, 0.04), transparent 60%),
+      radial-gradient(ellipse at top left, rgba(15, 54, 114, 0.04), transparent 60%),
       radial-gradient(ellipse at bottom right, rgba(255, 255, 255, 0.02), transparent 60%);
     @apply bg-background text-foreground;
   }
 
-  /* Cursor industrial: caret naranja para inputs */
+  /* Cursor de marca: caret cyan para inputs */
   input,
   textarea {
-    caret-color: theme('colors.signal.500');
+    caret-color: theme('colors.cyan.400');
   }
 
-  /* Foco accesible: outline naranja sin offset, como un sello */
+  /* Foco accesible: outline cyan sin offset, como un sello */
   *:focus-visible {
-    outline: 2px solid theme('colors.signal.500');
+    outline: 2px solid theme('colors.cyan.400');
     outline-offset: 1px;
   }
 
@@ -47,43 +48,44 @@
     height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: theme('colors.ink.900');
+    background: theme('colors.neutral.50');
   }
   ::-webkit-scrollbar-thumb {
-    background: theme('colors.ink.700');
-    border: 2px solid theme('colors.ink.900');
+    background: theme('colors.neutral.300');
+    border: 2px solid theme('colors.neutral.50');
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: theme('colors.signal.700');
+    background: theme('colors.neutral.400');
   }
   .theme {
     --font-heading: var(--font-sans);
     --font-sans: 'Inter Variable', sans-serif;
   }
   :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+    /* Tokens de marca KORE (navy/red/cyan/neutral) — ver apps/web/globals.css */
+    --background: #f5f5f5; /* neutral-50 · bg-page */
+    --foreground: #0f2448; /* navy-800 · text-primary */
+    --card: #ffffff;
+    --card-foreground: #0f2448;
+    --popover: #ffffff;
+    --popover-foreground: #0f2448;
+    --primary: #0f3672; /* navy-700 · principal */
+    --primary-foreground: #ffffff;
+    --secondary: #f0f0f0; /* neutral-100 */
+    --secondary-foreground: #0f2448;
+    --muted: #f0f0f0;
+    --muted-foreground: #595959; /* neutral-600 · text-secondary */
+    --accent: #e8f9fe; /* cyan-50 */
+    --accent-foreground: #007a9c; /* cyan-700 */
+    --destructive: #b80020; /* red-700 · danger */
+    --border: #e0e0e0; /* neutral-200 · border-default */
+    --input: #e0e0e0;
+    --ring: #00b5e2; /* cyan-400 · border-focus */
+    --chart-1: #0f3672;
+    --chart-2: #d60022;
+    --chart-3: #00b5e2;
+    --chart-4: #595959;
+    --chart-5: #a3a3a3;
     --radius: 0.625rem;
     /* Derivadas usadas por los size-variants de button.tsx (rounded-[min(var(--radius-md),…)]).
        shadcn/tailwind.css (sintaxis TW v4) no las define en este setup TW v3. */
@@ -91,14 +93,14 @@
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --sidebar: #ffffff;
+    --sidebar-foreground: #0f2448;
+    --sidebar-primary: #0f3672;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #e8f9fe;
+    --sidebar-accent-foreground: #007a9c;
+    --sidebar-border: #e0e0e0;
+    --sidebar-ring: #00b5e2;
   }
   .dark {
     --background: oklch(0.145 0 0);
@@ -133,28 +135,6 @@
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
   }
-  /* --------------------------------------------------------------------------
-     Tema claro del STOREFRONT público (catálogo en `/`).
-     Scoped a `.storefront`: hereda las vars claras de :root y solo pisa el
-     color de acción → azul corporativo. El admin/auth (oscuro) no se toca.
-     -------------------------------------------------------------------------- */
-  .storefront {
-    --primary: oklch(0.546 0.245 262.88); /* ≈ #2563eb */
-    --primary-foreground: oklch(0.985 0 0);
-    --ring: oklch(0.623 0.214 259.81);
-    --accent: oklch(0.951 0.026 236.82); /* azul muy claro para hovers */
-    --accent-foreground: oklch(0.379 0.146 265.52);
-  }
-
-  /* Neutralizar las fugas del tema oscuro global dentro del storefront */
-  .storefront input,
-  .storefront textarea {
-    caret-color: oklch(0.546 0.245 262.88);
-  }
-  .storefront *:focus-visible {
-    outline-color: oklch(0.546 0.245 262.88);
-  }
-
   * {
     @apply border-border;
   }
@@ -166,60 +146,60 @@
 @layer components {
   /* Eyebrow — label técnico en mayúsculas con tracking amplio */
   .eyebrow {
-    @apply font-mono text-eyebrow uppercase tracking-eyebrow text-ink-400;
+    @apply font-mono text-eyebrow uppercase tracking-eyebrow text-neutral-600;
   }
 
   /* Display heading — Bebas Neue, condensado */
   .display {
-    @apply font-display uppercase tracking-tightest text-ink-50;
+    @apply font-display uppercase tracking-tightest text-navy-800;
   }
 
-  /* Panel industrial: borde sutil, sin radius, fondo charcoal */
+  /* Panel: borde sutil, sin radius, fondo claro */
   .panel {
-    @apply border border-ink-700 bg-ink-900;
+    @apply border border-neutral-200 bg-white;
   }
 
   /* Input técnico: subrayado en lugar de borde completo */
   .input-technical {
-    @apply block w-full border-0 border-b-2 border-ink-700 bg-transparent
-           px-0 py-3 font-sans text-base text-ink-50 placeholder:text-ink-500
+    @apply block w-full border-0 border-b-2 border-neutral-300 bg-transparent
+           px-0 py-3 font-sans text-base text-navy-800 placeholder:text-neutral-400
            transition-colors duration-150
-           focus:border-signal-500 focus:outline-none focus:ring-0;
+           focus:border-cyan-400 focus:outline-none focus:ring-0;
   }
 
-  /* Botón primario: bloque sólido naranja, mayúsculas, peso fuerte */
+  /* Botón primario: bloque sólido navy, mayúsculas, peso fuerte */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-signal-500 px-6 py-3
-           font-mono text-sm font-bold uppercase tracking-wider text-ink-950
+    @apply inline-flex items-center justify-center gap-2 bg-navy-700 px-6 py-3
+           font-mono text-sm font-bold uppercase tracking-wider text-white
            transition-all duration-150
-           hover:bg-signal-600 hover:shadow-signal-glow
+           hover:bg-navy-600 hover:shadow-md
            active:translate-y-px
-           disabled:cursor-not-allowed disabled:bg-ink-700 disabled:text-ink-400
+           disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-400
            disabled:shadow-none;
   }
 
-  /* Botón secundario: borde naranja, fondo transparente */
+  /* Botón secundario: borde navy, fondo transparente */
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 border border-ink-700
+    @apply inline-flex items-center justify-center gap-2 border border-neutral-300
            bg-transparent px-6 py-3 font-mono text-sm font-bold uppercase
-           tracking-wider text-ink-50 transition-colors duration-150
-           hover:border-signal-500 hover:text-signal-500
+           tracking-wider text-navy-800 transition-colors duration-150
+           hover:border-navy-600 hover:text-navy-700
            disabled:cursor-not-allowed disabled:opacity-50;
   }
 
   /* Tag/badge técnico */
   .tag {
-    @apply inline-flex items-center gap-1.5 border border-ink-700 px-2 py-0.5
-           font-mono text-[10px] uppercase tracking-wider text-ink-300;
+    @apply inline-flex items-center gap-1.5 border border-neutral-200 px-2 py-0.5
+           font-mono text-[10px] uppercase tracking-wider text-neutral-600;
   }
 
-  /* Línea de separación con etiqueta — sello industrial */
+  /* Línea de separación con etiqueta */
   .stamp {
-    @apply relative flex items-center gap-4 text-ink-500;
+    @apply relative flex items-center gap-4 text-neutral-400;
   }
   .stamp::before,
   .stamp::after {
-    @apply h-px flex-1 bg-ink-700 content-[''];
+    @apply h-px flex-1 bg-neutral-200 content-[''];
   }
 
   /* Helper para textos numéricos (precios, SKUs) */

@@ -12,7 +12,7 @@ export function TechnicalSpecifications({ entries }: TechnicalSpecificationsProp
   }
 
   return (
-    <Card className="border-slate-200 bg-white">
+    <Card className="border-neutral-200 bg-white">
       <CardHeader>
         <CardTitle className="text-2xl flex items-center gap-2">
           <span className="text-2xl">📋</span>
@@ -24,12 +24,12 @@ export function TechnicalSpecifications({ entries }: TechnicalSpecificationsProp
           {entries.map((entry) => (
             <div
               key={entry.id}
-              className="p-4 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors"
+              className="p-4 bg-gradient-to-br from-neutral-50 to-neutral-100 rounded-lg border border-neutral-200 hover:border-navy-300 transition-colors"
             >
-              <dt className="text-sm font-bold text-slate-600 uppercase tracking-wide mb-2">
+              <dt className="text-sm font-bold text-neutral-600 uppercase tracking-wide mb-2">
                 {entry.attribute}
               </dt>
-              <dd className="text-lg font-semibold text-slate-900">{entry.value}</dd>
+              <dd className="text-lg font-semibold text-neutral-900">{entry.value}</dd>
             </div>
           ))}
         </div>

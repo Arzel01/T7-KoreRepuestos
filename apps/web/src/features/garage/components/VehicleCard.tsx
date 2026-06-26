@@ -25,10 +25,10 @@ export function VehicleCard({ vehicle, nextService, onUpdateMileage, onDelete }:
 
   return (
     <>
-      <Card className="w-full bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden">
+      <Card className="w-full bg-white shadow-sm border border-neutral-200 rounded-2xl overflow-hidden">
         <CardHeader className="px-6 pt-5 pb-3 flex flex-row items-start justify-between gap-2">
           <div>
-            <h3 className="text-lg font-bold text-gray-900">{vehicleName}</h3>
+            <h3 className="text-lg font-bold text-neutral-900">{vehicleName}</h3>
             {vehicle.alias && (
               <Badge variant="secondary" className="mt-1">
                 {vehicle.alias}
@@ -39,7 +39,7 @@ export function VehicleCard({ vehicle, nextService, onUpdateMileage, onDelete }:
             type="button"
             aria-label="Eliminar vehículo"
             onClick={onDelete}
-            className="text-gray-400 hover:text-red-500 transition-colors mt-0.5"
+            className="text-neutral-400 hover:text-red-500 transition-colors mt-0.5"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -60,17 +60,17 @@ export function VehicleCard({ vehicle, nextService, onUpdateMileage, onDelete }:
         </CardHeader>
 
         <CardContent className="px-6 pb-5 space-y-4">
-          <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
+          <div className="flex items-center justify-between rounded-xl bg-neutral-50 px-4 py-3">
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wide">Kilometraje Actual</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-xs text-neutral-500 uppercase tracking-wide">Kilometraje Actual</p>
+              <p className="text-2xl font-bold text-neutral-900">
                 {vehicle.currentMileage.toLocaleString()} km
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowMileage(true)}
-              className="text-sm font-medium text-blue-600 hover:text-blue-700 underline"
+              className="text-sm font-medium text-navy-600 hover:text-navy-700 underline"
             >
               Actualizar
             </button>
@@ -81,7 +81,7 @@ export function VehicleCard({ vehicle, nextService, onUpdateMileage, onDelete }:
               <p className="text-xs text-amber-700 uppercase tracking-wide font-medium mb-1">
                 Próximo Mantenimiento
               </p>
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-neutral-800">
                 {nextService.description} — {nextService.mileageInterval.toLocaleString()} km
               </p>
               <p className="text-xs text-amber-600 mt-0.5">
