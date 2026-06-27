@@ -36,16 +36,16 @@ export function CalendarPage() {
         <div className="mb-6">
           <Link
             to="/garage"
-            className="text-sm text-navy-600 hover:underline flex items-center gap-1"
+            className="text-sm text-navy-600 hover:underline flex items-center gap-1 w-fit"
           >
             ← Volver a Mi Garaje
           </Link>
         </div>
 
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-neutral-900">Calendario de Mantenimiento</h1>
+          <h1 className="text-3xl font-bold text-foreground">Calendario de Mantenimiento</h1>
           {vehicle && (
-            <p className="mt-1 text-neutral-500">
+            <p className="mt-1 text-muted-foreground">
               {vehicleName}
               {vehicle.alias && ` · ${vehicle.alias}`}
               {` · ${vehicle.currentMileage.toLocaleString()} km`}
@@ -62,17 +62,15 @@ export function CalendarPage() {
         )}
 
         {!loading && nextService && vehicle && (
-          <Card className="mb-8 rounded-2xl border-navy-200 bg-navy-50 shadow-sm">
+          <Card className="mb-8 rounded-2xl border-primary/30 bg-primary/5 shadow-sm">
             <CardContent className="px-6 py-5">
-              <p className="text-xs font-semibold text-navy-600 uppercase tracking-wide mb-2">
-                Próximo Mantenimiento
-              </p>
-              <h2 className="text-xl font-bold text-neutral-900">{nextService.description}</h2>
-              <div className="mt-2 flex gap-6 text-sm text-neutral-700">
+              <p className="text-xs font-semibold text-primary mb-2">Próximo Mantenimiento</p>
+              <h2 className="text-xl font-bold text-foreground">{nextService.description}</h2>
+              <div className="mt-2 flex gap-6 text-sm text-foreground">
                 <span>Kilometraje: {nextService.mileageInterval.toLocaleString()} km</span>
                 <span>
                   Faltan:{' '}
-                  <strong className="text-navy-600">
+                  <strong className="text-primary">
                     {nextService.kmRemaining.toLocaleString()} km
                   </strong>
                 </span>
@@ -85,8 +83,8 @@ export function CalendarPage() {
         )}
 
         {!loading && calendar.length === 0 && (
-          <div className="rounded-2xl border-2 border-dashed border-neutral-200 px-8 py-16 text-center">
-            <p className="text-neutral-500">
+          <div className="rounded-2xl border-2 border-dashed border-border px-8 py-16 text-center">
+            <p className="text-muted-foreground">
               No hay tareas de mantenimiento configuradas para este vehículo.
             </p>
           </div>
@@ -94,7 +92,7 @@ export function CalendarPage() {
 
         {!loading && calendar.length > 0 && vehicle && (
           <div>
-            <h2 className="text-lg font-semibold text-neutral-700 mb-4">Próximos Mantenimientos</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">Próximos Mantenimientos</h2>
             <div className="space-y-4">
               {calendar.map((item) => (
                 <CalendarItem

@@ -29,7 +29,7 @@ export function ProductCreatePage(): JSX.Element {
     <div className="mx-auto max-w-5xl px-8 py-12 animate-fade-in-up">
       <header className="mb-10 flex items-end justify-between border-b border-border pb-8">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Op · 045</p>
+          <p className="text-sm font-semibold text-primary">Op · 045</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
             Añadir producto<span className="text-primary">.</span>
           </h1>
@@ -39,7 +39,7 @@ export function ProductCreatePage(): JSX.Element {
             <strong className="text-foreground">mayores que cero</strong>.
           </p>
         </div>
-        <span className="inline-flex rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+        <span className="inline-flex rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
           Requiere admin
         </span>
       </header>

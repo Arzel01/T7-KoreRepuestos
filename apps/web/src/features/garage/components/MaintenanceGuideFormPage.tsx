@@ -135,9 +135,7 @@ export function MaintenanceGuideFormPage(): JSX.Element {
     <div className="mx-auto max-w-4xl px-8 py-12 animate-fade-in-up">
       <header className="mb-10 flex items-end justify-between border-b border-border pb-8">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-            Sprint 3 · US-Maintenance
-          </p>
+          <p className="text-sm font-semibold text-primary">Mantenimiento · 03</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
             Nueva guía de mantenimiento<span className="text-primary">.</span>
           </h1>
@@ -146,7 +144,7 @@ export function MaintenanceGuideFormPage(): JSX.Element {
             guía por modelo.
           </p>
         </div>
-        <span className="inline-flex rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+        <span className="inline-flex rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
           Requiere admin
         </span>
       </header>
@@ -240,7 +238,7 @@ export function MaintenanceGuideFormPage(): JSX.Element {
             {plans.map((plan, idx) => (
               <div key={plan._key} className="rounded-xl border border-border bg-muted/10 p-5">
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                  <span className="text-xs font-semibold text-muted-foreground">
                     Tarea {idx + 1}
                   </span>
                   {plans.length > 1 && (
@@ -315,7 +313,7 @@ export function MaintenanceGuideFormPage(): JSX.Element {
 
                 {/* Partes / productos requeridos */}
                 <div className="mt-5 border-t border-border pt-4">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                  <p className="mb-3 text-xs font-semibold text-muted-foreground">
                     Repuestos requeridos
                   </p>
 

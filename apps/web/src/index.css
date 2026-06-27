@@ -57,10 +57,6 @@
   ::-webkit-scrollbar-thumb:hover {
     background: theme('colors.neutral.400');
   }
-  .theme {
-    --font-heading: var(--font-sans);
-    --font-sans: 'Inter Variable', sans-serif;
-  }
   :root {
     /* Tokens de marca KORE (navy/red/cyan/neutral) — ver apps/web/globals.css */
     --background: #f5f5f5; /* neutral-50 · bg-page */
@@ -149,7 +145,7 @@
     @apply font-mono text-eyebrow uppercase tracking-eyebrow text-neutral-600;
   }
 
-  /* Display heading — Bebas Neue, condensado */
+  /* Display heading — uppercase condensado, mismo font (Inter) que el resto */
   .display {
     @apply font-display uppercase tracking-tightest text-navy-800;
   }
