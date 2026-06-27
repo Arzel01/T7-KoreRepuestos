@@ -1,4 +1,4 @@
-import { ShoppingCart, AlertCircle, CheckCircle, Loader } from 'lucide-react';
+import { ShoppingCart, AlertCircle, CheckCircle, Loader, FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -118,14 +118,14 @@ export function ProductDetailsPage(): JSX.Element {
         </nav>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 mb-12">
           {/* Gallery Section */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <ImageGallery images={product.images || []} productName={product.name} />
           </div>
 
           {/* Details Sidebar */}
-          <div className="space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             {/* Header Info */}
             <div>
               <h1 className="text-3xl font-bold text-neutral-900 mb-2">{product.name}</h1>
@@ -267,11 +267,14 @@ export function ProductDetailsPage(): JSX.Element {
 
         {/* Description Section */}
         {product.description && (
-          <Card className="mb-12 border-neutral-200">
-            <CardHeader>
-              <CardTitle>Descripción del producto</CardTitle>
+          <Card className="mb-12 border-neutral-200 gap-0">
+            <CardHeader className="border-b">
+              <CardTitle className="flex items-center gap-2 text-lg text-neutral-900">
+                <FileText className="w-5 h-5 text-navy-600" />
+                Descripción del producto
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <div className="prose prose-sm max-w-none text-neutral-700 leading-relaxed">
                 {product.description}
               </div>
