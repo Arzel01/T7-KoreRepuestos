@@ -1,0 +1,60 @@
+# Communications Evidence Index
+
+This index catalogs all evidence currently available under the `Communications/` folder, including bundled artifacts contained inside the WhatsApp export archive.
+
+## Document Control
+
+- Version: 1.0
+- Created on: 2026-06-27
+- Last updated: 2026-06-27
+- Scope: `Communications/` (subfolders + files inside chat export ZIP)
+- Update policy: **Must be updated whenever a new communication artifact is added, replaced, or signed, until final system deployment.**
+
+## Field Definitions
+
+- Evidence ID: Unique index identifier.
+- Relative Path: Location of the evidence from repository root.
+- File Name: Original filename.
+- Brief Description: Short explanation of evidence relevance/content.
+- File Type: Extension and high-level type.
+- Participants: People/groups involved or referenced in the evidence.
+- Date/Time: Best available timestamp (filesystem or ZIP internal metadata).
+- Size (bytes): File size in bytes.
+- Source/Container: Whether file is direct or embedded in an archive.
+- Notes: Extra context, assumptions, or verification remarks.
+
+
+## Evidence Entries
+
+| Evidence ID | Relative Path | File Name | Brief Description | File Type | Participants | Date/Time | Size (bytes) | Source/Container | Notes |
+|---|---|---|---|---|---|---|---:|---|---|
+| COM-001 | Communications/Meetings.docx | Meetings.docx | Meeting references for Sprint 0-1 and Sprint 2-3, including shared Drive links. | DOCX (Word document) | Grupo #7 (Equipo ISW), Koreauto stakeholders | 2026-06-26 22:50:56 -0500 (filesystem mtime) | 13853 | Direct file | Content extracted from DOCX XML indicates sprint meeting records. |
+| COM-002 | Communications/Acceptance Letters/carta de autorizacion-signed.pdf | carta de autorizacion-signed.pdf | Signed authorization letter used as formal project support evidence. | PDF | Ing. Andres Sanchez, Grupo #7 (Equipo ISW) | 2026-06-26 22:50:56 -0500 (filesystem mtime) | 426658 | Direct file | Also appears inside chat archive as attachment `00000037-...`. |
+| COM-003 | Communications/Acceptance Letters/Carta de Aceptacion - Sprint 0 y 1-signed.pdf | Carta de Aceptacion - Sprint 0 y 1-signed.pdf | Signed acceptance letter validating Sprint 0 and Sprint 1 deliverables. | PDF | Ing. Andres Sanchez (Koreauto), Grupo #7 (Equipo ISW) | 2026-06-26 22:50:56 -0500 (filesystem mtime) | 211355 | Direct file | Text includes Guayaquil date and formal acceptance language. |
+| COM-004 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip | WhatsApp Chat - ISW Koreauto.zip | Exported WhatsApp group evidence container with chat log and attached files. | ZIP archive | ISW Koreauto group participants | 2026-06-26 22:50:56 -0500 (filesystem mtime) | 17716903 | Direct file | Contains 17 entries (chat log + attachments). |
+| COM-005 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000033-RCR1760113799399306.pdf | 00000033-RCR1760113799399306.pdf | PDF attachment shared in chat during early coordination and documentation exchange. | PDF | Shared by Andres Sanchez in group chat | 2025-10-10 11:34 (ZIP metadata) | 9783 | Embedded in COM-004 | Mentioned in `_chat.txt` as attachment. |
+| COM-006 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000037-carta de autorizacion-signed.pdf | 00000037-carta de autorizacion-signed.pdf | Signed authorization letter attachment shared in chat. | PDF | Andres Sanchez, Grupo #7 (Equipo ISW) | 2025-10-10 11:52 (ZIP metadata) | 426665 | Embedded in COM-004 | Correlates with COM-002 (same document family). |
+| COM-007 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000056-Pautas-de-mantencion-HYUNDAI-1.docx-1.pdf | 00000056-Pautas-de-mantencion-HYUNDAI-1.docx-1.pdf | Maintenance guideline material for Hyundai shared as domain reference. | PDF | Andres Sanchez, Grupo #7 (Equipo ISW) | 2025-10-14 13:00 (ZIP metadata) | 749110 | Embedded in COM-004 | Shared after maintenance discussion in chat. |
+| COM-008 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000057-Kia-Soluto(AB)-Pauta-de-Mantenimiento.pdf | 00000057-Kia-Soluto(AB)-Pauta-de-Mantenimiento.pdf | Maintenance guideline material for Kia Soluto shared as reference. | PDF | Andres Sanchez, Grupo #7 (Equipo ISW) | 2025-10-14 13:00 (ZIP metadata) | 782824 | Embedded in COM-004 | Supports maintenance-guide requirements context. |
+| COM-009 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000075-Software Requirements Specification (SRS).pdf | 00000075-Software Requirements Specification (SRS).pdf | Software Requirements Specification sent through chat for review/sign-off flow. | PDF | Grupo #7 (Equipo ISW), Koreauto contact(s) | 2025-11-07 18:55 (ZIP metadata) | 958798 | Embedded in COM-004 | Requirements baseline evidence. |
+| COM-010 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000076-Documento de Especificaciones.pdf | 00000076-Documento de Especificaciones.pdf | Technical/specification document exchanged during requirements phase. | PDF | Grupo #7 (Equipo ISW), Koreauto contact(s) | 2025-11-07 18:55 (ZIP metadata) | 736298 | Embedded in COM-004 | Companion artifact to SRS discussions. |
+| COM-011 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000078-Carta de Aceptacion - Requerimientos.docx | 00000078-Carta de Aceptacion - Requerimientos.docx | Draft acceptance letter for requirements stage. | DOCX | Grupo #7 (Equipo ISW), Koreauto signatory | 2025-11-07 20:06 (ZIP metadata) | 577794 | Embedded in COM-004 | Draft document before signed version. |
+| COM-012 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000084-Carta de Aceptacion - Requerimientos.pdf | 00000084-Carta de Aceptacion - Requerimientos.pdf | Requirements acceptance letter in PDF form. | PDF | Koreauto signatory, Grupo #7 (Equipo ISW) | 2025-11-09 17:58 (ZIP metadata) | 1052591 | Embedded in COM-004 | Follows signing coordination in chat. |
+| COM-013 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000098-Documento de Proyecto Final.pdf | 00000098-Documento de Proyecto Final.pdf | Final project document shared near closure milestone. | PDF | Grupo #7 (Equipo ISW), Koreauto contact(s) | 2026-01-13 07:34 (ZIP metadata) | 12509951 | Embedded in COM-004 | Large consolidated project artifact. |
+| COM-014 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000099-Carta de Aceptacion - Proyecto FINAL.docx | 00000099-Carta de Aceptacion - Proyecto FINAL.docx | Draft final project acceptance letter. | DOCX | Grupo #7 (Equipo ISW), Koreauto signatory | 2026-01-13 07:34 (ZIP metadata) | 563899 | Embedded in COM-004 | Pre-signed editable version. |
+| COM-015 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000100-Carta de Aceptacion - Proyecto FINAL (1)-signed.pdf | 00000100-Carta de Aceptacion - Proyecto FINAL (1)-signed.pdf | Signed final project acceptance letter. | PDF | Koreauto signatory, Grupo #7 (Equipo ISW) | 2026-01-14 14:36 (ZIP metadata) | 374937 | Embedded in COM-004 | Signed closure evidence. |
+| COM-016 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000126-PHOTO-2026-05-29-20-02-43.jpg | 00000126-PHOTO-2026-05-29-20-02-43.jpg | Photo evidence shared in chat (likely signed/physical document snapshot). | JPG image | Chat participant(s) in ISW Koreauto group | 2026-05-29 20:06 (ZIP metadata) | 89187 | Embedded in COM-004 | Requires visual inspection for exact content validation. |
+| COM-017 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000127-Carta de Aceptacion - Sprint 0 y 1.pdf | 00000127-Carta de Aceptacion - Sprint 0 y 1.pdf | Unsiged or pre-signature Sprint 0/1 acceptance letter variant. | PDF | Grupo #7 (Equipo ISW), Koreauto signatory | 2026-05-29 20:38 (ZIP metadata) | 157344 | Embedded in COM-004 | Precedes signed Sprint 0/1 letter (COM-018 / COM-003 family). |
+| COM-018 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000145-PHOTO-2026-06-01-10-25-27.jpg | 00000145-PHOTO-2026-06-01-10-25-27.jpg | Photo evidence shared close to Sprint acceptance exchange. | JPG image | Chat participant(s) in ISW Koreauto group | 2026-06-01 10:31 (ZIP metadata) | 55992 | Embedded in COM-004 | Requires visual inspection for exact content validation. |
+| COM-019 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000146-Carta de Aceptacion - Sprint 0 y 1-signed.pdf | 00000146-Carta de Aceptacion - Sprint 0 y 1-signed.pdf | Signed Sprint 0/1 acceptance letter exchanged in chat. | PDF | Ing. Andres Sanchez (Koreauto), Grupo #7 (Equipo ISW) | 2026-06-01 16:51 (ZIP metadata) | 211355 | Embedded in COM-004 | Matches direct evidence COM-003. |
+| COM-020 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::00000190-Carta de Aceptacion - Sprint 2 y 3.pdf | 00000190-Carta de Aceptacion - Sprint 2 y 3.pdf | Acceptance letter for Sprint 2/3 deliverables. | PDF | Koreauto signatory, Grupo #7 (Equipo ISW) | 2026-06-22 20:16 (ZIP metadata) | 177625 | Embedded in COM-004 | Sprint 2/3 acceptance evidence. |
+| COM-021 | Communications/Instant Messages/WhatsApp Chat - ISW Koreauto.zip::_chat.txt | _chat.txt | Complete WhatsApp message log with timestamps, participants, and attachment events. | TXT (chat log) | ISW Koreauto group members | 2026-06-23 21:57 (ZIP metadata) | 19812 | Embedded in COM-004 | Primary chronological communications evidence. |
+
+## Maintenance Workflow (Required Until Final Deployment)
+
+1. Add one new row for every new communication artifact (including files inside new archives).
+2. Update `Last updated` date at the top of this document.
+3. Keep Evidence IDs sequential (`COM-022`, `COM-023`, ...).
+4. If an artifact supersedes another, keep both rows and note supersession in `Notes`.
+5. For signatures/acceptance letters, prefer extracting names and sign dates from document text when available.
+6. Do not delete historical entries; mark corrections in `Notes`.
