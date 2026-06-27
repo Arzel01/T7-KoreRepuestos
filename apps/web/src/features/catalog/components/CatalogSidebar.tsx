@@ -32,7 +32,6 @@ export function CatalogSidebar({
 
   const handleClearFilters = () => {
     filters.clearAll();
-    filters.setDraftPrice({ min: '', max: '' });
     setCategoryFilterResetKey((prev) => prev + 1);
   };
 

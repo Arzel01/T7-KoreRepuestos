@@ -49,6 +49,10 @@ export interface ProductQueryParams extends PaginationParams {
   vehicleBrand?: string;
   /** Nombre de modelo — filtra por compatibilidad real (tabla `compatibilidad`). */
   vehicleModel?: string;
+  /** Año (o año desde, si viene con vehicleYearTo) — contra modelos.anio_inicio/anio_fin. */
+  vehicleYear?: number;
+  /** Año hasta — solo tiene efecto junto con vehicleYear. */
+  vehicleYearTo?: number;
   categoryIds?: string[];
   minPrice?: number;
   maxPrice?: number;

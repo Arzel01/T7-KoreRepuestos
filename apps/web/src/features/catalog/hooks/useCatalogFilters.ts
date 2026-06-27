@@ -38,40 +38,19 @@ export interface CatalogFiltersState {
 }
 
 /**
- * Compone tipo/año en el `search` que recibe el backend.
+ * Compone el `search` que recibe el backend (solo tipo de vehículo por ahora).
  *
- * Marca y modelo NO van aquí — se envían como `vehicleBrand`/`vehicleModel`
- * y se filtran en el backend vía la tabla `compatibilidad` (FK real a
- * `modelos`/`marcas`), no por coincidencia de texto.
- *
- * Rango de años:
- *   · Solo yearFrom  → se incluye ese año literal ("2022")
- *   · yearFrom + yearTo → se expanden todos los años del rango ("2020 2021 2022")
- *     El backend hace ILIKE `%search%` sobre nombre/sku, así que
- *     incluir todos los años del rango maximiza los matches sin cambiar el backend.
+ * Marca, modelo y año NO van aquí — se envían como `vehicleBrand`/
+ * `vehicleModel`/`vehicleYear`/`vehicleYearTo` y se filtran en el backend vía
+ * la tabla `compatibilidad` (FK real a `modelos`/`marcas`), no por
+ * coincidencia de texto contra el nombre del producto.
  */
 function composeSearch(
   manualSearch: string | undefined,
   vehicle: VehicleFilters,
 ): string | undefined {
   if (manualSearch?.trim()) return manualSearch.trim();
-
-  const yearTerms: string[] = [];
-  const from = parseInt(vehicle.year, 10);
-  const to = parseInt(vehicle.yearTo, 10);
-
-  if (vehicle.year) {
-    if (vehicle.yearTo && !isNaN(from) && !isNaN(to) && to >= from) {
-      // Expandir rango: "2020 2021 2022"
-      for (let y = from; y <= to; y++) yearTerms.push(String(y));
-    } else {
-      yearTerms.push(vehicle.year);
-    }
-  }
-
-  const terms = [vehicle.type, ...yearTerms].map((v) => v.trim()).filter(Boolean);
-
-  return terms.length > 0 ? terms.join(' ') : undefined;
+  return vehicle.type.trim() || undefined;
 }
 
 /**
@@ -136,6 +115,8 @@ export function useCatalogFilters(): CatalogFiltersState {
       search: composeSearch(manualSearch, vehicle),
       vehicleBrand: vehicle.brand || undefined,
       vehicleModel: vehicle.model || undefined,
+      vehicleYear: vehicle.year ? Number(vehicle.year) : undefined,
+      vehicleYearTo: vehicle.yearTo ? Number(vehicle.yearTo) : undefined,
       categoryIds: categoryIds?.length ? categoryIds : undefined,
       minPrice: minPrice !== null ? Number(minPrice) : undefined,
       maxPrice: maxPrice !== null ? Number(maxPrice) : undefined,
@@ -148,6 +129,16 @@ export function useCatalogFilters(): CatalogFiltersState {
     min: searchParams.get('minPrice') ?? '',
     max: searchParams.get('maxPrice') ?? '',
   }));
+
+  // Resincroniza el borrador cuando minPrice/maxPrice cambian por una vía
+  // externa al formulario (atrás/adelante del navegador, "Limpiar filtros").
+  // Depender de los valores ya extraídos (no de `searchParams` entero) evita
+  // pisar lo que el usuario esté escribiendo cuando cambia un filtro distinto.
+  const urlMinPrice = searchParams.get('minPrice') ?? '';
+  const urlMaxPrice = searchParams.get('maxPrice') ?? '';
+  useEffect(() => {
+    setDraftPrice({ min: urlMinPrice, max: urlMaxPrice });
+  }, [urlMinPrice, urlMaxPrice]);
 
   const update = useCallback(
     (changes: Record<string, string | undefined>, { keepPage = false } = {}) => {
