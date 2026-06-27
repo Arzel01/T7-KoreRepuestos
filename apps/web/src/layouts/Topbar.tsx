@@ -5,7 +5,7 @@ export function Topbar(): JSX.Element {
   const segments = location.pathname.split('/').filter(Boolean);
 
   return (
-    <header className="flex items-center justify-between border-b border-white/10 bg-[oklch(0.55_0.22_264.376)] px-6 py-4">
+    <header className="flex items-center justify-between border-b border-white/10 bg-navy-700 px-6 py-4">
       <nav aria-label="Ubicación actual" className="flex items-center gap-2 text-sm text-white/80">
         <span className="font-semibold uppercase tracking-[0.2em] text-white">Ruta</span>
         <span aria-hidden className="text-white/50">

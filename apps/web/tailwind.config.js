@@ -4,7 +4,8 @@
 // -----------------------------------------------------------------------------
 // Filosofía:
 //   · Paleta de marca navy/red/cyan, sincronizada con apps/web/globals.css.
-//   · Tipografía condensada para titulares (Bebas Neue) en piezas editoriales.
+//   · Tipografía Inter en toda la app (texto y titulares), JetBrains Mono
+//     para SKUs/IDs/precios — igual que apps/web/globals.css.
 //   · Números tabulares globalmente: precios, stock, SKUs siempre alineados.
 // =============================================================================
 export default {
@@ -112,8 +113,10 @@ export default {
         },
       },
       fontFamily: {
-        display: ['"Bebas Neue"', 'Impact', 'sans-serif'],
-        sans: ['"IBM Plex Sans"', 'system-ui', 'sans-serif'],
+        // Sincronizado con --font-sans/--font-display de globals.css: la marca
+        // usa Inter para todo, sin tipografía editorial separada.
+        display: ['Inter', 'Arial', '"Helvetica Neue"', 'Helvetica', 'sans-serif'],
+        sans: ['Inter', 'Arial', '"Helvetica Neue"', 'Helvetica', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       fontSize: {

@@ -10,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -116,20 +117,12 @@ export function CategoriesPage(): JSX.Element {
 
   return (
     <div className="mx-auto max-w-4xl px-8 py-12 animate-fade-in-up">
-      <header className="mb-10 flex items-end justify-between border-b border-border pb-6">
+      <header className="mb-10 flex items-end justify-between border-b border-border pb-8">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-            Catálogo · 02
-          </p>
+          <p className="text-sm font-semibold text-primary">Catálogo · 02</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">Categorías</h1>
         </div>
-        <button
-          type="button"
-          className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-          onClick={() => openCreate(null)}
-        >
-          + Nueva categoría
-        </button>
+        <Button onClick={() => openCreate(null)}>+ Nueva categoría</Button>
       </header>
 
       {error && (

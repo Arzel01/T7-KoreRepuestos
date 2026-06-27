@@ -11,12 +11,9 @@ export function DashboardPage(): JSX.Element {
         <header className="rounded-2xl border border-border bg-card p-8 shadow-sm sm:p-10">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-end">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-                Buenos días
-              </p>
+              <p className="text-sm font-semibold text-primary">Buenos días</p>
               <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
                 {user?.firstName ?? 'Operador'}
-                <span className="text-primary"> .</span>
               </h1>
               <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground">
                 Resumen operativo del día. Usa el panel lateral para navegar entre módulos.
@@ -29,8 +26,8 @@ export function DashboardPage(): JSX.Element {
                 <dd className="mt-1 font-medium text-primary">{user?.role}</dd>
               </div>
               <div>
-                <dt className="text-muted-foreground">Sprint</dt>
-                <dd className="mt-1 font-medium text-foreground">01 · Activo</dd>
+                <dt className="text-muted-foreground">Estado</dt>
+                <dd className="mt-1 font-medium text-foreground">Operativo</dd>
               </div>
               <div>
                 <dt className="text-muted-foreground">Build</dt>
@@ -55,9 +52,7 @@ export function DashboardPage(): JSX.Element {
         </section>
 
         <section aria-label="Accesos rápidos" className="mt-8">
-          <p className="mb-6 text-sm font-semibold tracking-[0.2em] text-primary">
-            Operaciones frecuentes
-          </p>
+          <p className="mb-6 text-sm font-semibold text-primary">Operaciones frecuentes</p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <QuickAction
               to="/admin/products/new"

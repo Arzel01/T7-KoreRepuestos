@@ -23,7 +23,7 @@ export function Sidebar(): JSX.Element {
 
   return (
     <aside
-      className="flex w-72 shrink-0 flex-col border-r border-white/10 bg-[oklch(0.42_0.245_264.376)] text-white"
+      className="flex w-72 shrink-0 flex-col border-r border-white/10 bg-navy-900 text-white"
       aria-label="Navegación del panel"
     >
       <div className="border-b border-white/10 px-6 py-6">

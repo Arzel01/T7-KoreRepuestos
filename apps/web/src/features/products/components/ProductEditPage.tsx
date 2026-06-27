@@ -75,9 +75,7 @@ export function ProductEditPage(): JSX.Element {
   return (
     <div className="mx-auto max-w-4xl px-8 py-12 animate-fade-in-up">
       <header className="mb-10 border-b border-border pb-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-          Inventario · Editar
-        </p>
+        <p className="text-sm font-semibold text-primary">Inventario · Editar</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
           {product.name}
         </h1>

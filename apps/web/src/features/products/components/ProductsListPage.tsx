@@ -11,6 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import { extractApiErrorMessage } from '@/lib/api-client';
 
 import { categoriesApi, productsApi } from '../server/products.api';
@@ -133,22 +134,17 @@ export function ProductsListPage(): JSX.Element {
 
   return (
     <div className="mx-auto max-w-7xl px-8 py-12 animate-fade-in-up">
-      <header className="mb-6 flex items-end justify-between border-b border-border pb-6">
+      <header className="mb-10 flex items-end justify-between border-b border-border pb-8">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-            Inventario · 01
-          </p>
+          <p className="text-sm font-semibold text-primary">Inventario · 01</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">Productos</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {loading ? 'Cargando…' : `${total} ítems registrados`}
           </p>
         </div>
-        <Link
-          to="/admin/products/new"
-          className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          + Nuevo producto
-        </Link>
+        <Button asChild>
+          <Link to="/admin/products/new">+ Nuevo producto</Link>
+        </Button>
       </header>
 
       {/* Barra de filtros */}
