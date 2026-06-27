@@ -43,8 +43,6 @@ async function bootstrap() {
     }),
   );
 
-  await app.init();
-
   if (config.get<string>('SWAGGER_ENABLED', 'true') === 'true') {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Kore Repuestos API')
@@ -55,9 +53,11 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, swaggerConfig);
     const swaggerPath = config.get<string>('SWAGGER_PATH', 'docs');
 
+    // Register BEFORE app.init() so these routes sit ahead of NestJS's router
+    // in the Express middleware chain. NestJS does not call next() for unmatched
+    // routes, so anything registered after app.init() is never reached.
     expressApp.get(`/${swaggerPath}-json`, (_req, res) => res.json(document));
     expressApp.get(`/${swaggerPath}`, (_req, res) => {
-      // Override helmet's CSP to allow CDN assets for Swagger UI
       res.setHeader(
         'Content-Security-Policy',
         "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: blob:; worker-src blob:;",
@@ -89,6 +89,8 @@ async function bootstrap() {
 </html>`);
     });
   }
+
+  await app.init();
 
   isInitialized = true;
 }
