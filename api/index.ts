@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import express from 'express';
 import helmet from 'helmet';
 
@@ -41,6 +42,17 @@ async function bootstrap() {
       transformOptions: { enableImplicitConversion: true },
     }),
   );
+
+  if (config.get<string>('SWAGGER_ENABLED', 'true') === 'true') {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Kore Repuestos API')
+      .setDescription('Gestión de repuestos automotrices y planes de mantenimiento')
+      .setVersion('0.1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup(config.get<string>('SWAGGER_PATH', 'docs'), app, document);
+  }
 
   await app.init();
   isInitialized = true;
