@@ -1,9 +1,4 @@
 {
-  "functions": {
-    "api/index.ts": {
-      "includeFiles": "node_modules/swagger-ui-dist/**"
-    }
-  },
   "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }],
   "installCommand": "pnpm install --config.supportedArchitectures.cpu=x64 --config.supportedArchitectures.os=linux"
 }

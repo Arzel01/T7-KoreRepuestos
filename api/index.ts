@@ -43,6 +43,8 @@ async function bootstrap() {
     }),
   );
 
+  await app.init();
+
   if (config.get<string>('SWAGGER_ENABLED', 'true') === 'true') {
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Kore Repuestos API')
@@ -51,10 +53,43 @@ async function bootstrap() {
       .addBearerAuth()
       .build();
     const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup(config.get<string>('SWAGGER_PATH', 'docs'), app, document);
+    const swaggerPath = config.get<string>('SWAGGER_PATH', 'docs');
+
+    expressApp.get(`/${swaggerPath}-json`, (_req, res) => res.json(document));
+    expressApp.get(`/${swaggerPath}`, (_req, res) => {
+      // Override helmet's CSP to allow CDN assets for Swagger UI
+      res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: blob:; worker-src blob:;",
+      );
+      res.send(`<!DOCTYPE html>
+<html>
+  <head>
+    <title>Kore Repuestos API</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+    <script>
+      window.onload = function() {
+        window.ui = SwaggerUIBundle({
+          url: '/${swaggerPath}-json',
+          dom_id: '#swagger-ui',
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+          layout: 'StandaloneLayout',
+          persistAuthorization: true,
+        });
+      };
+    </script>
+  </body>
+</html>`);
+    });
   }
 
-  await app.init();
   isInitialized = true;
 }
 
