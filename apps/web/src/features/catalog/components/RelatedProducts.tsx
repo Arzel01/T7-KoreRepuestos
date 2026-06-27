@@ -51,7 +51,7 @@ export function RelatedProducts({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader className="w-8 h-8 text-blue-600 animate-spin" />
+        <Loader className="w-8 h-8 text-navy-600 animate-spin" />
       </div>
     );
   }
@@ -63,19 +63,21 @@ export function RelatedProducts({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">Otros clientes también compraron</h2>
-        <p className="text-slate-600">Productos relacionados que podrían interesarte</p>
+        <h2 className="text-2xl font-bold text-neutral-900 mb-2">
+          Otros clientes también compraron
+        </h2>
+        <p className="text-neutral-600">Productos relacionados que podrían interesarte</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {products.map((product) => (
           <Card
             key={product.id}
-            className="h-full border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
+            className="h-full border-neutral-200 hover:border-navy-300 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
             onClick={() => navigate(`/product/${product.id}`)}
           >
             {/* Product Image Placeholder */}
-            <div className="w-full h-40 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center overflow-hidden relative">
+            <div className="w-full h-40 bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center overflow-hidden relative">
               {product.imageUrl ? (
                 <img
                   src={product.imageUrl}
@@ -85,14 +87,14 @@ export function RelatedProducts({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <span className="text-slate-400 text-4xl">📦</span>
+                  <span className="text-neutral-400 text-4xl">📦</span>
                 </div>
               )}
             </div>
 
             <CardContent className="p-3 space-y-2 flex flex-col flex-1">
-              <p className="text-xs font-mono text-slate-500">{product.sku}</p>
-              <h3 className="font-semibold text-sm text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
+              <p className="text-xs font-mono text-neutral-500">{product.sku}</p>
+              <h3 className="font-semibold text-sm text-neutral-900 line-clamp-2 group-hover:text-navy-600 transition-colors">
                 {product.name}
               </h3>
 
@@ -100,8 +102,8 @@ export function RelatedProducts({
 
               <div className="flex items-end justify-between">
                 <div>
-                  <p className="text-lg font-bold text-blue-700">${product.price.toFixed(2)}</p>
-                  <p className="text-xs text-slate-500">+ IVA</p>
+                  <p className="text-lg font-bold text-navy-700">${product.price.toFixed(2)}</p>
+                  <p className="text-xs text-neutral-500">+ IVA</p>
                 </div>
                 <div
                   className={`px-2 py-1 rounded text-xs font-semibold ${

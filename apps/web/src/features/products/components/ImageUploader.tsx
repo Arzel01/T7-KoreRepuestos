@@ -65,13 +65,13 @@ export function ImageUploader({ productId }: ImageUploaderProps): JSX.Element {
       <div
         role="button"
         tabIndex={0}
-        className="flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-ink-600 p-8 text-center transition-colors hover:border-signal-500 hover:bg-ink-900/50"
+        className="flex cursor-pointer flex-col items-center justify-center gap-2 border border-dashed border-neutral-300 p-8 text-center transition-colors hover:border-cyan-400 hover:bg-cyan-50/50"
         onClick={() => inputRef.current?.click()}
         onKeyDown={(e) => e.key === 'Enter' && inputRef.current?.click()}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >
-        <span className="font-mono text-xs uppercase tracking-wider text-ink-400">
+        <span className="font-mono text-xs uppercase tracking-wider text-neutral-500">
           {uploading
             ? 'Subiendo…'
             : 'Arrastra imágenes aquí o haz clic · JPG, PNG, WebP · max 5 MB'}
@@ -86,13 +86,13 @@ export function ImageUploader({ productId }: ImageUploaderProps): JSX.Element {
         onChange={(e) => void handleFiles(e.target.files)}
       />
 
-      {error && <p className="font-mono text-xs text-danger-500">✕ {error}</p>}
+      {error && <p className="font-mono text-xs text-red-600">✕ {error}</p>}
 
       {/* Galería */}
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
           {images.map((img) => (
-            <div key={img.id} className="group relative border border-ink-700">
+            <div key={img.id} className="group relative border border-neutral-200">
               <img
                 src={img.url}
                 alt=""
@@ -100,14 +100,14 @@ export function ImageUploader({ productId }: ImageUploaderProps): JSX.Element {
                 loading="lazy"
               />
               {img.isPrimary && (
-                <span className="absolute bottom-0 left-0 right-0 bg-signal-500/90 px-1 py-0.5 text-center font-mono text-[10px] uppercase tracking-wider text-ink-950">
+                <span className="absolute bottom-0 left-0 right-0 bg-cyan-400/90 px-1 py-0.5 text-center font-mono text-[10px] uppercase tracking-wider text-navy-900">
                   Principal
                 </span>
               )}
               <button
                 type="button"
                 aria-label="Eliminar imagen"
-                className="absolute right-1 top-1 hidden h-6 w-6 items-center justify-center bg-danger-700 text-white group-hover:flex"
+                className="absolute right-1 top-1 hidden h-6 w-6 items-center justify-center bg-red-700 text-white group-hover:flex"
                 onClick={() => void handleDelete(img.id)}
               >
                 ✕

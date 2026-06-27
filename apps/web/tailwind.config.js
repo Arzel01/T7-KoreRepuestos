@@ -1,13 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 // =============================================================================
-// Kore Repuestos · Tailwind config — Dirección estética "industrial editorial"
+// Kore Repuestos · Tailwind config
 // -----------------------------------------------------------------------------
 // Filosofía:
-//   · Negro profundo de imprenta como base (no gris azulado de UI genérica).
-//   · Acento naranja seguridad — el color de las señales en talleres y máquinas.
-//   · Tipografía condensada para titulares (Bebas Neue) que evoca señalética
-//     industrial y manuales técnicos antiguos.
-//   · Esquinas vivas (radius=0) por defecto en formularios → estética mecánica.
+//   · Paleta de marca navy/red/cyan, sincronizada con apps/web/globals.css.
+//   · Tipografía condensada para titulares (Bebas Neue) en piezas editoriales.
 //   · Números tabulares globalmente: precios, stock, SKUs siempre alineados.
 // =============================================================================
 export default {
@@ -59,45 +56,59 @@ export default {
           border: 'var(--sidebar-border)',
           ring: 'var(--sidebar-ring)',
         },
-        // Tinta (background, surfaces, dividers)
-        ink: {
-          950: '#0a0a0a', // base — negro de imprenta
-          900: '#121212', // panels
-          850: '#171717',
-          800: '#1f1f1f', // cards
-          700: '#2a2a2a', // borders
-          600: '#3a3a3a',
-          500: '#525252',
-          400: '#737373',
-          300: '#a3a3a3',
-          200: '#d4d4d4',
-          100: '#e5e5e5',
-          50: '#fafaf9', // body text — blanco cálido, no #fff puro
+        // -----------------------------------------------------------------
+        // Tokens de marca KORE — sincronizados manualmente con las variables
+        // de apps/web/globals.css. Si cambian ahí, actualizar también aquí
+        // (Tailwind necesita valores hex literales para soportar modificadores
+        // de opacidad como bg-navy-700/25).
+        // -----------------------------------------------------------------
+        navy: {
+          950: '#060e1f',
+          900: '#0a1a33',
+          800: '#0f2448',
+          700: '#0f3672', // principal
+          600: '#1a4a96',
+          500: '#2562c0',
+          400: '#4a7fd4',
+          300: '#7aa5e0',
+          200: '#adc5eb',
+          100: '#d6e4f5',
+          50: '#edf3fb',
         },
-        // Naranja seguridad — único color cromático del sistema
-        signal: {
-          50: '#fff4ec',
-          100: '#ffe1cc',
-          300: '#ffaa70',
-          500: '#ff5e1f', // primario · CTAs · destacados numéricos
-          600: '#e84a08',
-          700: '#b53805',
-          900: '#5a1c02',
+        red: {
+          900: '#5c000e',
+          800: '#8a0017',
+          700: '#b80020',
+          600: '#d60022', // secundario
+          500: '#e8193a',
+          400: '#f24d68',
+          300: '#f87d92',
+          200: '#fbb5bf',
+          100: '#fde0e4',
+          50: '#fff0f2',
         },
-        // Acento secundario (alertas, low-stock)
-        warning: {
-          400: '#fcd34d',
-          500: '#facc15',
+        cyan: {
+          700: '#007a9c',
+          600: '#0099c2',
+          500: '#00aad2',
+          400: '#00b5e2', // botón resaltado
+          300: '#33c7ea',
+          200: '#80ddf2',
+          100: '#ccf1fb',
+          50: '#e8f9fe',
         },
-        // Verde técnico (estados OK, validación correcta)
-        success: {
-          500: '#22c55e',
-          700: '#15803d',
-        },
-        // Rojo (errores de validación, destructivo)
-        danger: {
-          500: '#ef4444',
-          700: '#b91c1c',
+        neutral: {
+          950: '#0d0d0d',
+          900: '#1a1a1a',
+          800: '#262626',
+          700: '#404040',
+          600: '#595959',
+          500: '#737373',
+          400: '#a3a3a3',
+          300: '#c9c9c9',
+          200: '#e0e0e0',
+          100: '#f0f0f0',
+          50: '#f5f5f5', // fondo menú
         },
       },
       fontFamily: {
@@ -124,26 +135,6 @@ export default {
       borderWidth: {
         DEFAULT: '1px',
         3: '3px',
-      },
-      boxShadow: {
-        panel: '0 1px 0 0 #2a2a2a inset, 0 -1px 0 0 #2a2a2a inset',
-        'signal-glow': '0 0 0 1px #ff5e1f, 0 0 24px -8px #ff5e1f',
-      },
-      backgroundImage: {
-        // Patrón diagonal industrial (cintas de "no pasar")
-        'hazard-stripes': `repeating-linear-gradient(
-          135deg,
-          #ff5e1f 0,
-          #ff5e1f 10px,
-          #0a0a0a 10px,
-          #0a0a0a 20px
-        )`,
-        // Grilla técnica sutil para fondos de paneles
-        'tech-grid': `linear-gradient(#1f1f1f 1px, transparent 1px),
-                      linear-gradient(90deg, #1f1f1f 1px, transparent 1px)`,
-      },
-      backgroundSize: {
-        'tech-grid': '32px 32px',
       },
       keyframes: {
         'fade-in-up': {

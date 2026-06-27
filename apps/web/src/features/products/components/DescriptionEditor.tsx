@@ -37,8 +37,8 @@ export function DescriptionEditor({
   }, [value, editor]);
 
   return (
-    <div className="mt-3 border border-ink-700 focus-within:border-ink-500">
-      <div className="flex flex-wrap items-center gap-1 border-b border-ink-700 bg-ink-900 px-2 py-1">
+    <div className="mt-3 border border-neutral-200 focus-within:border-neutral-400">
+      <div className="flex flex-wrap items-center gap-1 border-b border-neutral-200 bg-neutral-100 px-2 py-1">
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleBold().run()}
           active={editor?.isActive('bold') ?? false}
@@ -53,7 +53,7 @@ export function DescriptionEditor({
         >
           <em>I</em>
         </ToolbarBtn>
-        <span className="mx-1 h-4 w-px bg-ink-700" />
+        <span className="mx-1 h-4 w-px bg-neutral-200" />
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
           active={editor?.isActive('heading', { level: 2 }) ?? false}
@@ -68,7 +68,7 @@ export function DescriptionEditor({
         >
           H3
         </ToolbarBtn>
-        <span className="mx-1 h-4 w-px bg-ink-700" />
+        <span className="mx-1 h-4 w-px bg-neutral-200" />
         <ToolbarBtn
           onClick={() => editor?.chain().focus().toggleBulletList().run()}
           active={editor?.isActive('bulletList') ?? false}
@@ -95,7 +95,7 @@ export function DescriptionEditor({
           '[&_.tiptap_p.is-editor-empty:first-child::before]:pointer-events-none',
           '[&_.tiptap_p.is-editor-empty:first-child::before]:float-left',
           '[&_.tiptap_p.is-editor-empty:first-child::before]:h-0',
-          '[&_.tiptap_p.is-editor-empty:first-child::before]:text-ink-500',
+          '[&_.tiptap_p.is-editor-empty:first-child::before]:text-neutral-400',
           '[&_.tiptap_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]',
         ].join(' ')}
       >
@@ -119,7 +119,9 @@ function ToolbarBtn({ onClick, active, title, children }: ToolbarBtnProps): JSX.
       title={title}
       onClick={onClick}
       className={`rounded px-2 py-0.5 font-mono text-xs transition-colors ${
-        active ? 'bg-signal-500 text-ink-950' : 'text-ink-400 hover:bg-ink-700 hover:text-ink-100'
+        active
+          ? 'bg-cyan-400 text-navy-900'
+          : 'text-neutral-500 hover:bg-neutral-200 hover:text-navy-800'
       }`}
     >
       {children}

@@ -32,7 +32,6 @@ export function CatalogSidebar({
 
   const handleClearFilters = () => {
     filters.clearAll();
-    filters.setDraftPrice({ min: '', max: '' });
     setCategoryFilterResetKey((prev) => prev + 1);
   };
 
@@ -66,6 +65,7 @@ export function CatalogSidebar({
           loading={categoriesLoading}
           selectedIds={filters.selectedCategoryIds}
           onToggle={filters.toggleCategory}
+          onClearAll={filters.clearCategories}
           resetTrigger={categoryFilterResetKey}
         />
       </section>

@@ -23,6 +23,32 @@ export class QueryProductsDto {
   @Length(1, 100)
   search?: string;
 
+  /** Nombre de marca (tabla `marcas`) — filtra vía `compatibilidad`. */
+  @IsOptional()
+  @IsString()
+  @Length(1, 150)
+  vehicleBrand?: string;
+
+  /** Nombre de modelo (tabla `modelos`) — filtra vía `compatibilidad`. */
+  @IsOptional()
+  @IsString()
+  @Length(1, 150)
+  vehicleModel?: string;
+
+  /** Año (o año desde, si viene con vehicleYearTo) — contra modelos.anio_inicio/anio_fin. */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1900)
+  vehicleYear?: number;
+
+  /** Año hasta — solo tiene efecto junto con vehicleYear. */
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1900)
+  vehicleYearTo?: number;
+
   /**
    * Acepta `?categoryIds=1,2,3` o `?categoryIds=1&categoryIds=2`.
    * Los IDs son enteros (PK integer del schema real).

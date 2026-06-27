@@ -70,8 +70,11 @@ export function VehicleSelector({ vehicle, onVehicleChange }: VehicleSelectorPro
 
   function handleBrandChange(brandName: string) {
     const actualBrand = brandName === '__all__' ? '' : brandName;
+    // setVehicle('brand', ...) ya limpia el modelo internamente — llamar
+    // onVehicleChange('model', '') aquí también pisaría el cambio de marca,
+    // porque ambas llamadas comparten el mismo searchParams (sin re-render
+    // entre medio) y la última en ejecutarse gana.
     onVehicleChange('brand', actualBrand);
-    onVehicleChange('model', '');
   }
 
   const clearYear = (): void => {

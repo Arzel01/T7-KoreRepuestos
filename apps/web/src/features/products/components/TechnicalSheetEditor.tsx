@@ -61,10 +61,10 @@ export function TechnicalSheetEditor({ productId }: TechnicalSheetEditorProps): 
   return (
     <div className="space-y-4">
       {entries.length > 0 && (
-        <div className="border border-ink-700">
+        <div className="border border-neutral-200">
           <table className="w-full border-collapse text-left">
-            <thead className="border-b border-ink-700 bg-ink-900">
-              <tr className="font-mono text-eyebrow uppercase tracking-eyebrow text-ink-400">
+            <thead className="border-b border-neutral-200 bg-neutral-100">
+              <tr className="font-mono text-eyebrow uppercase tracking-eyebrow text-neutral-600">
                 <th className="px-4 py-2 font-medium">Atributo</th>
                 <th className="px-4 py-2 font-medium">Valor</th>
                 <th className="px-4 py-2" />
@@ -72,14 +72,14 @@ export function TechnicalSheetEditor({ productId }: TechnicalSheetEditorProps): 
             </thead>
             <tbody>
               {entries.map((e) => (
-                <tr key={e.id} className="border-b border-ink-700/60">
-                  <td className="px-4 py-2 font-mono text-sm text-signal-500">{e.attribute}</td>
-                  <td className="px-4 py-2 text-sm text-ink-100">{e.value}</td>
+                <tr key={e.id} className="border-b border-neutral-200/60">
+                  <td className="px-4 py-2 font-mono text-sm text-navy-700">{e.attribute}</td>
+                  <td className="px-4 py-2 text-sm text-navy-800">{e.value}</td>
                   <td className="px-4 py-2 text-right">
                     <button
                       type="button"
                       aria-label="Eliminar entrada"
-                      className="font-mono text-xs text-danger-500 hover:text-danger-400"
+                      className="font-mono text-xs text-red-600 hover:text-red-500"
                       onClick={() => void handleDelete(e.id)}
                     >
                       ✕
@@ -119,7 +119,7 @@ export function TechnicalSheetEditor({ productId }: TechnicalSheetEditorProps): 
         </button>
       </div>
 
-      {error && <p className="font-mono text-xs text-danger-500">✕ {error}</p>}
+      {error && <p className="font-mono text-xs text-red-600">✕ {error}</p>}
     </div>
   );
 }

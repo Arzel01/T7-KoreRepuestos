@@ -59,7 +59,7 @@ export function ProductEditPage(): JSX.Element {
   if (loading) {
     return (
       <div className="mx-auto max-w-7xl px-8 py-12">
-        <p className="font-mono text-xs text-ink-400">Cargando producto…</p>
+        <p className="font-mono text-xs text-neutral-500">Cargando producto…</p>
       </div>
     );
   }
@@ -67,9 +67,7 @@ export function ProductEditPage(): JSX.Element {
   if (loadError || !product) {
     return (
       <div className="mx-auto max-w-7xl px-8 py-12">
-        <p className="font-mono text-xs text-danger-500">
-          ✕ {loadError ?? 'Producto no encontrado'}
-        </p>
+        <p className="font-mono text-xs text-red-600">✕ {loadError ?? 'Producto no encontrado'}</p>
       </div>
     );
   }

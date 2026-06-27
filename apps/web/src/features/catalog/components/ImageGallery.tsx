@@ -45,12 +45,12 @@ export function ImageGallery({ images, productName }: ImageGalleryProps): JSX.El
   return (
     <div className="space-y-4">
       {/* Main Image Container */}
-      <div className="relative bg-white rounded-2xl border-2 border-slate-200 overflow-hidden shadow-lg aspect-square group">
+      <div className="relative bg-white rounded-2xl border-2 border-neutral-200 overflow-hidden shadow-lg aspect-square group">
         {hasImages ? (
           <>
             {/* Loading skeleton */}
             {!isImageLoaded && (
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-200 to-slate-300 animate-pulse" />
+              <div className="absolute inset-0 bg-gradient-to-r from-neutral-200 to-neutral-300 animate-pulse" />
             )}
 
             {/* Main Image with Zoom */}
@@ -93,14 +93,14 @@ export function ImageGallery({ images, productName }: ImageGalleryProps): JSX.El
               <>
                 <button
                   onClick={handlePrevious}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-2 rounded-full shadow-lg backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-900 p-2 rounded-full shadow-lg backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
                   aria-label="Imagen anterior"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
                   onClick={handleNext}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-slate-900 p-2 rounded-full shadow-lg backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-neutral-900 p-2 rounded-full shadow-lg backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
                   aria-label="Siguiente imagen"
                 >
                   <ChevronRight className="w-6 h-6" />
@@ -109,7 +109,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps): JSX.El
             )}
 
             {/* Zoom Indicator */}
-            <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-slate-900/70 text-white px-3 py-2 rounded-lg backdrop-blur-md text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-neutral-900/70 text-white px-3 py-2 rounded-lg backdrop-blur-md text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
               {isZoomed ? (
                 <>
                   <ZoomOut className="w-4 h-4" />
@@ -125,17 +125,17 @@ export function ImageGallery({ images, productName }: ImageGalleryProps): JSX.El
 
             {/* Image Counter */}
             {validImages.length > 1 && (
-              <div className="absolute top-4 left-4 bg-slate-900/70 text-white px-3 py-2 rounded-lg backdrop-blur-md text-sm font-semibold">
+              <div className="absolute top-4 left-4 bg-neutral-900/70 text-white px-3 py-2 rounded-lg backdrop-blur-md text-sm font-semibold">
                 {mainImageIndex + 1} / {validImages.length}
               </div>
             )}
           </>
         ) : (
           /* No Image Placeholder */
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-100 to-neutral-200">
             <div className="text-center">
-              <ImageOff className="w-16 h-16 text-slate-400 mx-auto mb-3" />
-              <p className="text-slate-500 font-medium">Imagen no disponible</p>
+              <ImageOff className="w-16 h-16 text-neutral-400 mx-auto mb-3" />
+              <p className="text-neutral-500 font-medium">Imagen no disponible</p>
             </div>
           </div>
         )}
@@ -144,7 +144,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps): JSX.El
       {/* Thumbnail Carousel */}
       {validImages.length > 1 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold text-slate-600 uppercase tracking-widest">
+          <p className="text-xs font-semibold text-neutral-600 uppercase tracking-widest">
             Galería ({validImages.length} fotos)
           </p>
           <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory">
@@ -154,8 +154,8 @@ export function ImageGallery({ images, productName }: ImageGalleryProps): JSX.El
                 onClick={() => setMainImageIndex(index)}
                 className={`relative flex-shrink-0 w-20 h-20 rounded-lg border-2 transition-all snap-center overflow-hidden group/thumb ${
                   mainImageIndex === index
-                    ? 'border-blue-500 ring-2 ring-blue-300 shadow-md'
-                    : 'border-slate-300 hover:border-blue-300'
+                    ? 'border-navy-500 ring-2 ring-navy-300 shadow-md'
+                    : 'border-neutral-300 hover:border-navy-300'
                 }`}
               >
                 <img
@@ -165,14 +165,14 @@ export function ImageGallery({ images, productName }: ImageGalleryProps): JSX.El
                   className="w-full h-full object-cover"
                 />
                 {image.isPrimary && (
-                  <div className="absolute top-1 right-1 bg-blue-600 text-white text-xs font-bold px-1.5 py-0.5 rounded opacity-0 group-hover/thumb:opacity-100 transition-opacity">
+                  <div className="absolute top-1 right-1 bg-navy-600 text-white text-xs font-bold px-1.5 py-0.5 rounded opacity-0 group-hover/thumb:opacity-100 transition-opacity">
                     Principal
                   </div>
                 )}
               </button>
             ))}
             {validImages.length > 10 && (
-              <div className="flex-shrink-0 w-20 h-20 rounded-lg border-2 border-dashed border-slate-300 flex items-center justify-center text-xs text-slate-500 font-medium">
+              <div className="flex-shrink-0 w-20 h-20 rounded-lg border-2 border-dashed border-neutral-300 flex items-center justify-center text-xs text-neutral-500 font-medium">
                 +{validImages.length - 10}
               </div>
             )}
