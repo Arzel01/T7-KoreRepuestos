@@ -218,7 +218,7 @@ export function ProductsListPage(): JSX.Element {
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         <table className="w-full border-collapse text-left">
           <thead className="border-b border-border bg-muted/50 text-muted-foreground">
-            <tr className="text-xs uppercase tracking-[0.2em]">
+            <tr className="text-xs">
               <th className="px-4 py-3 font-semibold">SKU</th>
               <th className="px-4 py-3 font-semibold">Nombre</th>
               <th className="px-4 py-3 text-right font-semibold">Precio</th>

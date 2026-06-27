@@ -166,7 +166,7 @@ export function CategoriesPage(): JSX.Element {
             <div>
               <label
                 htmlFor="category-name"
-                className="block text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground"
+                className="block text-sm font-semibold text-muted-foreground"
               >
                 Nombre <span className="text-primary">*</span>
               </label>
@@ -248,7 +248,7 @@ function CategoryNode({
   return (
     <li>
       <div
-        className="flex items-center gap-3 border-b border-border/60 py-2 hover:bg-muted/30"
+        className="flex items-center gap-3 border-b border-border/60 py-2 pr-6 hover:bg-muted/30"
         style={{ paddingLeft: `${16 + depth * 24}px` }}
       >
         <span className="flex-1 text-sm text-foreground">{node.name}</span>

@@ -39,7 +39,7 @@ export function ProductCreatePage(): JSX.Element {
             <strong className="text-foreground">mayores que cero</strong>.
           </p>
         </div>
-        <span className="inline-flex rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+        <span className="inline-flex rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
           Requiere admin
         </span>
       </header>

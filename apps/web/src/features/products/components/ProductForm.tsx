@@ -164,9 +164,7 @@ export function ProductForm({
 
       {/* Datos comerciales */}
       <fieldset className="rounded-2xl border border-border p-6">
-        <legend className="px-2 text-sm font-semibold uppercase tracking-[0.2em] text-primary">
-          05 → Datos comerciales
-        </legend>
+        <legend className="px-2 text-sm font-semibold text-primary">05 → Datos comerciales</legend>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <Field id="price" label="Precio ($)" step="" required error={showError('price')}>
             <input
@@ -244,7 +242,7 @@ function Field({ id, label, step, required, error, className, children }: FieldP
     <div className={className}>
       <label
         htmlFor={id}
-        className="flex items-baseline gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground"
+        className="flex items-baseline gap-2 text-sm font-semibold text-muted-foreground"
       >
         {step && <span className="text-primary">{step} →</span>}
         <span>
