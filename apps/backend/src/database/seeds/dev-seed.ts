@@ -3,7 +3,7 @@
  *
  * Idempotente — usa ON CONFLICT DO NOTHING en todos los INSERT.
  * Cubre: usuarios, marcas, modelos, categorias, productos, fichas_tecnicas,
- *        compatibilidades, vehiculos_usuario, guias_mantenimiento,
+ *        compatibilidad, vehiculos_usuario, guias_mantenimiento,
  *        tareas_mantenimiento, productos_tarea, historial_mantenimiento.
  *
  * Credenciales de prueba:
@@ -217,52 +217,54 @@ async function main(): Promise<void> {
 
   console.info(`✓ Fichas técnicas: ${fichas.length} atributos`);
 
-  // ── 7. Compatibilidades ───────────────────────────────────────────────────
-  // La tabla real usa columnas de texto (marca, modelo) + rango de años,
-  // no FKs a la tabla modelos.
-  const compat: Array<[string, string, string, number, number]> = [
-    // [sku, marca, modelo, año_inicio, año_fin]
-    ['HYK-OF-2631', 'Toyota', 'Corolla', 2015, 2023],
-    ['HYK-OF-2631', 'Hyundai', 'Elantra', 2017, 2023],
-    ['HYK-OF-2631', 'Kia', 'Rio', 2016, 2022],
-    ['HYK-OF-2631', 'Nissan', 'Sentra', 2015, 2022],
-    ['HYK-AF-5521', 'Toyota', 'Corolla', 2015, 2023],
-    ['HYK-AF-5521', 'Hyundai', 'Elantra', 2017, 2023],
-    ['HYK-AF-5521', 'Hyundai', 'Tucson', 2018, 2024],
-    ['BRK-PP-4481', 'Toyota', 'Corolla', 2015, 2023],
-    ['BRK-PP-4481', 'Hyundai', 'Elantra', 2017, 2023],
-    ['BRK-PP-4481', 'Kia', 'Rio', 2016, 2022],
-    ['BRK-PP-4481', 'Chevrolet', 'Sail', 2015, 2021],
-    ['SUS-SH-7721', 'Toyota', 'Corolla', 2015, 2023],
-    ['SUS-SH-7721', 'Nissan', 'Sentra', 2015, 2022],
-    ['MOT-TK-DIST', 'Kia', 'Rio', 2016, 2022],
-    ['MOT-TK-DIST', 'Hyundai', 'Elantra', 2017, 2023],
-    ['LUB-ME-5W30', 'Toyota', 'Corolla', 2015, 2023],
-    ['LUB-ME-5W30', 'Toyota', 'Hilux', 2016, 2024],
-    ['LUB-ME-5W30', 'Hyundai', 'Elantra', 2017, 2023],
-    ['LUB-ME-5W30', 'Kia', 'Sportage', 2017, 2024],
-    ['LUB-ME-5W30', 'Nissan', 'Sentra', 2015, 2022],
-    ['ELC-BT-70AH', 'Toyota', 'Hilux', 2016, 2024],
-    ['ELC-BT-70AH', 'Hyundai', 'Tucson', 2018, 2024],
-    ['ELC-BT-70AH', 'Hyundai', 'Santa Fe', 2019, 2024],
-    ['ELC-BT-70AH', 'Chevrolet', 'Captiva', 2018, 2023],
+  // ── 7. Compatibilidad ─────────────────────────────────────────────────────
+  // Tabla real: `compatibilidad` (singular), FK directa id_producto→productos
+  // e id_modelo→modelos. El rango de años vive en modelos.anio_inicio/anio_fin,
+  // no se duplica aquí. (NO usar `compatibilidades` — esa tabla es legado y no
+  // es el modelo de datos correcto.)
+  const compat: Array<[string, string]> = [
+    // [sku, modelo]
+    ['HYK-OF-2631', 'Corolla'],
+    ['HYK-OF-2631', 'Elantra'],
+    ['HYK-OF-2631', 'Rio'],
+    ['HYK-OF-2631', 'Sentra'],
+    ['HYK-AF-5521', 'Corolla'],
+    ['HYK-AF-5521', 'Elantra'],
+    ['HYK-AF-5521', 'Tucson'],
+    ['BRK-PP-4481', 'Corolla'],
+    ['BRK-PP-4481', 'Elantra'],
+    ['BRK-PP-4481', 'Rio'],
+    ['BRK-PP-4481', 'Sail'],
+    ['SUS-SH-7721', 'Corolla'],
+    ['SUS-SH-7721', 'Sentra'],
+    ['MOT-TK-DIST', 'Rio'],
+    ['MOT-TK-DIST', 'Elantra'],
+    ['LUB-ME-5W30', 'Corolla'],
+    ['LUB-ME-5W30', 'Hilux'],
+    ['LUB-ME-5W30', 'Elantra'],
+    ['LUB-ME-5W30', 'Sportage'],
+    ['LUB-ME-5W30', 'Sentra'],
+    ['ELC-BT-70AH', 'Hilux'],
+    ['ELC-BT-70AH', 'Tucson'],
+    ['ELC-BT-70AH', 'Santa Fe'],
+    ['ELC-BT-70AH', 'Captiva'],
   ];
 
-  for (const [sku, marca, modelo, anioInicio, anioFin] of compat) {
+  for (const [sku, modelo] of compat) {
     const idProd = prodBySku[sku];
-    if (!idProd) continue;
+    const idModelo = modeloByNombre[modelo];
+    if (!idProd || !idModelo) continue;
     await dataSource.query(
-      `INSERT INTO compatibilidades (id_producto, marca, modelo, año_inicio, año_fin)
-       SELECT $1::int, $2::varchar, $3::varchar, $4::smallint, $5::smallint
+      `INSERT INTO compatibilidad (id_producto, id_modelo)
+       SELECT $1::int, $2::int
        WHERE NOT EXISTS (
-         SELECT 1 FROM compatibilidades
-         WHERE id_producto=$1::int AND marca=$2::varchar AND modelo=$3::varchar
+         SELECT 1 FROM compatibilidad WHERE id_producto=$1::int AND id_modelo=$2::int
        )`,
-      [idProd, marca, modelo, anioInicio, anioFin],
+      [idProd, idModelo],
     );
   }
 
-  console.info(`✓ Compatibilidades: ${compat.length} registros`);
+  console.info(`✓ Compatibilidad: ${compat.length} registros`);
 
   // ── 8. Vehículos de usuarios ──────────────────────────────────────────────
   await dataSource.query(

@@ -29,6 +29,7 @@ export interface CatalogFiltersState {
   setDraftPrice: (price: { min: string; max: string }) => void;
   applyPrice: () => void;
   toggleCategory: (id: string) => void;
+  clearCategories: () => void;
   setInStock: (value: boolean) => void;
   setVehicle: (field: keyof VehicleFilters, value: string) => void;
   submitSearch: (term: string) => void;
@@ -37,12 +38,16 @@ export interface CatalogFiltersState {
 }
 
 /**
- * Compone marca/modelo/tipo/año en el `search` que recibe el backend.
+ * Compone tipo/año en el `search` que recibe el backend.
+ *
+ * Marca y modelo NO van aquí — se envían como `vehicleBrand`/`vehicleModel`
+ * y se filtran en el backend vía la tabla `compatibilidad` (FK real a
+ * `modelos`/`marcas`), no por coincidencia de texto.
  *
  * Rango de años:
  *   · Solo yearFrom  → se incluye ese año literal ("2022")
  *   · yearFrom + yearTo → se expanden todos los años del rango ("2020 2021 2022")
- *     El backend hace ILIKE `%search%` sobre nombre/descripción, así que
+ *     El backend hace ILIKE `%search%` sobre nombre/sku, así que
  *     incluir todos los años del rango maximiza los matches sin cambiar el backend.
  */
 function composeSearch(
@@ -64,9 +69,7 @@ function composeSearch(
     }
   }
 
-  const terms = [vehicle.brand, vehicle.model, vehicle.type, ...yearTerms]
-    .map((v) => v.trim())
-    .filter(Boolean);
+  const terms = [vehicle.type, ...yearTerms].map((v) => v.trim()).filter(Boolean);
 
   return terms.length > 0 ? terms.join(' ') : undefined;
 }
@@ -131,6 +134,8 @@ export function useCatalogFilters(): CatalogFiltersState {
 
     return {
       search: composeSearch(manualSearch, vehicle),
+      vehicleBrand: vehicle.brand || undefined,
+      vehicleModel: vehicle.model || undefined,
       categoryIds: categoryIds?.length ? categoryIds : undefined,
       minPrice: minPrice !== null ? Number(minPrice) : undefined,
       maxPrice: maxPrice !== null ? Number(maxPrice) : undefined,
@@ -173,6 +178,10 @@ export function useCatalogFilters(): CatalogFiltersState {
     },
     [selectedCategoryIds, update],
   );
+
+  const clearCategories = useCallback(() => {
+    update({ categoryIds: undefined });
+  }, [update]);
 
   const setInStock = useCallback(
     (value: boolean) => update({ inStock: value ? 'true' : undefined }),
@@ -257,6 +266,7 @@ export function useCatalogFilters(): CatalogFiltersState {
     setDraftPrice,
     applyPrice,
     toggleCategory,
+    clearCategories,
     setInStock,
     setVehicle,
     submitSearch,

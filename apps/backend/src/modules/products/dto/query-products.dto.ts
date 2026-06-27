@@ -23,6 +23,18 @@ export class QueryProductsDto {
   @Length(1, 100)
   search?: string;
 
+  /** Nombre de marca (tabla `marcas`) — filtra vía `compatibilidad`. */
+  @IsOptional()
+  @IsString()
+  @Length(1, 150)
+  vehicleBrand?: string;
+
+  /** Nombre de modelo (tabla `modelos`) — filtra vía `compatibilidad`. */
+  @IsOptional()
+  @IsString()
+  @Length(1, 150)
+  vehicleModel?: string;
+
   /**
    * Acepta `?categoryIds=1,2,3` o `?categoryIds=1&categoryIds=2`.
    * Los IDs son enteros (PK integer del schema real).

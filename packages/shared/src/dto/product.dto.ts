@@ -45,6 +45,10 @@ export class UpdateProductDto {
  */
 export interface ProductQueryParams extends PaginationParams {
   search?: string;
+  /** Nombre de marca — filtra por compatibilidad real (tabla `compatibilidad`). */
+  vehicleBrand?: string;
+  /** Nombre de modelo — filtra por compatibilidad real (tabla `compatibilidad`). */
+  vehicleModel?: string;
   categoryIds?: string[];
   minPrice?: number;
   maxPrice?: number;

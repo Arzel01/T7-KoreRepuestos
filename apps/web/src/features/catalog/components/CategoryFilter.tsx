@@ -12,6 +12,7 @@ interface CategoryFilterProps {
   loading: boolean;
   selectedIds: string[];
   onToggle: (id: string) => void;
+  onClearAll: () => void;
   resetTrigger?: number;
 }
 
@@ -21,6 +22,7 @@ export function CategoryFilter({
   loading,
   selectedIds,
   onToggle,
+  onClearAll,
   resetTrigger = 0,
 }: CategoryFilterProps): JSX.Element {
   const [searchTerm, setSearchTerm] = useState('');
@@ -58,9 +60,7 @@ export function CategoryFilter({
           onCheckedChange={(checked) => {
             if (checked) {
               // Deseleccionar todas para mostrar todas las categorías
-              selectedIds.forEach((id) => onToggle(id));
-            } else {
-              // No hacer nada si desmarca "Todos"
+              onClearAll();
             }
           }}
         />

@@ -66,6 +66,7 @@ export function CatalogSidebar({
           loading={categoriesLoading}
           selectedIds={filters.selectedCategoryIds}
           onToggle={filters.toggleCategory}
+          onClearAll={filters.clearCategories}
           resetTrigger={categoryFilterResetKey}
         />
       </section>

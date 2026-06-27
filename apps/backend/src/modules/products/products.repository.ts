@@ -51,6 +51,25 @@ export class ProductsRepository extends BaseRepository<Product, number> {
       qb.andWhere('p.stock_actual > 0');
     }
 
+    if (q.vehicleBrand || q.vehicleModel) {
+      // `compatibilidad` (singular) es la tabla correcta del modelo de datos:
+      // FK real id_producto→productos, id_modelo→modelos. `compatibilidades`
+      // (plural) es legado y NO debe usarse.
+      const conditions = ['comp.id_producto = p.id_producto'];
+      if (q.vehicleBrand) conditions.push('ma.nombre ILIKE :vehicleBrand');
+      if (q.vehicleModel) conditions.push('mo.nombre ILIKE :vehicleModel');
+
+      qb.andWhere(
+        `EXISTS (
+           SELECT 1 FROM compatibilidad comp
+           INNER JOIN modelos mo ON mo.id_modelo = comp.id_modelo
+           INNER JOIN marcas ma ON ma.id_marca = mo.id_marca
+           WHERE ${conditions.join(' AND ')}
+         )`,
+        { vehicleBrand: q.vehicleBrand, vehicleModel: q.vehicleModel },
+      );
+    }
+
     if (q.search) {
       qb.andWhere(
         '(p.nombre ILIKE :like OR p.sku ILIKE :like OR word_similarity(:search, p.nombre) >= 0.25)',

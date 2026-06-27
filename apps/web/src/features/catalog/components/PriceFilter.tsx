@@ -1,6 +1,7 @@
 import { ChevronRight } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -30,16 +31,15 @@ export function PriceFilter({ draft, onDraftChange, onApply }: PriceFilterProps)
       }}
     >
       <div className="flex items-center gap-2 pb-1">
-        <input
-          type="radio"
+        <Checkbox
           id="price-all"
-          name="price-option"
           checked={allSelected}
-          onChange={() => {
-            onDraftChange({ min: '', max: '' });
-            // No call onApply here, let user control when to apply
+          onCheckedChange={(checked) => {
+            if (checked) {
+              onDraftChange({ min: '', max: '' });
+              // No call onApply here, let user control when to apply
+            }
           }}
-          className="h-4 w-4"
         />
         <Label htmlFor="price-all" className="cursor-pointer text-sm font-normal">
           Todos
