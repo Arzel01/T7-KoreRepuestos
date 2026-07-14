@@ -7,7 +7,15 @@ import { BaseRepository } from '../../common/repositories/base.repository';
 import { Product } from './entities/product.entity';
 
 import type { QueryProductsDto } from './dto/query-products.dto';
+import type { SuggestProductsDto } from './dto/suggest-products.dto';
 import type { PaginatedResult } from '@kore/shared';
+
+export interface ProductSuggestion {
+  id: number;
+  name: string;
+  sku: string;
+  price: number;
+}
 
 /**
  * Mapa columna-ordenable → expresión SQL.
@@ -87,10 +95,14 @@ export class ProductsRepository extends BaseRepository<Product, number> {
 
     if (q.search) {
       qb.andWhere(
-        '(p.nombre ILIKE :like OR p.sku ILIKE :like OR word_similarity(:search, p.nombre) >= 0.25)',
+        `(p.search_vector @@ websearch_to_tsquery('spanish', :search)
+          OR p.nombre ILIKE :like OR p.sku ILIKE :like
+          OR word_similarity(:search, p.nombre) >= 0.25)`,
         { like: `%${q.search}%`, search: q.search },
       );
-      qb.orderBy('word_similarity(:search, p.nombre)', 'DESC').addOrderBy('p.nombre', 'ASC');
+      qb.orderBy(`ts_rank(p.search_vector, websearch_to_tsquery('spanish', :search))`, 'DESC')
+        .addOrderBy('word_similarity(:search, p.nombre)', 'DESC')
+        .addOrderBy('p.nombre', 'ASC');
     } else {
       qb.orderBy(SORT_COLUMNS[q.sortBy], q.sortOrder.toUpperCase() as 'ASC' | 'DESC');
     }
@@ -105,6 +117,19 @@ export class ProductsRepository extends BaseRepository<Product, number> {
       pageSize: q.pageSize,
       totalPages: Math.max(1, Math.ceil(total / q.pageSize)),
     };
+  }
+
+  async findSuggestions(dto: SuggestProductsDto): Promise<ProductSuggestion[]> {
+    const prefix = `${dto.q}%`;
+    return this.repository.manager.query<ProductSuggestion[]>(
+      `SELECT p.id_producto AS id, p.nombre AS name, p.sku, p.precio_base AS price
+       FROM public.productos p
+       WHERE p.is_active = TRUE
+         AND (p.nombre ILIKE $1 OR p.sku ILIKE $1 OR word_similarity($2, p.nombre) >= 0.3)
+       ORDER BY (p.nombre ILIKE $1) DESC, word_similarity($2, p.nombre) DESC, p.nombre ASC
+       LIMIT $3`,
+      [prefix, dto.q, dto.limit],
+    );
   }
 
   async findBySku(sku: string): Promise<Product | null> {

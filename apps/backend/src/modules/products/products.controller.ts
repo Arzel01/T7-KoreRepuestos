@@ -33,6 +33,7 @@ import { ParsePositiveIntPipe } from '../../common/pipes/parse-positive-int.pipe
 import { CreateProductDto } from './dto/create-product.dto';
 import { CreateTechnicalSheetEntryDto } from './dto/create-technical-sheet-entry.dto';
 import { QueryProductsDto } from './dto/query-products.dto';
+import { SuggestProductsDto } from './dto/suggest-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { multerOptions } from './multer.config';
 import { ProductImagesService } from './product-images.service';
@@ -42,6 +43,7 @@ import { TechnicalSheetsService } from './technical-sheets.service';
 import type { ProductImage } from './entities/product-image.entity';
 import type { Product } from './entities/product.entity';
 import type { TechnicalSheetEntry } from './entities/technical-sheet-entry.entity';
+import type { ProductSuggestion } from './products.repository';
 import type { JwtPayload } from '../auth/dto/auth-response.dto';
 import type { PaginatedResult } from '@kore/shared';
 
@@ -60,8 +62,20 @@ export class ProductsController {
   @Get()
   @ApiOperation({ summary: 'Catálogo público de productos activos (filtrable y paginado).' })
   @ApiResponse({ status: 200, description: 'Lista paginada de productos.' })
-  findAll(@Query() query: QueryProductsDto): Promise<PaginatedResult<Product>> {
-    return this.productsService.findCatalog(query);
+  findAll(
+    @Query() query: QueryProductsDto,
+    @CurrentUser() user?: JwtPayload,
+  ): Promise<PaginatedResult<Product>> {
+    return this.productsService.findCatalog(query, user ? Number(user.sub) : undefined);
+  }
+
+  @Public()
+  @Get('suggestions')
+  @ApiOperation({ summary: 'Sugerencias de búsqueda (autocomplete, mín. 2 caracteres).' })
+  @ApiResponse({ status: 200, description: 'Lista de sugerencias.' })
+  @ApiResponse({ status: 400, description: 'q muy corto (< 2 chars) o parámetros inválidos.' })
+  getSuggestions(@Query() dto: SuggestProductsDto): Promise<ProductSuggestion[]> {
+    return this.productsService.findSuggestions(dto);
   }
 
   @Public()

@@ -13,6 +13,16 @@ import type {
   VehicleResponse,
 } from '@kore/shared';
 
+export interface UpdateVehiclePayload {
+  brandId?: number;
+  modelId?: number;
+  year?: number;
+  plate?: string;
+  currentMileage?: number;
+  averageDailyMileage?: number;
+  alias?: string;
+}
+
 export const garageApi = {
   getBrands: (): Promise<MarcaResponse[]> => api.get('/vehicles/brands'),
 
@@ -23,6 +33,9 @@ export const garageApi = {
 
   createVehicle: (payload: CreateVehicleDto): Promise<VehicleResponse> =>
     api.post('/vehicles', payload),
+
+  updateVehicle: (id: number, payload: UpdateVehiclePayload): Promise<VehicleResponse> =>
+    api.put(`/vehicles/${id}`, payload),
 
   deleteVehicle: (id: number): Promise<void> => api.delete(`/vehicles/${id}`),
 

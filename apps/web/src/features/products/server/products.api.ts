@@ -38,9 +38,18 @@ function toQueryParams(params?: ProductQueryParams): Record<string, unknown> | u
   };
 }
 
+export interface ProductSuggestion {
+  id: number;
+  name: string;
+  sku: string;
+  price: number;
+}
+
 export const productsApi = {
   list: (params?: ProductQueryParams): Promise<PaginatedResult<ProductResponse>> =>
     api.get('/products', toQueryParams(params)),
+  getSuggestions: (q: string, signal?: AbortSignal): Promise<ProductSuggestion[]> =>
+    api.get('/products/suggestions', { q, limit: 8 }, signal),
   getById: (id: number): Promise<ProductResponse> => api.get(`/products/${id}`),
   create: (payload: CreateProductPayload): Promise<ProductResponse> =>
     api.post('/products', payload),

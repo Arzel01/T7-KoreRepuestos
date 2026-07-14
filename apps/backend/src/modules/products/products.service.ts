@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { SearchAnalyticsService } from '../analytics/search-analytics.service';
 import { AuditLogService } from '../audit/audit-log.service';
 import { CategoriesService } from '../categories/categories.service';
 
@@ -15,6 +16,8 @@ import { Product } from './entities/product.entity';
 import { ProductsRepository } from './products.repository';
 
 import type { QueryProductsDto } from './dto/query-products.dto';
+import type { SuggestProductsDto } from './dto/suggest-products.dto';
+import type { ProductSuggestion } from './products.repository';
 import type { PaginatedResult } from '@kore/shared';
 
 @Injectable()
@@ -25,6 +28,7 @@ export class ProductsService {
     private readonly productsRepository: ProductsRepository,
     private readonly categoriesService: CategoriesService,
     private readonly auditLogService: AuditLogService,
+    private readonly searchAnalytics: SearchAnalyticsService,
   ) {}
 
   async create(dto: CreateProductDto, userId?: number): Promise<Product> {
@@ -103,8 +107,18 @@ export class ProductsService {
     return product;
   }
 
-  async findCatalog(query: QueryProductsDto): Promise<PaginatedResult<Product>> {
-    return this.productsRepository.findCatalog(query);
+  async findCatalog(query: QueryProductsDto, userId?: number): Promise<PaginatedResult<Product>> {
+    const result = await this.productsRepository.findCatalog(query);
+    if (query.search) {
+      await this.searchAnalytics.log(query.search, result.total, userId).catch((err: unknown) => {
+        this.logger.warn('Error al registrar búsqueda en analytics', err);
+      });
+    }
+    return result;
+  }
+
+  async findSuggestions(dto: SuggestProductsDto): Promise<ProductSuggestion[]> {
+    return this.productsRepository.findSuggestions(dto);
   }
 
   private assertPositive(field: string, value: number): void {

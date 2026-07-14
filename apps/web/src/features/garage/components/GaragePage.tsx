@@ -10,15 +10,18 @@ import { useVehicles } from '../hooks/useVehicles';
 import { AddVehicleModal } from './AddVehicleModal';
 import { VehicleCard } from './VehicleCard';
 
+import type { UpdateVehiclePayload } from '../server/garage.api';
 import type { VehicleResponse } from '@kore/shared';
 
 function VehicleCardWithCalendar({
   vehicle,
   onUpdateMileage,
+  onUpdate,
   onDelete,
 }: {
   vehicle: VehicleResponse;
   onUpdateMileage: (mileage: number) => Promise<void>;
+  onUpdate: (id: number, payload: UpdateVehiclePayload) => Promise<unknown>;
   onDelete: () => void;
 }) {
   const { calendar } = useVehicleCalendar(vehicle.id);
@@ -27,13 +30,15 @@ function VehicleCardWithCalendar({
       vehicle={vehicle}
       nextService={calendar[0]}
       onUpdateMileage={onUpdateMileage}
+      onUpdate={onUpdate}
       onDelete={onDelete}
     />
   );
 }
 
 export function GaragePage() {
-  const { vehicles, loading, addVehicle, removeVehicle, refreshMileage } = useVehicles();
+  const { vehicles, loading, addVehicle, removeVehicle, refreshMileage, updateVehicle } =
+    useVehicles();
   const [showAdd, setShowAdd] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
@@ -85,6 +90,7 @@ export function GaragePage() {
                 key={v.id}
                 vehicle={v}
                 onUpdateMileage={(km) => refreshMileage(v.id, km)}
+                onUpdate={updateVehicle}
                 onDelete={() => {
                   if (deletingId === null) void handleDelete(v.id);
                 }}

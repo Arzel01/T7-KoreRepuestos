@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -10,6 +11,7 @@ import { Repository } from 'typeorm';
 import { CreateMaintenanceLogDto } from './dto/create-maintenance-log.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
+import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { MaintenancePlan } from './entities/maintenance-plan.entity';
 import { Marca } from './entities/marca.entity';
 import { Modelo } from './entities/modelo.entity';
@@ -73,6 +75,42 @@ export class VehiclesService {
       averageDailyMileage: dto.averageDailyMileage ?? 20,
       alias: dto.alias,
     });
+  }
+
+  async update(vehicleId: number, userId: number, dto: UpdateVehicleDto): Promise<VehicleUser> {
+    const vehicle = await this.vehiclesRepo.findOne(vehicleId, userId);
+    if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
+
+    if (dto.modelId !== undefined || dto.brandId !== undefined) {
+      const brandId = dto.brandId ?? vehicle.model.marcaId;
+      const modelId = dto.modelId ?? vehicle.modelId;
+      const modelo = await this.modelosRepo.findOne({
+        where: { id: modelId, marcaId: brandId },
+      });
+      if (!modelo) throw new BadRequestException('Modelo no encontrado para la marca indicada');
+    }
+
+    if (dto.currentMileage !== undefined && dto.currentMileage < vehicle.currentMileage) {
+      throw new BadRequestException('El kilometraje no puede ser menor al actual');
+    }
+
+    const patch: Partial<VehicleUser> = {};
+    if (dto.modelId !== undefined) patch.modelId = dto.modelId;
+    if (dto.year !== undefined) patch.year = dto.year;
+    if (dto.plate !== undefined) patch.placa = dto.plate;
+    if (dto.currentMileage !== undefined) patch.currentMileage = dto.currentMileage;
+    if (dto.averageDailyMileage !== undefined) patch.averageDailyMileage = dto.averageDailyMileage;
+    if (Object.prototype.hasOwnProperty.call(dto, 'alias')) patch.alias = dto.alias;
+
+    try {
+      return await this.vehiclesRepo.update(vehicleId, patch);
+    } catch (err: unknown) {
+      const pg = err as { code?: string };
+      if (pg.code === '23505') {
+        throw new ConflictException('Ya existe un vehículo con esa placa');
+      }
+      throw err;
+    }
   }
 
   async updateMileage(vehicleId: number, userId: number, dto: UpdateMileageDto): Promise<void> {

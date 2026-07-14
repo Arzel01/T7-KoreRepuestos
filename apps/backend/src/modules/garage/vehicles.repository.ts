@@ -35,6 +35,14 @@ export class VehiclesRepository {
     }) as Promise<VehicleUser>;
   }
 
+  async update(id: number, data: Partial<VehicleUser>): Promise<VehicleUser> {
+    await this.repo.update(id, data);
+    return this.repo.findOne({
+      where: { id },
+      relations: { model: { marca: true } },
+    }) as Promise<VehicleUser>;
+  }
+
   async updateMileage(id: number, mileage: number): Promise<void> {
     await this.repo.update(id, { currentMileage: mileage });
   }

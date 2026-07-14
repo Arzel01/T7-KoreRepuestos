@@ -1,5 +1,4 @@
-import { Car, LogOut, Search, Settings, User } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { Car, LogOut, Settings, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -13,6 +12,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 
+import { SearchAutocomplete } from './SearchAutocomplete';
+
 interface CatalogNavbarProps {
   initialSearch?: string;
   onSearch?: (term: string) => void;
@@ -21,17 +22,6 @@ interface CatalogNavbarProps {
 export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarProps): JSX.Element {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const navigate = useNavigate();
-  const [term, setTerm] = useState(initialSearch);
-
-  function handleSubmit(e: FormEvent): void {
-    e.preventDefault();
-    if (onSearch) {
-      onSearch(term);
-    } else {
-      const q = term.trim();
-      navigate(q ? `/?search=${encodeURIComponent(q)}` : '/');
-    }
-  }
 
   async function handleLogout(): Promise<void> {
     await logout();
@@ -57,23 +47,8 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
           Catálogo
         </Link>
 
-        {/* Búsqueda central */}
-        <form role="search" className="relative mx-auto w-full max-w-xl" onSubmit={handleSubmit}>
-          <Search
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <input
-            type="search"
-            aria-label="Buscar repuestos"
-            placeholder="Buscar repuestos, SKU, marca…"
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            className="h-10 w-full rounded-full border bg-muted/60 pl-11 pr-4 text-sm
-                       transition-colors placeholder:text-muted-foreground
-                       focus:border-primary focus:bg-background focus:outline-none"
-          />
-        </form>
+        {/* Búsqueda central con autocomplete */}
+        <SearchAutocomplete initialSearch={initialSearch} onSearch={onSearch} />
 
         {/* Acciones */}
         <div className="flex shrink-0 items-center gap-2">

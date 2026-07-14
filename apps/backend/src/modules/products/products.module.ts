@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { AnalyticsModule } from '../analytics/analytics.module';
 import { AuditModule } from '../audit/audit.module';
 import { CategoriesModule } from '../categories/categories.module';
 
@@ -18,6 +19,7 @@ import { TechnicalSheetsService } from './technical-sheets.service';
     TypeOrmModule.forFeature([Product, ProductImage, TechnicalSheetEntry]),
     CategoriesModule,
     AuditModule,
+    AnalyticsModule,
   ],
   controllers: [ProductsController],
   providers: [ProductsRepository, ProductsService, ProductImagesService, TechnicalSheetsService],
