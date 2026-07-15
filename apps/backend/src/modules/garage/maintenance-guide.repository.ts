@@ -77,4 +77,39 @@ export class MaintenanceGuideRepository {
       order: { id: 'ASC' },
     });
   }
+
+  findPartsByMileage(mileage: number): Promise<
+    Array<{
+      id: number;
+      sku: string;
+      name: string;
+      price: number;
+      stock: number;
+      quantity: number;
+      taskDescription: string;
+      mileageInterval: number;
+      isCritical: boolean;
+    }>
+  > {
+    return this.guides.manager.query(
+      `SELECT DISTINCT ON (p.id_producto)
+              p.id_producto AS id,
+              p.sku,
+              p.nombre AS name,
+              p.precio_base::float AS price,
+              p.stock_actual AS stock,
+              pt.cantidad AS quantity,
+              t.descripcion_tarea AS "taskDescription",
+              t.intervalo_kilometraje AS "mileageInterval",
+              t.es_critica AS "isCritical"
+       FROM tareas_mantenimiento t
+       INNER JOIN productos_tarea pt ON pt.id_tarea = t.id_tarea
+       INNER JOIN productos p ON p.id_producto = pt.id_producto
+       WHERE t.intervalo_kilometraje <= $1
+         AND p.is_active = TRUE
+         AND p.stock_actual > 0
+       ORDER BY p.id_producto, t.intervalo_kilometraje DESC`,
+      [mileage],
+    );
+  }
 }

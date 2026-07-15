@@ -137,7 +137,10 @@ export class ProductsRepository extends BaseRepository<Product, number> {
   }
 
   async findActiveById(id: number): Promise<Product | null> {
-    return this.repository.findOne({ where: { id, isActive: true } });
+    return this.repository.findOne({
+      where: { id, isActive: true },
+      relations: ['images', 'technicalSheet'],
+    });
   }
 
   async findLowStock(): Promise<Product[]> {
@@ -158,5 +161,27 @@ export class ProductsRepository extends BaseRepository<Product, number> {
       where: { id },
       relations: ['images', 'technicalSheet'],
     });
+  }
+
+  async findCompatibilityForProduct(productId: number): Promise<
+    Array<{
+      modelId: number;
+      modelName: string;
+      brandName: string;
+      yearStart: number;
+      yearEnd: number;
+    }>
+  > {
+    return this.repository.manager.query(
+      `SELECT mo.id_modelo AS "modelId", mo.nombre AS "modelName",
+              ma.nombre AS "brandName",
+              mo.anio_inicio AS "yearStart", mo.anio_fin AS "yearEnd"
+       FROM compatibilidad c
+       INNER JOIN modelos mo ON mo.id_modelo = c.id_modelo
+       INNER JOIN marcas ma ON ma.id_marca = mo.id_marca
+       WHERE c.id_producto = $1
+       ORDER BY ma.nombre, mo.nombre`,
+      [productId],
+    );
   }
 }

@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { CompatibilityCheck } from '@/features/catalog/components/CompatibilityCheck';
 import { ImageGallery } from '@/features/catalog/components/ImageGallery';
+import { MileageSearch } from '@/features/catalog/components/MileageSearch';
 import { RelatedProducts } from '@/features/catalog/components/RelatedProducts';
+import { ReviewList } from '@/features/catalog/components/ReviewList';
 import { TechnicalSpecifications } from '@/features/catalog/components/TechnicalSpecifications';
 import { productsApi } from '@/features/products/server/products.api';
 import { extractApiErrorMessage } from '@/lib/api-client';
@@ -282,9 +284,19 @@ export function ProductDetailsPage(): JSX.Element {
           </Card>
         )}
 
+        {/* Mileage Search Section */}
+        <div className="mb-12">
+          <MileageSearch />
+        </div>
+
         {/* Related Products Section */}
         <div className="mb-12">
           <RelatedProducts currentProductId={product.id} categoryId={product.categoryId} />
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mb-12">
+          <ReviewList productId={product.id} />
         </div>
       </main>
     </div>

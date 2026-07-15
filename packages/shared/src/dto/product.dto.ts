@@ -90,3 +90,54 @@ export interface TechnicalSheetEntryResponse {
   attribute: string;
   value: string;
 }
+
+export interface ReviewResponse {
+  id: number;
+  productId: number;
+  userId: number;
+  userName: string;
+  rating: number;
+  title?: string;
+  comment?: string;
+  helpfulVotes: number;
+  createdAt: string;
+}
+
+export interface PaginatedReviewsResponse {
+  items: ReviewResponse[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  averageRating: number | null;
+}
+
+export interface CompatibilityItem {
+  modelId: number;
+  modelName: string;
+  brandName: string;
+  yearStart: number;
+  yearEnd: number;
+}
+
+export interface RecommendedProductResponse {
+  id: number;
+  sku: string;
+  name: string;
+  price: number;
+  stock: number;
+  categoryId?: number | null;
+  imageUrl?: string;
+}
+
+export interface MileagePartResponse {
+  id: number;
+  sku: string;
+  name: string;
+  price: number;
+  stock: number;
+  quantity: number;
+  taskDescription: string;
+  mileageInterval: number;
+  isCritical: boolean;
+}

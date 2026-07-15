@@ -121,6 +121,20 @@ export class ProductsService {
     return this.productsRepository.findSuggestions(dto);
   }
 
+  async findCompatibility(id: number): Promise<
+    Array<{
+      modelId: number;
+      modelName: string;
+      brandName: string;
+      yearStart: number;
+      yearEnd: number;
+    }>
+  > {
+    const product = await this.productsRepository.findActiveById(id);
+    if (!product) throw new NotFoundException('Producto no encontrado');
+    return this.productsRepository.findCompatibilityForProduct(id);
+  }
+
   private assertPositive(field: string, value: number): void {
     if (!Number.isFinite(value) || value <= 0) {
       throw new BadRequestException(`El campo ${field} debe ser mayor que cero`);

@@ -3,22 +3,19 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Card, CardContent } from '@/components/ui/card';
-import { productsApi } from '@/features/products/server/products.api';
+import { recommendationsApi } from '@/features/products/server/products.api';
 import { extractApiErrorMessage } from '@/lib/api-client';
 
-import type { ProductResponse, PaginatedResult } from '@kore/shared';
+import type { RecommendedProductResponse } from '@kore/shared';
 
 interface RelatedProductsProps {
   currentProductId: number;
   categoryId?: number | null;
 }
 
-export function RelatedProducts({
-  currentProductId,
-  categoryId,
-}: RelatedProductsProps): JSX.Element {
+export function RelatedProducts({ currentProductId }: RelatedProductsProps): JSX.Element {
   const navigate = useNavigate();
-  const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [products, setProducts] = useState<RecommendedProductResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,16 +24,8 @@ export function RelatedProducts({
       try {
         setLoading(true);
         setError(null);
-
-        const result: PaginatedResult<ProductResponse> = await productsApi.list({
-          categoryIds: categoryId ? [String(categoryId)] : undefined,
-          pageSize: 6,
-        });
-
-        // Filter out current product and get first 5
-        const related = result.items.filter((p) => p.id !== currentProductId).slice(0, 5);
-
-        setProducts(related);
+        const result = await recommendationsApi.getRecommendations(currentProductId);
+        setProducts(result);
       } catch (err) {
         const message = extractApiErrorMessage(err);
         setError(message);
@@ -46,7 +35,7 @@ export function RelatedProducts({
     };
 
     void fetchRelated();
-  }, [currentProductId, categoryId]);
+  }, [currentProductId]);
 
   if (loading) {
     return (
@@ -76,7 +65,6 @@ export function RelatedProducts({
             className="h-full border-neutral-200 hover:border-navy-300 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
             onClick={() => navigate(`/product/${product.id}`)}
           >
-            {/* Product Image Placeholder */}
             <div className="w-full h-40 bg-gradient-to-br from-neutral-100 to-neutral-200 flex items-center justify-center overflow-hidden relative">
               {product.imageUrl ? (
                 <img

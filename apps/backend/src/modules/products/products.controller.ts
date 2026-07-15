@@ -31,19 +31,24 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { ParsePositiveIntPipe } from '../../common/pipes/parse-positive-int.pipe';
 
 import { CreateProductDto } from './dto/create-product.dto';
+import { CreateReviewDto } from './dto/create-review.dto';
 import { CreateTechnicalSheetEntryDto } from './dto/create-technical-sheet-entry.dto';
 import { QueryProductsDto } from './dto/query-products.dto';
+import { QueryReviewsDto } from './dto/query-reviews.dto';
 import { SuggestProductsDto } from './dto/suggest-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { multerOptions } from './multer.config';
 import { ProductImagesService } from './product-images.service';
 import { ProductsService } from './products.service';
+import { ReviewsService } from './reviews.service';
 import { TechnicalSheetsService } from './technical-sheets.service';
 
 import type { ProductImage } from './entities/product-image.entity';
 import type { Product } from './entities/product.entity';
+import type { Review } from './entities/review.entity';
 import type { TechnicalSheetEntry } from './entities/technical-sheet-entry.entity';
 import type { ProductSuggestion } from './products.repository';
+import type { PaginatedReviews } from './reviews.repository';
 import type { JwtPayload } from '../auth/dto/auth-response.dto';
 import type { PaginatedResult } from '@kore/shared';
 
@@ -54,6 +59,7 @@ export class ProductsController {
     private readonly productsService: ProductsService,
     private readonly productImagesService: ProductImagesService,
     private readonly technicalSheetsService: TechnicalSheetsService,
+    private readonly reviewsService: ReviewsService,
   ) {}
 
   // ── Catálogo público ────────────────────────────────────────────────────────
@@ -86,6 +92,23 @@ export class ProductsController {
   @ApiResponse({ status: 404, description: 'Producto no encontrado o inactivo.' })
   findOne(@Param('id', ParsePositiveIntPipe) id: number): Promise<Product> {
     return this.productsService.findActiveById(id);
+  }
+
+  @Public()
+  @Get(':id/compatibility')
+  @ApiOperation({ summary: 'Modelos de vehículo compatibles con este producto.' })
+  @ApiResponse({ status: 200, description: 'Lista de modelos compatibles.' })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado.' })
+  getCompatibility(@Param('id', ParsePositiveIntPipe) id: number): Promise<
+    Array<{
+      modelId: number;
+      modelName: string;
+      brandName: string;
+      yearStart: number;
+      yearEnd: number;
+    }>
+  > {
+    return this.productsService.findCompatibility(id);
   }
 
   // ── CRUD admin ─────────────────────────────────────────────────────────────
@@ -256,5 +279,43 @@ export class ProductsController {
     @CurrentUser() user: JwtPayload,
   ): Promise<void> {
     return this.technicalSheetsService.remove(productId, entryId, Number(user.sub));
+  }
+
+  // ── Reseñas ────────────────────────────────────────────────────────────────
+
+  @Public()
+  @Get(':id/reviews')
+  @ApiOperation({ summary: 'Reseñas de un producto con calificación promedio.' })
+  @ApiResponse({ status: 200, description: 'Lista paginada de reseñas.' })
+  getReviews(
+    @Param('id', ParsePositiveIntPipe) id: number,
+    @Query() dto: QueryReviewsDto,
+  ): Promise<PaginatedReviews> {
+    return this.reviewsService.getReviews(id, dto);
+  }
+
+  @Post(':id/reviews')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Publicar una reseña. Requiere autenticación.' })
+  @ApiResponse({ status: 201, description: 'Reseña creada.' })
+  @ApiResponse({ status: 409, description: 'Ya publicaste una reseña para este producto.' })
+  createReview(
+    @Param('id', ParsePositiveIntPipe) id: number,
+    @Body() dto: CreateReviewDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<Review> {
+    return this.reviewsService.createReview(id, Number(user.sub), dto);
+  }
+
+  @Post(':id/reviews/:reviewId/helpful')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Marcar una reseña como útil.' })
+  @ApiResponse({ status: 204, description: 'Voto registrado.' })
+  async markReviewHelpful(
+    @Param('reviewId', ParsePositiveIntPipe) reviewId: number,
+  ): Promise<void> {
+    return this.reviewsService.markHelpful(reviewId);
   }
 }

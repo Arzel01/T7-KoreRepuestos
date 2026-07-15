@@ -7,22 +7,32 @@ import { CategoriesModule } from '../categories/categories.module';
 
 import { ProductImage } from './entities/product-image.entity';
 import { Product } from './entities/product.entity';
+import { Review } from './entities/review.entity';
 import { TechnicalSheetEntry } from './entities/technical-sheet-entry.entity';
 import { ProductImagesService } from './product-images.service';
 import { ProductsController } from './products.controller';
 import { ProductsRepository } from './products.repository';
 import { ProductsService } from './products.service';
+import { ReviewsRepository } from './reviews.repository';
+import { ReviewsService } from './reviews.service';
 import { TechnicalSheetsService } from './technical-sheets.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, ProductImage, TechnicalSheetEntry]),
+    TypeOrmModule.forFeature([Product, ProductImage, TechnicalSheetEntry, Review]),
     CategoriesModule,
     AuditModule,
     AnalyticsModule,
   ],
   controllers: [ProductsController],
-  providers: [ProductsRepository, ProductsService, ProductImagesService, TechnicalSheetsService],
+  providers: [
+    ProductsRepository,
+    ProductsService,
+    ProductImagesService,
+    TechnicalSheetsService,
+    ReviewsRepository,
+    ReviewsService,
+  ],
   exports: [ProductsRepository, ProductsService],
 })
 export class ProductsModule {}
