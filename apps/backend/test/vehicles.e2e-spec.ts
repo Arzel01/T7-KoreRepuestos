@@ -1,6 +1,6 @@
 import request from 'supertest';
 
-import { createTestingApp } from './setup-e2e';
+import { createTestingApp, seedTestUsers } from './setup-e2e';
 
 import type { INestApplication } from '@nestjs/common';
 
@@ -18,7 +18,7 @@ describe('Vehicles (e2e)', () => {
 
   beforeAll(async () => {
     app = await createTestingApp();
-    await app.init();
+    await seedTestUsers(app);
   });
 
   afterAll(async () => {

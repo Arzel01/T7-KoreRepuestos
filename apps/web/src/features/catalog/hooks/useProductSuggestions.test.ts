@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { productsApi } from '@/features/products/server/products.api';
@@ -43,10 +43,10 @@ describe('useProductSuggestions', () => {
     const { result } = renderHook(() => useProductSuggestions('fi'));
 
     await act(() => vi.advanceTimersByTimeAsync(300));
+    // Drain promise microtasks without relying on waitFor's internal setTimeout
+    await act(async () => {});
 
-    await waitFor(() => {
-      expect(mockGetSuggestions).toHaveBeenCalledWith('fi', expect.anything());
-    });
+    expect(mockGetSuggestions).toHaveBeenCalledWith('fi', expect.anything());
     expect(result.current.suggestions).toEqual(MOCK_SUGGESTIONS);
   });
 
