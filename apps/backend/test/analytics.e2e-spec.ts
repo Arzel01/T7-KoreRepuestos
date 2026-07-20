@@ -23,7 +23,7 @@ describe('Analytics (e2e)', () => {
       .post('/api/v1/auth/login')
       .send({ email, password })
       .expect(200);
-    return (res.body as { accessToken: string }).accessToken;
+    return (res.body as { tokens: { accessToken: string } }).tokens.accessToken;
   }
 
   it('GET /analytics/searches sin token → 401', async () => {
