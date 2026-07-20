@@ -31,7 +31,7 @@ describe('Vehicles (e2e)', () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/auth/login')
       .send({ email, password })
-      .expect(201);
+      .expect(200);
     return (res.body as { accessToken: string }).accessToken;
   }
 
