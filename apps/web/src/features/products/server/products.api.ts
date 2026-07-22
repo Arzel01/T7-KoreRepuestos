@@ -93,6 +93,10 @@ export const productsApi = {
   // Compatibilidad
   getCompatibility: (productId: number): Promise<CompatibilityItem[]> =>
     api.get(`/products/${productId}/compatibility`),
+  addCompatibility: (productId: number, modeloId: number): Promise<void> =>
+    api.post(`/products/${productId}/compatibility`, { modeloId }),
+  removeCompatibility: (productId: number, modeloId: number): Promise<void> =>
+    api.delete(`/products/${productId}/compatibility/${modeloId}`),
 
   // Reseñas
   getReviews: (productId: number, page = 1, pageSize = 10): Promise<PaginatedReviewsResponse> =>

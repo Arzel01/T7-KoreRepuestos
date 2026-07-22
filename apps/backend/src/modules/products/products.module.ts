@@ -5,6 +5,7 @@ import { AnalyticsModule } from '../analytics/analytics.module';
 import { AuditModule } from '../audit/audit.module';
 import { CategoriesModule } from '../categories/categories.module';
 
+import { ProductCompatibility } from './entities/product-compatibility.entity';
 import { ProductImage } from './entities/product-image.entity';
 import { Product } from './entities/product.entity';
 import { Review } from './entities/review.entity';
@@ -19,7 +20,13 @@ import { TechnicalSheetsService } from './technical-sheets.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Product, ProductImage, TechnicalSheetEntry, Review]),
+    TypeOrmModule.forFeature([
+      Product,
+      ProductImage,
+      TechnicalSheetEntry,
+      Review,
+      ProductCompatibility,
+    ]),
     CategoriesModule,
     AuditModule,
     AnalyticsModule,

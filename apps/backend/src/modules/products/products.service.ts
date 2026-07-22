@@ -135,6 +135,37 @@ export class ProductsService {
     return this.productsRepository.findCompatibilityForProduct(id);
   }
 
+  async addCompatibility(productId: number, modeloId: number, userId?: number): Promise<void> {
+    const product = await this.productsRepository.findById(productId);
+    if (!product) throw new NotFoundException('Producto no encontrado');
+
+    const modeloOk = await this.productsRepository.modeloExists(modeloId);
+    if (!modeloOk) throw new NotFoundException(`Modelo ${modeloId} no encontrado`);
+
+    await this.productsRepository.addCompatibility(productId, modeloId);
+
+    await this.auditLogService.log({
+      userId,
+      tableName: 'compatibilidad',
+      action: 'INSERT',
+      description: `Compatibilidad producto ${productId} ↔ modelo ${modeloId} agregada`,
+    });
+  }
+
+  async removeCompatibility(productId: number, modeloId: number, userId?: number): Promise<void> {
+    const product = await this.productsRepository.findById(productId);
+    if (!product) throw new NotFoundException('Producto no encontrado');
+
+    await this.productsRepository.removeCompatibility(productId, modeloId);
+
+    await this.auditLogService.log({
+      userId,
+      tableName: 'compatibilidad',
+      action: 'DELETE',
+      description: `Compatibilidad producto ${productId} ↔ modelo ${modeloId} eliminada`,
+    });
+  }
+
   private assertPositive(field: string, value: number): void {
     if (!Number.isFinite(value) || value <= 0) {
       throw new BadRequestException(`El campo ${field} debe ser mayor que cero`);

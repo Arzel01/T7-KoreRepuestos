@@ -30,6 +30,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { ParsePositiveIntPipe } from '../../common/pipes/parse-positive-int.pipe';
 
+import { CreateCompatibilityDto } from './dto/create-compatibility.dto';
 import { CreateProductDto } from './dto/create-product.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { CreateTechnicalSheetEntryDto } from './dto/create-technical-sheet-entry.dto';
@@ -109,6 +110,37 @@ export class ProductsController {
     }>
   > {
     return this.productsService.findCompatibility(id);
+  }
+
+  @Post(':id/compatibility')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Agrega compatibilidad vehículo↔producto. Requiere Administrador.' })
+  @ApiResponse({ status: 201, description: 'Compatibilidad agregada (idempotente).' })
+  @ApiResponse({ status: 400, description: 'Payload inválido.' })
+  @ApiResponse({ status: 404, description: 'Producto o modelo no encontrado.' })
+  async addCompatibility(
+    @Param('id', ParsePositiveIntPipe) id: number,
+    @Body() dto: CreateCompatibilityDto,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    return this.productsService.addCompatibility(id, dto.modeloId, Number(user.sub));
+  }
+
+  @Delete(':id/compatibility/:modeloId')
+  @Roles(UserRole.ADMINISTRADOR)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Elimina compatibilidad vehículo↔producto. Requiere Administrador.' })
+  @ApiResponse({ status: 204, description: 'Compatibilidad eliminada.' })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado.' })
+  async removeCompatibility(
+    @Param('id', ParsePositiveIntPipe) id: number,
+    @Param('modeloId', ParsePositiveIntPipe) modeloId: number,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<void> {
+    return this.productsService.removeCompatibility(id, modeloId, Number(user.sub));
   }
 
   // ── CRUD admin ─────────────────────────────────────────────────────────────

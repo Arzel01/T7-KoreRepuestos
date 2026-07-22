@@ -184,4 +184,26 @@ export class ProductsRepository extends BaseRepository<Product, number> {
       [productId],
     );
   }
+
+  async modeloExists(modeloId: number): Promise<boolean> {
+    const rows = await this.repository.manager.query<{ exists: boolean }[]>(
+      `SELECT EXISTS (SELECT 1 FROM modelos WHERE id_modelo = $1) AS exists`,
+      [modeloId],
+    );
+    return rows[0]?.exists === true;
+  }
+
+  async addCompatibility(productId: number, modeloId: number): Promise<void> {
+    await this.repository.manager.query(
+      `INSERT INTO compatibilidad (id_producto, id_modelo) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+      [productId, modeloId],
+    );
+  }
+
+  async removeCompatibility(productId: number, modeloId: number): Promise<void> {
+    await this.repository.manager.query(
+      `DELETE FROM compatibilidad WHERE id_producto = $1 AND id_modelo = $2`,
+      [productId, modeloId],
+    );
+  }
 }

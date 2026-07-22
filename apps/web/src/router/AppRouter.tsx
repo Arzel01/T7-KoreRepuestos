@@ -17,6 +17,8 @@ import { LandingPage } from '@/app/LandingPage';
 import { NotFoundPage } from '@/app/NotFoundPage';
 import { ProductDetailsPage } from '@/app/ProductDetailsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { SearchAnalyticsPage } from '@/features/analytics/components/SearchAnalyticsPage';
+import { AdvancedSearchPage } from '@/features/search/components/AdvancedSearchPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 
 export function AppRouter(): JSX.Element {
@@ -24,6 +26,7 @@ export function AppRouter(): JSX.Element {
     <Routes>
       {/* ── Públicas ───────────────────────────────────────────────────── */}
       <Route path="/" element={<CatalogPage />} />
+      <Route path="/search" element={<AdvancedSearchPage />} />
       <Route path="/landing" element={<LandingPage />} />
       <Route path="/catalog" element={<Navigate to="/" replace />} />
       <Route path="/product/:id" element={<ProductDetailsPage />} />
@@ -46,6 +49,7 @@ export function AppRouter(): JSX.Element {
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="maintenance" element={<MaintenanceGuidesListPage />} />
           <Route path="maintenance/new" element={<MaintenanceGuideNewPage />} />
+          <Route path="analytics" element={<SearchAnalyticsPage />} />
           <Route path="users" element={<Navigate to="/admin" replace />} />
         </Route>
       </Route>
