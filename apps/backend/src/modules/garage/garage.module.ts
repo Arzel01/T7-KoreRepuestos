@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { NotificationsModule } from '../notifications/notifications.module';
 import { Product } from '../products/entities/product.entity';
 
 import { MaintenanceGuide } from './entities/maintenance-guide.entity';
@@ -14,6 +15,8 @@ import { MaintenanceGuideRepository } from './maintenance-guide.repository';
 import { MaintenanceGuidesController } from './maintenance-guides.controller';
 import { MaintenanceGuidesService } from './maintenance-guides.service';
 import { MaintenanceLogRepository } from './maintenance-log.repository';
+import { MaintenancePlannerService } from './maintenance-planner.service';
+import { ReminderSchedulerService } from './reminder-scheduler.service';
 import { VehiclesController } from './vehicles.controller';
 import { VehiclesRepository } from './vehicles.repository';
 import { VehiclesService } from './vehicles.service';
@@ -30,11 +33,14 @@ import { VehiclesService } from './vehicles.service';
       ProductTask,
       Product,
     ]),
+    NotificationsModule,
   ],
   controllers: [VehiclesController, MaintenanceGuidesController],
   providers: [
     VehiclesRepository,
     MaintenanceLogRepository,
+    MaintenancePlannerService,
+    ReminderSchedulerService,
     VehiclesService,
     MaintenanceGuideRepository,
     MaintenanceGuidesService,

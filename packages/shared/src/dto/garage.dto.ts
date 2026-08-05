@@ -56,6 +56,8 @@ export interface CalendarItemDto {
   isCritical: boolean;
   kmRemaining: number;
   nextServiceDate: string;
+  /** Suma de `price × quantity` de los repuestos de la tarea (US#3 · cost estimates). */
+  estimatedCost: number;
   lastLog?: MaintenanceLogResponse;
   products: CalendarProductDto[];
 }

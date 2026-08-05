@@ -69,10 +69,14 @@ export function CalendarItem({
                     <span>
                       {p.name} {p.quantity > 1 && `(x${p.quantity})`}
                     </span>
-                    <span className="font-medium">${p.price.toLocaleString()}</span>
+                    <span className="font-medium">${(p.price * p.quantity).toLocaleString()}</span>
                   </li>
                 ))}
               </ul>
+              <div className="mt-2 flex justify-between border-t pt-2 text-sm font-semibold text-foreground">
+                <span>Costo estimado</span>
+                <span>${Math.round(item.estimatedCost).toLocaleString()}</span>
+              </div>
             </div>
           )}
 

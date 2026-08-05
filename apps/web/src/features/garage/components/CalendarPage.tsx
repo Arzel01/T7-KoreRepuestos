@@ -3,12 +3,14 @@ import { Link, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CatalogNavbar } from '@/features/catalog/components/CatalogNavbar';
 
 import { useVehicleCalendar } from '../hooks/useVehicleCalendar';
 import { useVehicles } from '../hooks/useVehicles';
 
 import { CalendarItem } from './CalendarItem';
+import { CalendarMonthView } from './CalendarMonthView';
 
 export function CalendarPage() {
   const { vehicleId } = useParams<{ vehicleId: string }>();
@@ -91,20 +93,33 @@ export function CalendarPage() {
         )}
 
         {!loading && calendar.length > 0 && vehicle && (
-          <div>
-            <h2 className="text-lg font-semibold text-foreground mb-4">Próximos Mantenimientos</h2>
-            <div className="space-y-4">
-              {calendar.map((item) => (
-                <CalendarItem
-                  key={item.planId}
-                  item={item}
-                  vehicleId={id}
-                  currentMileage={vehicle.currentMileage}
-                  onMarkComplete={handleMarkComplete}
-                />
-              ))}
+          <Tabs defaultValue="timeline">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <h2 className="text-lg font-semibold text-foreground">Próximos Mantenimientos</h2>
+              <TabsList>
+                <TabsTrigger value="timeline">Línea de tiempo</TabsTrigger>
+                <TabsTrigger value="calendar">Calendario</TabsTrigger>
+              </TabsList>
             </div>
-          </div>
+
+            <TabsContent value="timeline">
+              <div className="space-y-4">
+                {calendar.map((item) => (
+                  <CalendarItem
+                    key={item.planId}
+                    item={item}
+                    vehicleId={id}
+                    currentMileage={vehicle.currentMileage}
+                    onMarkComplete={handleMarkComplete}
+                  />
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="calendar">
+              <CalendarMonthView items={calendar} />
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     </div>
