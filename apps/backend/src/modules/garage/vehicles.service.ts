@@ -12,26 +12,28 @@ import { CreateMaintenanceLogDto } from './dto/create-maintenance-log.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
-import { MaintenancePlan } from './entities/maintenance-plan.entity';
 import { Marca } from './entities/marca.entity';
 import { Modelo } from './entities/modelo.entity';
 import { VehicleUser } from './entities/vehicle-user.entity';
+import { summarizePlan } from './maintenance-calc';
 import { MaintenanceLogRepository } from './maintenance-log.repository';
+import { MaintenancePlannerService } from './maintenance-planner.service';
+import { ReminderSchedulerService } from './reminder-scheduler.service';
 import { VehiclesRepository } from './vehicles.repository';
 
-import type { CalendarItemDto } from '@kore/shared';
+import type { CalendarItemDto, VehiclePlanResponse } from '@kore/shared';
 
 @Injectable()
 export class VehiclesService {
   constructor(
     private readonly vehiclesRepo: VehiclesRepository,
     private readonly logsRepo: MaintenanceLogRepository,
+    private readonly planner: MaintenancePlannerService,
+    private readonly reminderScheduler: ReminderSchedulerService,
     @InjectRepository(Marca)
     private readonly marcasRepo: Repository<Marca>,
     @InjectRepository(Modelo)
     private readonly modelosRepo: Repository<Modelo>,
-    @InjectRepository(MaintenancePlan)
-    private readonly plansRepo: Repository<MaintenancePlan>,
   ) {}
 
   listBrands(): Promise<Marca[]> {
@@ -116,6 +118,15 @@ export class VehiclesService {
       throw new BadRequestException('El kilometraje no puede ser menor al actual');
     }
     await this.vehiclesRepo.updateMileage(vehicleId, dto.currentMileage);
+
+    // US#2 — al subir el kilometraje pueden aparecer tareas vencidas: se encolan
+    // recordatorios de inmediato. Nunca debe hacer fallar el PATCH.
+    vehicle.currentMileage = dto.currentMileage;
+    try {
+      await this.reminderScheduler.checkVehicle(vehicle);
+    } catch {
+      // best-effort: el barrido diario volverá a intentarlo.
+    }
   }
 
   async delete(vehicleId: number, userId: number): Promise<void> {
@@ -142,71 +153,33 @@ export class VehiclesService {
   async getCalendar(vehicleId: number, userId: number): Promise<CalendarItemDto[]> {
     const vehicle = await this.vehiclesRepo.findOne(vehicleId, userId);
     if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
+    return this.planner.buildCalendar(vehicle);
+  }
 
-    const plans = await this.plansRepo
-      .createQueryBuilder('t')
-      .innerJoinAndSelect('t.guide', 'g')
-      .where('g.id_modelo = :modelId', { modelId: vehicle.modelId })
-      .leftJoinAndSelect('t.productTasks', 'pt')
-      .leftJoinAndSelect('pt.product', 'prod')
-      .getMany();
+  /**
+   * Plan de mantenimiento del vehículo (US#3): los mismos servicios del
+   * calendario más la agregación de costos y contadores (críticos/vencidos).
+   */
+  async getPlan(vehicleId: number, userId: number): Promise<VehiclePlanResponse> {
+    const vehicle = await this.vehiclesRepo.findOne(vehicleId, userId);
+    if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
 
-    const today = new Date();
+    const services = await this.planner.buildCalendar(vehicle);
+    const summary = summarizePlan(services);
 
-    const items = await Promise.all(
-      plans.map(async (plan): Promise<CalendarItemDto> => {
-        const lastLog = await this.logsRepo.findLastForPlan(vehicleId, plan.id);
-
-        const cycleKm =
-          Math.floor(vehicle.currentMileage / plan.mileageInterval) * plan.mileageInterval;
-        const nextKmTarget =
-          cycleKm < vehicle.currentMileage ? cycleKm + plan.mileageInterval : cycleKm;
-        const kmRemaining = Math.max(0, nextKmTarget - vehicle.currentMileage);
-
-        const daysUntilKm =
-          vehicle.averageDailyMileage > 0 ? kmRemaining / vehicle.averageDailyMileage : Infinity;
-
-        let nextServiceDate = new Date(today);
-        nextServiceDate.setDate(today.getDate() + Math.ceil(daysUntilKm));
-
-        if (plan.monthInterval) {
-          const baseDate = lastLog?.completedAt ? new Date(lastLog.completedAt) : today;
-          const dateByMonths = new Date(baseDate);
-          dateByMonths.setMonth(dateByMonths.getMonth() + plan.monthInterval);
-          if (dateByMonths < nextServiceDate) {
-            nextServiceDate = dateByMonths;
-          }
-        }
-
-        const products = (plan.productTasks ?? []).map((pt) => ({
-          id: pt.product.id,
-          name: pt.product.name,
-          price: pt.product.price,
-          quantity: pt.cantidad,
-        }));
-
-        return {
-          planId: plan.id,
-          description: plan.description,
-          mileageInterval: plan.mileageInterval,
-          monthInterval: plan.monthInterval ?? undefined,
-          isCritical: plan.isCritical,
-          kmRemaining,
-          nextServiceDate: nextServiceDate.toISOString().split('T')[0],
-          lastLog: lastLog
-            ? {
-                id: lastLog.id,
-                planId: lastLog.planId,
-                completedAt: lastLog.completedAt,
-                completedMileage: lastLog.completedMileage,
-                notes: lastLog.notes,
-              }
-            : undefined,
-          products,
-        };
-      }),
-    );
-
-    return items.sort((a, b) => a.nextServiceDate.localeCompare(b.nextServiceDate));
+    return {
+      vehicleId: vehicle.id,
+      alias: vehicle.alias,
+      year: vehicle.year,
+      currentMileage: vehicle.currentMileage,
+      averageDailyMileage: vehicle.averageDailyMileage,
+      model: {
+        id: vehicle.model.id,
+        nombre: vehicle.model.nombre,
+        marca: { id: vehicle.model.marca.id, nombre: vehicle.model.marca.nombre },
+      },
+      services,
+      ...summary,
+    };
   }
 }

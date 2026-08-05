@@ -12,6 +12,7 @@ import { LoginPage } from '@/app/auth/LoginPage';
 import { RegisterPage } from '@/app/auth/RegisterPage';
 import { CatalogPage } from '@/app/CatalogPage';
 import { CalendarPage } from '@/app/garage/CalendarPage';
+import { DashboardPage as MaintenanceDashboardPage } from '@/app/garage/DashboardPage';
 import { GaragePage } from '@/app/garage/GaragePage';
 import { LandingPage } from '@/app/LandingPage';
 import { NotFoundPage } from '@/app/NotFoundPage';
@@ -36,6 +37,7 @@ export function AppRouter(): JSX.Element {
       {/* ── Privadas (cualquier usuario autenticado) ──────────────────── */}
       <Route element={<ProtectedRoute />}>
         <Route path="/garage" element={<GaragePage />} />
+        <Route path="/garage/dashboard" element={<MaintenanceDashboardPage />} />
         <Route path="/garage/:vehicleId/calendar" element={<CalendarPage />} />
       </Route>
 

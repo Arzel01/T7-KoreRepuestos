@@ -10,5 +10,7 @@ export * from './dto/category.dto';
 export * from './interfaces/api-response.interface';
 export * from './dto/vehicle.dto';
 export * from './dto/garage.dto';
+export * from './dto/plan.dto';
 export * from './dto/analytics.dto';
 export * from './dto/saved-search.dto';
+export * from './dto/notification.dto';
