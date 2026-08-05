@@ -1,4 +1,4 @@
-import { MileageSource, type CalendarItemDto } from '@kore/shared';
+import { MileageSource } from '@kore/shared';
 import {
   BadRequestException,
   ConflictException,
