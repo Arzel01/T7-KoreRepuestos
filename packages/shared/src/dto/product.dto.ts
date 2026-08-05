@@ -70,6 +70,11 @@ export interface ProductResponse {
   isActive: boolean;
   imageUrl?: string;
   createdAt: string;
+  /**
+   * Nombre con los términos buscados resaltados (`ts_headline`, `<mark>…</mark>`).
+   * Solo presente en resultados de búsqueda; ausente en listados sin `search`.
+   */
+  highlight?: string;
 }
 
 export interface ProductDetailResponse extends ProductResponse {

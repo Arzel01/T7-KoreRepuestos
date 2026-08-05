@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { sanitizeHighlight } from '@/lib/utils';
 
 import { RatingStars } from './RatingStars';
 
@@ -39,7 +40,15 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
 
       {/* Información */}
       <CardContent className="flex-1 space-y-2 px-5 pt-4 pb-2">
-        <h3 className="font-semibold leading-snug">{product.name}</h3>
+        {/* `highlight` (ts_headline) resalta el término buscado; sin búsqueda cae al nombre. */}
+        {product.highlight ? (
+          <h3
+            className="font-semibold leading-snug [&_mark]:bg-yellow-200 [&_mark]:text-inherit"
+            dangerouslySetInnerHTML={{ __html: sanitizeHighlight(product.highlight) }}
+          />
+        ) : (
+          <h3 className="font-semibold leading-snug">{product.name}</h3>
+        )}
         <p className="font-mono text-xs text-muted-foreground">{product.sku}</p>
         <RatingStars productId={product.id} />
         {product.description && (

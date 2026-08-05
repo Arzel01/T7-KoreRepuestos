@@ -20,6 +20,14 @@ export class VehiclesRepository {
     });
   }
 
+  /** Todos los vehículos (con modelo+marca) para el barrido de recordatorios. */
+  findAllForReminders(): Promise<VehicleUser[]> {
+    return this.repo.find({
+      relations: { model: { marca: true } },
+      order: { userId: 'ASC' },
+    });
+  }
+
   findOne(id: number, userId: number): Promise<VehicleUser | null> {
     return this.repo.findOne({
       where: { id, userId },

@@ -10,6 +10,7 @@ import type {
   MarcaResponse,
   ModeloResponse,
   UpdateMileageDto,
+  VehiclePlanResponse,
   VehicleResponse,
 } from '@kore/shared';
 
@@ -53,6 +54,9 @@ export const garageApi = {
 
   getCalendar: (vehicleId: number): Promise<CalendarItemDto[]> =>
     api.get(`/vehicles/${vehicleId}/calendar`),
+
+  getPlan: (vehicleId: number): Promise<VehiclePlanResponse> =>
+    api.get(`/vehicles/${vehicleId}/plan`),
 
   getGuides: (): Promise<MaintenanceGuideResponse[]> => api.get('/maintenance/guides'),
 

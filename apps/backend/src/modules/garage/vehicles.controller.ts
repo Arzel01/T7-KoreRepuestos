@@ -135,4 +135,14 @@ export class VehiclesController {
   getCalendar(@Param('id', new ParseIntPipe()) id: number, @CurrentUser() user: JwtPayload) {
     return this.vehiclesService.getCalendar(id, Number(user.sub));
   }
+
+  @Get(':id/plan')
+  @ApiOperation({
+    summary: 'Plan de mantenimiento de un vehículo (servicios, costos y contadores).',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 404, description: 'Vehículo no encontrado.' })
+  getPlan(@Param('id', new ParseIntPipe()) id: number, @CurrentUser() user: JwtPayload) {
+    return this.vehiclesService.getPlan(id, Number(user.sub));
+  }
 }

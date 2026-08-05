@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 
 const LS_KEY = 'kore_catalog_filters';
 
-import type { ProductQueryParams } from '@kore/shared';
+import type { ProductQueryParams, SavedSearchParams } from '@kore/shared';
 
 export interface VehicleFilters {
   brand: string;
@@ -35,6 +35,10 @@ export interface CatalogFiltersState {
   submitSearch: (term: string) => void;
   setPage: (page: number) => void;
   clearAll: () => void;
+  /** Parámetros crudos actuales (sin componer) — para guardar la búsqueda. */
+  currentParams: SavedSearchParams;
+  /** Re-aplica una búsqueda guardada reemplazando por completo la URL-state. */
+  applySavedParams: (params: SavedSearchParams) => void;
 }
 
 /**
@@ -246,6 +250,43 @@ export function useCatalogFilters(): CatalogFiltersState {
 
   const hasActiveFilters = [...searchParams.keys()].some((k) => k !== 'page');
 
+  // Parámetros crudos (sin componer `search`) que reflejan la URL tal cual,
+  // para que guardar y re-aplicar sea simétrico.
+  const currentParams = useMemo<SavedSearchParams>(() => {
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
+    return {
+      search: searchParams.get('search') ?? undefined,
+      vehicleBrand: vehicle.brand || undefined,
+      vehicleModel: vehicle.model || undefined,
+      vehicleType: vehicle.type || undefined,
+      vehicleYear: vehicle.year ? Number(vehicle.year) : undefined,
+      vehicleYearTo: vehicle.yearTo ? Number(vehicle.yearTo) : undefined,
+      categoryIds: selectedCategoryIds.length ? selectedCategoryIds : undefined,
+      minPrice: minPrice !== null ? Number(minPrice) : undefined,
+      maxPrice: maxPrice !== null ? Number(maxPrice) : undefined,
+      inStock: searchParams.get('inStock') === 'true' ? true : undefined,
+    };
+  }, [searchParams, vehicle, selectedCategoryIds]);
+
+  const applySavedParams = useCallback(
+    (params: SavedSearchParams) => {
+      const next = new URLSearchParams();
+      if (params.search) next.set('search', params.search);
+      if (params.vehicleBrand) next.set('vehicleBrand', params.vehicleBrand);
+      if (params.vehicleModel) next.set('vehicleModel', params.vehicleModel);
+      if (params.vehicleType) next.set('vehicleType', params.vehicleType);
+      if (params.vehicleYear != null) next.set('vehicleYear', String(params.vehicleYear));
+      if (params.vehicleYearTo != null) next.set('vehicleYearTo', String(params.vehicleYearTo));
+      if (params.categoryIds?.length) next.set('categoryIds', params.categoryIds.join(','));
+      if (params.minPrice != null) next.set('minPrice', String(params.minPrice));
+      if (params.maxPrice != null) next.set('maxPrice', String(params.maxPrice));
+      if (params.inStock) next.set('inStock', 'true');
+      setSearchParams(next, { replace: false });
+    },
+    [setSearchParams],
+  );
+
   return {
     applied,
     appliedKey: searchParams.toString(),
@@ -263,5 +304,7 @@ export function useCatalogFilters(): CatalogFiltersState {
     submitSearch,
     setPage,
     clearAll,
+    currentParams,
+    applySavedParams,
   };
 }

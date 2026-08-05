@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { typeOrmConfigFactory } from './config/typeorm.config';
@@ -7,8 +8,10 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { GarageModule } from './modules/garage/garage.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ProductsModule } from './modules/products/products.module';
 import { RecommendationsModule } from './modules/recommendations/recommendations.module';
+import { SearchModule } from './modules/search/search.module';
 import { UsersModule } from './modules/users/users.module';
 
 /**
@@ -31,13 +34,16 @@ import { UsersModule } from './modules/users/users.module';
       inject: [ConfigService],
       useFactory: typeOrmConfigFactory,
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     CategoriesModule,
     ProductsModule,
+    NotificationsModule,
     GarageModule,
     AnalyticsModule,
     RecommendationsModule,
+    SearchModule,
   ],
 })
 export class AppModule {}

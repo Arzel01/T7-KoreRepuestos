@@ -16,6 +16,7 @@ import { ProductsRepository } from './products.repository';
 import { ProductsService } from './products.service';
 import { ReviewsRepository } from './reviews.repository';
 import { ReviewsService } from './reviews.service';
+import { SynonymsService } from './synonyms.service';
 import { TechnicalSheetsService } from './technical-sheets.service';
 
 @Module({
@@ -39,7 +40,8 @@ import { TechnicalSheetsService } from './technical-sheets.service';
     TechnicalSheetsService,
     ReviewsRepository,
     ReviewsService,
+    SynonymsService,
   ],
-  exports: [ProductsRepository, ProductsService],
+  exports: [ProductsRepository, ProductsService, SynonymsService],
 })
 export class ProductsModule {}

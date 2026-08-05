@@ -87,3 +87,31 @@ Migrar a Elasticsearch (o Typesense/Meilisearch) cuando se cumpla **cualquiera**
 - `apps/backend/src/modules/products/dto/query-products.dto.ts` — parámetros de búsqueda
 - `apps/backend/src/modules/analytics/search-analytics.service.ts` — logging de búsquedas
 - PostgreSQL docs: [Full Text Search](https://www.postgresql.org/docs/current/textsearch.html), [pg_trgm](https://www.postgresql.org/docs/current/pgtrgm.html)
+
+---
+
+## Addendum — Sprint 6 (2026-08-04): tareas de Elasticsearch superadas
+
+Las tareas del backlog de US#12 **"Setup Elasticsearch index"** e **"Index products in
+Elasticsearch"** quedan **superadas por esta ADR**. En lugar de introducir Elasticsearch se
+entregó, sobre el mismo PostgreSQL, el valor que esas tareas buscaban aportar y que esta ADR
+listaba como limitaciones pendientes:
+
+| Limitación anotada en esta ADR                         | Entregado en Sprint 6 (sin Elasticsearch)                                                                                                                                 |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "No hay sinónimos del dominio (pastillas=balatas)"     | Tabla `sinonimos` + `SynonymsService` (cierre transitivo, cacheado) que expande el término en `findCatalog()`/`findSuggestions()`. Migración `AddSinonimos1781137369806`. |
+| "Highlighting requiere `ts_headline`, no implementado" | `ts_headline('spanish', …, '<mark>…</mark>')` en `findCatalog()`; campo `highlight` en `ProductResponse`, renderizado en `ProductCard`.                                   |
+| (nuevo) Búsquedas guardadas por usuario                | Tabla `busquedas_guardadas` + módulo `search` (`GET/POST/DELETE /searches`) y UI en `AdvancedSearchPage`. Migración `AddBusquedasGuardadas1781137369807`.                 |
+
+Los **triggers de reevaluación siguen sin cumplirse** (catálogo « 500 000 productos, sin panel
+de sinónimos configurable sin despliegue, sin ranking ML, latencia dentro de SLA). Los sinónimos
+se siembran por migración (requieren despliegue), lo que es deliberado: el trigger #2 exige un
+panel de administración sin despliegue, que sigue siendo el disparador para migrar a un motor
+externo. **La decisión de esta ADR se mantiene: PostgreSQL FTS es el motor de búsqueda oficial.**
+
+Referencias del addendum:
+
+- `apps/backend/src/modules/products/synonyms.service.ts`
+- `apps/backend/src/modules/search/` — búsquedas guardadas
+- `apps/backend/src/database/migrations/1781137369806-AddSinonimos.ts`,
+  `…807-AddBusquedasGuardadas.ts`

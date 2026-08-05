@@ -56,6 +56,21 @@ describe('Vehicles (e2e)', () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 
+  it('GET /vehicles/brands/:brandId/models → sin nombres duplicados (post-dedup)', async () => {
+    const brands = await request(app.getHttpServer())
+      .get('/api/v1/vehicles/brands')
+      .then((r) => r.body as { id: number }[]);
+    if (brands.length === 0) return;
+
+    const models = await request(app.getHttpServer())
+      .get(`/api/v1/vehicles/brands/${brands[0].id}/models`)
+      .then((r) => r.body as { nombre: string }[]);
+
+    const names = models.map((m) => m.nombre);
+    // Tras DedupeModelos + UNIQUE(id_marca, nombre) no debe repetirse un modelo.
+    expect(new Set(names).size).toBe(names.length);
+  });
+
   // ── autenticación requerida ───────────────────────────────────────────────
 
   it('GET /vehicles sin token → 401', async () => {

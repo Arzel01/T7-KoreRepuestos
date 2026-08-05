@@ -14,10 +14,11 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { ProductsRepository } from './products.repository';
+import { SynonymsService } from './synonyms.service';
 
 import type { QueryProductsDto } from './dto/query-products.dto';
 import type { SuggestProductsDto } from './dto/suggest-products.dto';
-import type { ProductSuggestion } from './products.repository';
+import type { ProductSuggestion, ProductWithHighlight } from './products.repository';
 import type { PaginatedResult } from '@kore/shared';
 
 @Injectable()
@@ -29,6 +30,7 @@ export class ProductsService {
     private readonly categoriesService: CategoriesService,
     private readonly auditLogService: AuditLogService,
     private readonly searchAnalytics: SearchAnalyticsService,
+    private readonly synonyms: SynonymsService,
   ) {}
 
   async create(dto: CreateProductDto, userId?: number): Promise<Product> {
@@ -107,8 +109,12 @@ export class ProductsService {
     return product;
   }
 
-  async findCatalog(query: QueryProductsDto, userId?: number): Promise<PaginatedResult<Product>> {
-    const result = await this.productsRepository.findCatalog(query);
+  async findCatalog(
+    query: QueryProductsDto,
+    userId?: number,
+  ): Promise<PaginatedResult<ProductWithHighlight>> {
+    const searchTerms = query.search ? await this.synonyms.expand(query.search) : undefined;
+    const result = await this.productsRepository.findCatalog(query, searchTerms);
     if (query.search) {
       await this.searchAnalytics.log(query.search, result.total, userId).catch((err: unknown) => {
         this.logger.warn('Error al registrar búsqueda en analytics', err);
@@ -118,7 +124,8 @@ export class ProductsService {
   }
 
   async findSuggestions(dto: SuggestProductsDto): Promise<ProductSuggestion[]> {
-    return this.productsRepository.findSuggestions(dto);
+    const searchTerms = await this.synonyms.expand(dto.q);
+    return this.productsRepository.findSuggestions(dto, searchTerms);
   }
 
   async findCompatibility(id: number): Promise<

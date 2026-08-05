@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -63,7 +64,12 @@ export function GaragePage() {
               Gestiona tus vehículos y mantén el control del mantenimiento
             </p>
           </div>
-          <Button onClick={() => setShowAdd(true)}>+ Agregar Vehículo</Button>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link to="/garage/dashboard">Panel de mantenimiento</Link>
+            </Button>
+            <Button onClick={() => setShowAdd(true)}>+ Agregar Vehículo</Button>
+          </div>
         </div>
 
         {loading && (
