@@ -3,6 +3,8 @@
 // (backend, web, mobile) hagan `import { X } from '@kore/shared'`.
 
 export * from './enums/user-role.enum';
+export * from './enums/identification-type.enum';
+export * from './enums/mileage-source.enum';
 export * from './enums/product-unit.enum';
 export * from './dto/user.dto';
 export * from './dto/product.dto';
@@ -11,3 +13,4 @@ export * from './interfaces/api-response.interface';
 export * from './dto/vehicle.dto';
 export * from './dto/garage.dto';
 export * from './dto/analytics.dto';
+export * from './utils/ecuador-identification';

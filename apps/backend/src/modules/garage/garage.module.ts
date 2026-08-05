@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { JwtOrServiceGuard } from '../../common/guards/jwt-or-service.guard';
 import { Product } from '../products/entities/product.entity';
 
 import { MaintenanceGuide } from './entities/maintenance-guide.entity';
@@ -38,6 +40,8 @@ import { VehiclesService } from './vehicles.service';
     VehiclesService,
     MaintenanceGuideRepository,
     MaintenanceGuidesService,
+    JwtAuthGuard,
+    JwtOrServiceGuard,
   ],
 })
 export class GarageModule {}

@@ -1,5 +1,6 @@
 import { api } from '@/lib/api-client';
 
+import type { IdentificationType } from '@kore/shared';
 import type { UserResponse } from '@kore/shared';
 
 export interface AuthTokensDto {
@@ -19,12 +20,22 @@ export interface RegisterPayload {
   password: string;
   firstName: string;
   lastName: string;
+  identificationType: IdentificationType;
+  identificationNumber: string;
   phone?: string;
 }
 
 export interface LoginPayload {
   email: string;
   password: string;
+}
+
+export interface AuthValidateResponse {
+  valid: true;
+  active: true;
+  userId: number;
+  email: string;
+  role: string;
 }
 
 export const authApi = {
@@ -36,5 +47,7 @@ export const authApi = {
 
   logout: (refreshToken: string): Promise<void> => api.post<void>('/auth/logout', { refreshToken }),
 
-  me: (): Promise<{ sub: string; email: string; role: string }> => api.get('/auth/me'),
+  me: (): Promise<UserResponse> => api.get('/auth/me'),
+
+  validate: (): Promise<AuthValidateResponse> => api.get('/auth/validate'),
 };

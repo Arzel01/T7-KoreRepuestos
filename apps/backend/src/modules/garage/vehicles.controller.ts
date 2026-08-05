@@ -10,11 +10,15 @@ import {
   Patch,
   Post,
   Put,
+  Req,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
+import { JwtOrServiceGuard } from '../../common/guards/jwt-or-service.guard';
 
 import { CreateMaintenanceLogDto } from './dto/create-maintenance-log.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
@@ -23,6 +27,7 @@ import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { VehiclesService } from './vehicles.service';
 
 import type { JwtPayload } from '../auth/dto/auth-response.dto';
+import type { Request } from 'express';
 
 @ApiTags('vehicles')
 @ApiBearerAuth()
@@ -88,14 +93,28 @@ export class VehiclesController {
 
   @Patch(':id/mileage')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtOrServiceGuard)
   @ApiOperation({ summary: 'Actualizar kilometraje de un vehículo.' })
   @ApiResponse({ status: 204 })
   updateMileage(
     @Param('id', new ParseIntPipe()) id: number,
-    @CurrentUser() user: JwtPayload,
+    @CurrentUser() user: JwtPayload | undefined,
+    @Req() req: Request,
     @Body() dto: UpdateMileageDto,
   ): Promise<void> {
-    return this.vehiclesService.updateMileage(id, Number(user.sub), dto);
+    const keyFromHeader = req.headers['x-service-api-key'];
+    const serviceApiKey = Array.isArray(keyFromHeader) ? keyFromHeader[0] : keyFromHeader;
+    const isServiceCall = Boolean(serviceApiKey);
+
+    if (isServiceCall) {
+      return this.vehiclesService.updateMileageFromService(id, dto);
+    }
+
+    if (!user?.sub) {
+      throw new UnauthorizedException('Usuario no autenticado para actualizar kilometraje');
+    }
+
+    return this.vehiclesService.updateMileageFromUser(id, Number(user.sub), dto);
   }
 
   @Post(':id/logs')

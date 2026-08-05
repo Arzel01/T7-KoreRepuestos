@@ -1,6 +1,18 @@
+import {
+  IdentificationType,
+  isValidEcuadorIdentification,
+  normalizeEcuadorIdentification,
+} from '@kore/shared';
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { extractApiErrorMessage } from '@/lib/api-client';
 
 import { useAuth } from '../hooks/AuthContext';
@@ -10,6 +22,8 @@ export function RegisterPage(): JSX.Element {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
+    identificationType: IdentificationType.CEDULA,
+    identificationNumber: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -18,6 +32,8 @@ export function RegisterPage(): JSX.Element {
     confirm: '',
   });
   const [touched, setTouched] = useState<Record<keyof typeof form, boolean>>({
+    identificationType: false,
+    identificationNumber: false,
     firstName: false,
     lastName: false,
     email: false,
@@ -28,6 +44,14 @@ export function RegisterPage(): JSX.Element {
   const [error, setError] = useState<string | null>(null);
 
   const errors = {
+    identificationNumber: isValidEcuadorIdentification(
+      form.identificationType,
+      form.identificationNumber,
+    )
+      ? null
+      : form.identificationType === IdentificationType.RUC
+        ? 'RUC ecuatoriano inválido'
+        : 'Cédula ecuatoriana inválida',
     firstName: form.firstName.trim() ? null : 'Nombre obligatorio',
     lastName: form.lastName.trim() ? null : 'Apellido obligatorio',
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) ? null : 'Email con formato inválido',
@@ -60,6 +84,8 @@ export function RegisterPage(): JSX.Element {
   async function handleSubmit(e: FormEvent): Promise<void> {
     e.preventDefault();
     setTouched({
+      identificationType: true,
+      identificationNumber: true,
       firstName: true,
       lastName: true,
       email: true,
@@ -75,6 +101,8 @@ export function RegisterPage(): JSX.Element {
         lastName: form.lastName.trim(),
         email: form.email.trim(),
         phone: form.phone.trim() || undefined,
+        identificationType: form.identificationType,
+        identificationNumber: normalizeEcuadorIdentification(form.identificationNumber),
         password: form.password,
       });
       navigate('/', { replace: true });
@@ -137,6 +165,48 @@ export function RegisterPage(): JSX.Element {
             </p>
 
             <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-5">
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="identificationType"
+                    className="block text-sm font-medium text-foreground"
+                  >
+                    Tipo de identificación
+                    <span className="ml-1 text-destructive">*</span>
+                  </label>
+                  <Select
+                    value={form.identificationType}
+                    onValueChange={(value) =>
+                      update('identificationType', value as IdentificationType)
+                    }
+                  >
+                    <SelectTrigger id="identificationType" className="h-10 w-full bg-muted/40">
+                      <SelectValue placeholder="Selecciona una opción" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={IdentificationType.CEDULA}>Cédula</SelectItem>
+                      <SelectItem value={IdentificationType.RUC}>RUC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <FieldText
+                  id="identificationNumber"
+                  label="Número de identificación"
+                  value={form.identificationNumber}
+                  onChange={(v) =>
+                    update('identificationNumber', normalizeEcuadorIdentification(v))
+                  }
+                  onBlur={() => setTouched((t) => ({ ...t, identificationNumber: true }))}
+                  error={touched.identificationNumber ? errors.identificationNumber : null}
+                  autoComplete="off"
+                  inputMode="numeric"
+                  maxLength={form.identificationType === IdentificationType.RUC ? 13 : 10}
+                  hint="Escribe solo números, sin puntos ni guiones."
+                  required
+                />
+              </div>
+
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <FieldText
                   id="firstName"
@@ -257,6 +327,8 @@ interface FieldTextProps {
   autoComplete?: string;
   required?: boolean;
   hint?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
+  maxLength?: number;
 }
 
 function FieldText({
@@ -270,6 +342,8 @@ function FieldText({
   autoComplete,
   required,
   hint,
+  inputMode,
+  maxLength,
 }: FieldTextProps): JSX.Element {
   return (
     <div className="space-y-1.5">
@@ -284,6 +358,8 @@ function FieldText({
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
         autoComplete={autoComplete}
+        inputMode={inputMode}
+        maxLength={maxLength}
         required={required}
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}

@@ -1,3 +1,4 @@
+import { MileageSource, type CalendarItemDto } from '@kore/shared';
 import {
   BadRequestException,
   ConflictException,
@@ -18,8 +19,6 @@ import { Modelo } from './entities/modelo.entity';
 import { VehicleUser } from './entities/vehicle-user.entity';
 import { MaintenanceLogRepository } from './maintenance-log.repository';
 import { VehiclesRepository } from './vehicles.repository';
-
-import type { CalendarItemDto } from '@kore/shared';
 
 @Injectable()
 export class VehiclesService {
@@ -113,13 +112,41 @@ export class VehiclesService {
     }
   }
 
-  async updateMileage(vehicleId: number, userId: number, dto: UpdateMileageDto): Promise<void> {
+  async updateMileageFromUser(
+    vehicleId: number,
+    userId: number,
+    dto: UpdateMileageDto,
+  ): Promise<void> {
     const vehicle = await this.vehiclesRepo.findOne(vehicleId, userId);
     if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
     if (dto.currentMileage < vehicle.currentMileage) {
       throw new BadRequestException('El kilometraje no puede ser menor al actual');
     }
-    await this.vehiclesRepo.updateMileage(vehicleId, dto.currentMileage);
+
+    await this.vehiclesRepo.updateMileageByUser(vehicleId, dto.currentMileage);
+  }
+
+  async updateMileageFromService(vehicleId: number, dto: UpdateMileageDto): Promise<void> {
+    const vehicle = await this.vehiclesRepo.findById(vehicleId);
+    if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
+
+    const source = dto.source ?? MileageSource.USUARIO;
+
+    if (source === MileageSource.IA) {
+      if (dto.currentMileage < vehicle.currentMileage) {
+        throw new BadRequestException(
+          'El kilometraje estimado por IA no puede ser menor al kilometraje real del usuario',
+        );
+      }
+      await this.vehiclesRepo.updateMileageByAi(vehicleId, dto.currentMileage);
+      return;
+    }
+
+    if (dto.currentMileage < vehicle.currentMileage) {
+      throw new BadRequestException('El kilometraje no puede ser menor al actual');
+    }
+
+    await this.vehiclesRepo.updateMileageByUser(vehicleId, dto.currentMileage);
   }
 
   async delete(vehicleId: number, userId: number): Promise<void> {

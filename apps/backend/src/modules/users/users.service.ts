@@ -1,5 +1,17 @@
-import { UserRole, type CreateUserDto, type UserResponse } from '@kore/shared';
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  UserRole,
+  isValidEcuadorIdentification,
+  normalizeEcuadorIdentification,
+  type CreateUserDto,
+  type UserResponse,
+} from '@kore/shared';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
@@ -19,19 +31,30 @@ export class UsersService {
   }
 
   async create(dto: CreateUserDto): Promise<User> {
-    const existing = await this.usersRepository.findByEmail(dto.email);
+    const email = dto.email.trim().toLowerCase();
+    const existing = await this.usersRepository.findByEmail(email);
     if (existing) {
       throw new ConflictException('Ya existe un usuario con ese email');
+    }
+
+    const firstName = dto.firstName.trim();
+    const lastName = dto.lastName.trim();
+    const phone = dto.phone?.trim();
+    const identificationNumber = normalizeEcuadorIdentification(dto.identificationNumber);
+    if (!isValidEcuadorIdentification(dto.identificationType, identificationNumber)) {
+      throw new BadRequestException('La identificación ingresada no es válida para Ecuador');
     }
 
     const passwordHash = await bcrypt.hash(dto.password, this.saltRounds);
 
     return this.usersRepository.create({
-      email: dto.email.toLowerCase(),
+      email,
       passwordHash,
       // firstName + lastName se combinan en el campo `nombres` del schema real
-      nombres: `${dto.firstName} ${dto.lastName}`,
-      telefono: dto.phone,
+      nombres: `${firstName} ${lastName}`,
+      telefono: phone,
+      identificationNumber,
+      identificationType: dto.identificationType,
       role: dto.role ?? UserRole.CLIENTE,
     });
   }
@@ -46,6 +69,14 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findByEmail(email.toLowerCase());
+  }
+
+  async findActiveById(id: number): Promise<User> {
+    const user = await this.usersRepository.findActiveById(id);
+    if (!user) {
+      throw new UnauthorizedException('Usuario inactivo o no encontrado');
+    }
+    return user;
   }
 
   async verifyPassword(plain: string, hash: string): Promise<boolean> {
@@ -67,6 +98,8 @@ export class UsersService {
       firstName,
       lastName,
       phone: user.telefono,
+      identificationType: user.identificationType,
+      identificationNumber: user.identificationNumber,
       role: user.role,
       isActive: user.isActive,
       createdAt: user.creadoEn.toISOString(),

@@ -18,6 +18,14 @@ export interface AuthResponse {
   tokens: AuthTokens;
 }
 
+export interface AuthValidationResponse {
+  valid: true;
+  active: true;
+  userId: number;
+  email: string;
+  role: string;
+}
+
 /**
  * Forma del payload JWT codificado en `accessToken`. Coincide con lo que
  * `JwtStrategy.validate()` recibe tras la verificación.

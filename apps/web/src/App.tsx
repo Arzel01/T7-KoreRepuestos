@@ -1,6 +1,7 @@
 import { BrowserRouter } from 'react-router-dom';
 
 import { AuthProvider } from '@/features/auth/hooks/AuthContext';
+import { FloatingChatWidget } from '@/features/chat/components/FloatingChatWidget';
 import { AppRouter } from '@/router/AppRouter';
 
 /**
@@ -16,6 +17,7 @@ export default function App(): JSX.Element {
     <BrowserRouter>
       <AuthProvider>
         <AppRouter />
+        <FloatingChatWidget />
       </AuthProvider>
     </BrowserRouter>
   );

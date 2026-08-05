@@ -21,6 +21,27 @@ import dataSource from '../../config/typeorm.config';
 
 const BCRYPT_ROUNDS = 10;
 
+function getCedulaCheckDigit(base9Digits: string): number {
+  const digits = base9Digits.split('').map(Number);
+  const sum = digits.reduce((acc, digit, index) => {
+    const product = digit * (index % 2 === 0 ? 2 : 1);
+    return acc + (product >= 10 ? product - 9 : product);
+  }, 0);
+  const mod = sum % 10;
+  return mod === 0 ? 0 : 10 - mod;
+}
+
+function buildCedulaFromSeed(seed: number): string {
+  const province = String((seed % 24) + 1).padStart(2, '0');
+  const middle = String(seed % 1_000_000).padStart(6, '0');
+  const base9 = `${province}0${middle}`;
+  return `${base9}${getCedulaCheckDigit(base9)}`;
+}
+
+function buildRucFromCedula(cedula: string): string {
+  return `${cedula}001`;
+}
+
 // ---------------------------------------------------------------------------
 // helpers
 // ---------------------------------------------------------------------------
@@ -63,15 +84,30 @@ async function main(): Promise<void> {
   const passwordAdmin = await bcrypt.hash('Admin1234', BCRYPT_ROUNDS);
   const passwordAsesor = await bcrypt.hash('Asesor1234', BCRYPT_ROUNDS);
 
+  const adminCedula = buildCedulaFromSeed(1);
+  const asesorRuc = buildRucFromCedula(buildCedulaFromSeed(2));
+  const cliente1Cedula = buildCedulaFromSeed(3);
+  const cliente2Ruc = buildRucFromCedula(buildCedulaFromSeed(4));
+  const cliente3Cedula = buildCedulaFromSeed(5);
+
   await dataSource.query(
-    `INSERT INTO usuarios (email, password_hash, nombres, rol, is_active) VALUES
-       ('admin@kore.dev',    $1, 'Administrador Kore',   'Administrador',     TRUE),
-       ('asesor@kore.dev',   $2, 'Carlos Mendoza',       'Asesor Comercial',  TRUE),
-       ('cliente1@kore.dev', $3, 'María García',         'Cliente',           TRUE),
-       ('cliente2@kore.dev', $3, 'Juan Pérez',           'Cliente',           TRUE),
-       ('cliente3@kore.dev', $3, 'Ana Rodríguez',        'Cliente',           TRUE)
+    `INSERT INTO usuarios (email, password_hash, nombres, rol, is_active, identificacion_personal, tipo_identificacion) VALUES
+       ('admin@kore.dev',    $1, 'Administrador Kore',   'Administrador',     TRUE, $4, 'cedula'),
+       ('asesor@kore.dev',   $2, 'Carlos Mendoza',       'Asesor Comercial',  TRUE, $5, 'ruc'),
+       ('cliente1@kore.dev', $3, 'María García',         'Cliente',           TRUE, $6, 'cedula'),
+       ('cliente2@kore.dev', $3, 'Juan Pérez',           'Cliente',           TRUE, $7, 'ruc'),
+       ('cliente3@kore.dev', $3, 'Ana Rodríguez',        'Cliente',           TRUE, $8, 'cedula')
      ON CONFLICT (email) DO NOTHING`,
-    [passwordAdmin, passwordAsesor, passwordCliente],
+    [
+      passwordAdmin,
+      passwordAsesor,
+      passwordCliente,
+      adminCedula,
+      asesorRuc,
+      cliente1Cedula,
+      cliente2Ruc,
+      cliente3Cedula,
+    ],
   );
 
   const usuarios = await dataSource.query<Array<{ id_usuario: number; email: string }>>(

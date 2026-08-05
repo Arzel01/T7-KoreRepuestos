@@ -1,3 +1,5 @@
+import { MileageSource } from '../enums/mileage-source.enum';
+
 export interface CreateVehicleDto {
   brandId: number;
   modelId: number;
@@ -10,6 +12,7 @@ export interface CreateVehicleDto {
 
 export interface UpdateMileageDto {
   currentMileage: number;
+  source?: MileageSource;
 }
 
 export interface CreateMaintenanceLogDto {
@@ -37,6 +40,8 @@ export interface VehicleResponse {
   year: number;
   plate?: string;
   currentMileage: number;
+  aiEstimatedMileage?: number;
+  lastMileageSource?: MileageSource;
   averageDailyMileage: number;
   createdAt: string;
   model: ModeloResponse;
