@@ -11,3 +11,4 @@ export * from './interfaces/api-response.interface';
 export * from './dto/vehicle.dto';
 export * from './dto/garage.dto';
 export * from './dto/analytics.dto';
+export * from './dto/saved-search.dto';

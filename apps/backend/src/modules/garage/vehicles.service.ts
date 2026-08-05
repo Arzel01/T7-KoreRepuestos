@@ -39,19 +39,15 @@ export class VehiclesService {
   }
 
   /**
-   * Band-aid temporal: `modelos` tiene filas duplicadas (mismo id_marca+nombre)
-   * porque a la tabla le falta un UNIQUE que el seed pueda usar como conflict
-   * target. `DISTINCT ON` deja una sola fila por nombre (la de id más bajo)
-   * sin tocar los datos. Arreglo de raíz (constraint + limpieza) pendiente.
+   * `modelos` ya tiene UNIQUE (id_marca, nombre) tras la migración
+   * DedupeModelos1781137369808, así que un `find` simple basta — sin el
+   * DISTINCT ON que antes ocultaba las filas duplicadas.
    */
   listModelsByBrand(brandId: number): Promise<Modelo[]> {
-    return this.modelosRepo
-      .createQueryBuilder('m')
-      .distinctOn(['m.nombre'])
-      .where('m.id_marca = :brandId', { brandId })
-      .orderBy('m.nombre', 'ASC')
-      .addOrderBy('m.id_modelo', 'ASC')
-      .getMany();
+    return this.modelosRepo.find({
+      where: { marcaId: brandId },
+      order: { nombre: 'ASC' },
+    });
   }
 
   getByUser(userId: number): Promise<VehicleUser[]> {

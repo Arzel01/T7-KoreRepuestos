@@ -9,6 +9,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { GarageModule } from './modules/garage/garage.module';
 import { ProductsModule } from './modules/products/products.module';
 import { RecommendationsModule } from './modules/recommendations/recommendations.module';
+import { SearchModule } from './modules/search/search.module';
 import { UsersModule } from './modules/users/users.module';
 
 /**
@@ -38,6 +39,7 @@ import { UsersModule } from './modules/users/users.module';
     GarageModule,
     AnalyticsModule,
     RecommendationsModule,
+    SearchModule,
   ],
 })
 export class AppModule {}

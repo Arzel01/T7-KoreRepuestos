@@ -23,6 +23,8 @@ import { useCategories } from '@/features/catalog/hooks/useCategories';
 
 import { useAdvancedSearch } from '../hooks/useAdvancedSearch';
 
+import { SavedSearches } from './SavedSearches';
+
 export function AdvancedSearchPage(): JSX.Element {
   const { filters, products } = useAdvancedSearch();
   const { categories, loading: categoriesLoading } = useCategories();
@@ -88,6 +90,14 @@ export function AdvancedSearchPage(): JSX.Element {
           </Label>
         </div>
       </section>
+
+      <Separator />
+
+      <SavedSearches
+        currentParams={filters.currentParams}
+        canSave={filters.hasActiveFilters}
+        onApply={filters.applySavedParams}
+      />
     </div>
   );
 

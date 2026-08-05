@@ -17,6 +17,9 @@ export interface ProductSuggestion {
   price: number;
 }
 
+/** Producto del catálogo con el fragmento resaltado (`ts_headline`) del match. */
+export type ProductWithHighlight = Product & { highlight?: string };
+
 /**
  * Mapa columna-ordenable → expresión SQL.
  * Propiedades JS (name, price, createdAt) ↔ columnas reales del schema.
@@ -42,8 +45,16 @@ export class ProductsRepository extends BaseRepository<Product, number> {
    * Búsqueda: `ILIKE` cubre substrings; `word_similarity` cubre typos.
    * Se usa word_similarity (no `%`/`similarity()`) porque compara contra
    * la palabra más similar del nombre, no el string completo — umbral 0.25.
+   *
+   * `searchTerms` (término original + sinónimos del dominio, resueltos por
+   * `SynonymsService`) amplía el match y el ranking sin depender de un motor
+   * externo — ver ADR-0001. Cuando hay búsqueda, cada ítem incluye `highlight`
+   * (`ts_headline`) con el nombre resaltado (`<mark>…</mark>`).
    */
-  async findCatalog(q: QueryProductsDto): Promise<PaginatedResult<Product>> {
+  async findCatalog(
+    q: QueryProductsDto,
+    searchTerms?: string[],
+  ): Promise<PaginatedResult<ProductWithHighlight>> {
     const qb = this.repository.createQueryBuilder('p').where('p.is_active = TRUE');
 
     if (q.categoryIds?.length) {
@@ -93,22 +104,52 @@ export class ProductsRepository extends BaseRepository<Product, number> {
       );
     }
 
-    if (q.search) {
-      qb.andWhere(
-        `(p.search_vector @@ websearch_to_tsquery('spanish', :search)
-          OR p.nombre ILIKE :like OR p.sku ILIKE :like
-          OR word_similarity(:search, p.nombre) >= 0.25)`,
-        { like: `%${q.search}%`, search: q.search },
+    // Término original + sinónimos. Cada término aporta su propio tsquery,
+    // que se combinan con el operador `||` de tsquery (unión) para match,
+    // ranking y highlighting.
+    const terms = q.search ? (searchTerms?.length ? searchTerms : [q.search]) : [];
+
+    if (terms.length) {
+      const params: Record<string, string> = {};
+      terms.forEach((term, i) => {
+        params[`s${i}`] = term;
+        params[`like${i}`] = `%${term}%`;
+      });
+      const tsquery = terms.map((_, i) => `websearch_to_tsquery('spanish', :s${i})`).join(' || ');
+      const likeMatch = terms
+        .map((_, i) => `p.nombre ILIKE :like${i} OR p.sku ILIKE :like${i}`)
+        .join(' OR ');
+      const simMatch = terms
+        .map((_, i) => `word_similarity(:s${i}, p.nombre) >= 0.25`)
+        .join(' OR ');
+
+      qb.andWhere(`(p.search_vector @@ (${tsquery}) OR ${likeMatch} OR ${simMatch})`, params);
+      qb.addSelect(
+        `ts_headline('spanish', p.nombre, ${tsquery}, 'StartSel=<mark>,StopSel=</mark>,HighlightAll=TRUE')`,
+        'highlight',
       );
-      qb.orderBy(`ts_rank(p.search_vector, websearch_to_tsquery('spanish', :search))`, 'DESC')
-        .addOrderBy('word_similarity(:search, p.nombre)', 'DESC')
+      qb.orderBy(`ts_rank(p.search_vector, (${tsquery}))`, 'DESC')
+        // El término primario (s0) domina el desempate por similitud.
+        .addOrderBy('word_similarity(:s0, p.nombre)', 'DESC')
         .addOrderBy('p.nombre', 'ASC');
     } else {
       qb.orderBy(SORT_COLUMNS[q.sortBy], q.sortOrder.toUpperCase() as 'ASC' | 'DESC');
     }
 
+    // getCount() ignora SELECT/ORDER, así que cuenta el total antes de paginar.
+    const total = await qb.getCount();
     qb.skip((q.page - 1) * q.pageSize).take(q.pageSize);
-    const [items, total] = await qb.getManyAndCount();
+
+    let items: ProductWithHighlight[];
+    if (terms.length) {
+      const { entities, raw } = await qb.getRawAndEntities<Record<string, string>>();
+      items = entities.map((entity, i) => {
+        (entity as ProductWithHighlight).highlight = raw[i]?.highlight ?? undefined;
+        return entity as ProductWithHighlight;
+      });
+    } else {
+      items = await qb.getMany();
+    }
 
     return {
       items,
@@ -119,16 +160,33 @@ export class ProductsRepository extends BaseRepository<Product, number> {
     };
   }
 
-  async findSuggestions(dto: SuggestProductsDto): Promise<ProductSuggestion[]> {
-    const prefix = `${dto.q}%`;
+  async findSuggestions(
+    dto: SuggestProductsDto,
+    searchTerms?: string[],
+  ): Promise<ProductSuggestion[]> {
+    const terms = searchTerms?.length ? searchTerms : [dto.q];
+
+    const params: unknown[] = [];
+    const orClauses = terms.map((term) => {
+      const prefixIdx = params.push(`${term}%`);
+      const simIdx = params.push(term);
+      return `(p.nombre ILIKE $${prefixIdx} OR p.sku ILIKE $${prefixIdx} OR word_similarity($${simIdx}, p.nombre) >= 0.3)`;
+    });
+
+    // El orden prioriza el término primario (lo que el usuario tecleó).
+    const primaryPrefixIdx = params.push(`${dto.q}%`);
+    const primarySimIdx = params.push(dto.q);
+    const limitIdx = params.push(dto.limit);
+
     return this.repository.manager.query<ProductSuggestion[]>(
       `SELECT p.id_producto AS id, p.nombre AS name, p.sku, p.precio_base AS price
        FROM public.productos p
-       WHERE p.is_active = TRUE
-         AND (p.nombre ILIKE $1 OR p.sku ILIKE $1 OR word_similarity($2, p.nombre) >= 0.3)
-       ORDER BY (p.nombre ILIKE $1) DESC, word_similarity($2, p.nombre) DESC, p.nombre ASC
-       LIMIT $3`,
-      [prefix, dto.q, dto.limit],
+       WHERE p.is_active = TRUE AND (${orClauses.join(' OR ')})
+       ORDER BY (p.nombre ILIKE $${primaryPrefixIdx}) DESC,
+                word_similarity($${primarySimIdx}, p.nombre) DESC,
+                p.nombre ASC
+       LIMIT $${limitIdx}`,
+      params,
     );
   }
 
