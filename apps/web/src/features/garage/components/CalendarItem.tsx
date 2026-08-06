@@ -1,8 +1,10 @@
+import { Check, Loader2, ShoppingCart } from 'lucide-react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { useCart } from '@/features/cart/hooks/CartContext';
 
 import { MarkCompleteModal } from './MarkCompleteModal';
 
@@ -21,8 +23,26 @@ export function CalendarItem({
   currentMileage,
   onMarkComplete,
 }: Props) {
+  const { addMany } = useCart();
   const [showModal, setShowModal] = useState(false);
+  const [addingParts, setAddingParts] = useState(false);
+  const [addedParts, setAddedParts] = useState(false);
   const isCompleted = !!item.lastLog;
+  const hasParts = item.products.length > 0;
+
+  async function handleAddParts(): Promise<void> {
+    if (!hasParts || addingParts) return;
+    setAddingParts(true);
+    try {
+      await addMany(item.products.map((p) => ({ productId: p.id, quantity: p.quantity })));
+      setAddedParts(true);
+      window.setTimeout(() => setAddedParts(false), 2500);
+    } catch {
+      // El error del carrito se refleja en la página del carrito.
+    } finally {
+      setAddingParts(false);
+    }
+  }
 
   const borderClass = item.isCritical ? 'border-orange-300 bg-orange-50' : 'border-border bg-card';
 
@@ -104,8 +124,21 @@ export function CalendarItem({
                 ✔ Marcar Completado
               </Button>
             )}
-            <Button size="sm" variant="outline" className="text-primary border-primary/30">
-              Agregar Repuestos
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 text-primary border-primary/30"
+              disabled={!hasParts || addingParts}
+              onClick={() => void handleAddParts()}
+            >
+              {addingParts ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : addedParts ? (
+                <Check className="size-4" />
+              ) : (
+                <ShoppingCart className="size-4" />
+              )}
+              {addedParts ? 'Agregado' : 'Agregar Repuestos'}
             </Button>
           </div>
         </CardContent>
