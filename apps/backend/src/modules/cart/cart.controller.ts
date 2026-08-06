@@ -20,7 +20,7 @@ import { BulkAddCartDto } from './dto/bulk-add-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
 
 import type { JwtPayload } from '../auth/dto/auth-response.dto';
-import type { CartResponse } from '@kore/shared';
+import type { CartResponse, CartSummaryResponse } from '@kore/shared';
 
 @ApiTags('cart')
 @ApiBearerAuth()
@@ -33,6 +33,15 @@ export class CartController {
   @ApiResponse({ status: 200 })
   getCart(@CurrentUser() user: JwtPayload): Promise<CartResponse> {
     return this.cartService.getCart(Number(user.sub));
+  }
+
+  @Get('summary')
+  @ApiOperation({
+    summary: 'Resumen ligero del carrito (US#21): contadores y totales, sin líneas.',
+  })
+  @ApiResponse({ status: 200 })
+  getSummary(@CurrentUser() user: JwtPayload): Promise<CartSummaryResponse> {
+    return this.cartService.getSummary(Number(user.sub));
   }
 
   @Post('items')

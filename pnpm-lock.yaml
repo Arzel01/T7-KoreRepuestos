@@ -127,6 +127,9 @@ importers:
       passport-jwt:
         specifier: ^4.0.1
         version: 4.0.1
+      pdfkit:
+        specifier: ^0.15.2
+        version: 0.15.2
       pg:
         specifier: ^8.13.1
         version: 8.21.0
@@ -170,6 +173,9 @@ importers:
       '@types/passport-jwt':
         specifier: ^4.0.1
         version: 4.0.1
+      '@types/pdfkit':
+        specifier: ^0.13.9
+        version: 0.13.9
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.3
@@ -3067,6 +3073,12 @@ packages:
         integrity: sha512-Uy0+khmZqUrUGm5dmMqVlnvufZRSK0FbYzVgp0UMstm+F5+W2/jnEEQyc9vo1ZR/E5ZI/B1WjjoTqBqwJL6Krw==,
       }
 
+  '@swc/helpers@0.3.17':
+    resolution:
+      {
+        integrity: sha512-tb7Iu+oZ+zWJZ3HJqwx8oNwSDIU440hmVMDPhpACWQWnrZHK99Bxs70gT1L2dnr5Hg50ZRWEFkQCAnOVVV0z1Q==,
+      }
+
   '@testing-library/dom@10.4.1':
     resolution:
       {
@@ -3591,6 +3603,12 @@ packages:
     resolution:
       {
         integrity: sha512-aciLyx+wDwT2t2/kJGJR2AEeBz0nJU4WuRX04Wu9Dqc5lSUtwu0WERPHYsLhF9PtseiAMPBGNUOtFjxZ56prsg==,
+      }
+
+  '@types/pdfkit@0.13.9':
+    resolution:
+      {
+        integrity: sha512-RDG8Yb1zT7I01FfpwK7nMSA433XWpblMqSCtA5vJlSyavWZb303HUYPCel6JTiDDFqwGLvtAnYbH8N/e0Cb89g==,
       }
 
   '@types/prop-types@15.7.15':
@@ -4578,6 +4596,13 @@ packages:
       }
     engines: { node: 18 || 20 || >=22 }
 
+  base64-js@0.0.8:
+    resolution:
+      {
+        integrity: sha512-3XSA2cR/h/73EzlXXdU6YNycmYI7+kicTxks4eJg2g39biHR84slg2+des+p7iHYhbRg/udIS4TD53WabcOUkw==,
+      }
+    engines: { node: '>= 0.4' }
+
   base64-js@1.5.1:
     resolution:
       {
@@ -4651,6 +4676,18 @@ packages:
         integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==,
       }
     engines: { node: '>=8' }
+
+  brotli@1.3.3:
+    resolution:
+      {
+        integrity: sha512-oTKjJdShmDuGW94SyyaoQvAjf30dZaHnjJ8uAF+u2/vGJkJbJPJAT1gDiOJP5v1Zb6f9KEyW/1HpuaWIXtGHPg==,
+      }
+
+  browserify-zlib@0.2.0:
+    resolution:
+      {
+        integrity: sha512-Z942RysHXmJrhqk88FmKBVq/v5tqmSkDz7p54G/MGyjMnCFFnC79XWNbg+Vta8W6Wb2qtSZTSxIGkJrRpCFEiA==,
+      }
 
   browserslist@4.28.2:
     resolution:
@@ -4936,6 +4973,13 @@ packages:
       }
     engines: { node: '>=0.8' }
 
+  clone@2.1.2:
+    resolution:
+      {
+        integrity: sha512-3Pe/CF1Nn94hyhIYpjtiLhdCoEoz0DqQ+988E9gmeEdQZlojxnOb74wctFyuwWQHzqyf9X7C7MG8juUpqBJT8w==,
+      }
+    engines: { node: '>=0.8' }
+
   clsx@2.1.1:
     resolution:
       {
@@ -5200,6 +5244,13 @@ packages:
       }
     engines: { node: '>= 8' }
 
+  crypto-js@4.2.0:
+    resolution:
+      {
+        integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==,
+      }
+    deprecated: Active development of CryptoJS has been discontinued. This library is no longer maintained.
+
   css.escape@1.5.1:
     resolution:
       {
@@ -5338,6 +5389,13 @@ packages:
       }
     engines: { node: '>=6' }
 
+  deep-equal@2.2.3:
+    resolution:
+      {
+        integrity: sha512-ZIwpnevOurS8bpT4192sqAowWM76JDKSHYzMLty3BZGSswgq6pBaH3DhCSW5xVAZICZyKdOBPjwww5wfgT/6PA==,
+      }
+    engines: { node: '>= 0.4' }
+
   deep-is@0.1.4:
     resolution:
       {
@@ -5450,6 +5508,12 @@ packages:
     resolution:
       {
         integrity: sha512-rXSP0bf+5n0Qonsb+SVVfNfIsimO4HEtmnIpPHY8Q1UCzKlQrDMfdobr8nJOOsRgWCyMRqeSBQzmWUMq7zvVig==,
+      }
+
+  dfa@1.2.0:
+    resolution:
+      {
+        integrity: sha512-ED3jP8saaweFTjeGX8HQPjeC1YYyZs98jGNZx6IiBvxW7JG5v492kamAQB3m2wop07CvU/RQmzcKr6bgcC5D/Q==,
       }
 
   didyoumean@1.2.2:
@@ -5663,6 +5727,12 @@ packages:
         integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==,
       }
     engines: { node: '>= 0.4' }
+
+  es-get-iterator@1.1.3:
+    resolution:
+      {
+        integrity: sha512-sPZmqHBe6JIiTfN5q2pEi//TwxmAFHwj/XEuYjTuse78i8KxaqMTTzxPoFKuzRpDpTJ+0NAbpfenkmH2rePtuw==,
+      }
 
   es-iterator-helpers@1.3.2:
     resolution:
@@ -6255,6 +6325,12 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
+
+  fontkit@1.9.0:
+    resolution:
+      {
+        integrity: sha512-HkW/8Lrk8jl18kzQHvAw9aTHe1cqsyx5sDnxncx652+CIfhawokEPkeM3BoIC+z/Xv7a0yMr0f3pRRwhGH455g==,
+      }
 
   for-each@0.3.5:
     resolution:
@@ -6853,6 +6929,13 @@ packages:
         integrity: sha512-0KI/607xoxSToH7GjN1FfSbLoU0+btTicjsQSWQlh/hZykN8KpmMf7uYwPW3R+akZ6R/w18ZlXSHBYXiYUPO3g==,
       }
     engines: { node: '>= 0.10' }
+
+  is-arguments@1.2.0:
+    resolution:
+      {
+        integrity: sha512-7bVbi0huj/wrIAOzb8U1aszg9kdi3KN/CyU19CTI7tAoZYEZoL9yCDXpbXN+uPsuWnP02cyug1gleqq+TU+YCA==,
+      }
+    engines: { node: '>= 0.4' }
 
   is-array-buffer@3.0.5:
     resolution:
@@ -7503,6 +7586,13 @@ packages:
         integrity: sha512-YYVDInQKFJfR/xa3ojUTl8c2KoTwiL1R5Wg9YCydwH0x0B9grbzlg5HC7mMjCtUJjbQ/YnGEZIhI5tCgfTb4Hw==,
       }
 
+  jpeg-exif@1.1.4:
+    resolution:
+      {
+        integrity: sha512-a+bKEcCjtuW5WTdgeXFzswSrdqi0jk4XlEtZlx5A94wCoBpFjfFTbo/Tra5SpNCl/YFZPvcV1dJc+TAYeg6ROQ==,
+      }
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+
   js-tokens@4.0.0:
     resolution:
       {
@@ -7723,6 +7813,12 @@ packages:
         integrity: sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==,
       }
     engines: { node: '>=14' }
+
+  linebreak@1.1.0:
+    resolution:
+      {
+        integrity: sha512-MHp03UImeVhB7XZtjd0E4n6+3xr5Dq/9xI/5FptGk5FrbDR3zagPa2DS6U8ks/3HjbKWG9Q1M2ufOzxV2qLYSQ==,
+      }
 
   lines-and-columns@1.2.4:
     resolution:
@@ -8390,6 +8486,13 @@ packages:
       }
     engines: { node: '>= 0.4' }
 
+  object-is@1.1.6:
+    resolution:
+      {
+        integrity: sha512-F8cZ+KfGlSGi09lJT7/Nd6KJZ9ygtvYC0/UYYLI9nmQKLMnydpB9yvbv9K1uSkEu7FU9vYPmVwLg328tX+ot3Q==,
+      }
+    engines: { node: '>= 0.4' }
+
   object-keys@1.1.1:
     resolution:
       {
@@ -8562,6 +8665,18 @@ packages:
         integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==,
       }
 
+  pako@0.2.9:
+    resolution:
+      {
+        integrity: sha512-NUcwaKxUxWrZLpDG+z/xZaCgQITkA/Dv4V/T6bw7VON6l1Xz/VnrBqrYjZQ12TamKHzITTfOEIYUj48y2KXImA==,
+      }
+
+  pako@1.0.11:
+    resolution:
+      {
+        integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==,
+      }
+
   parent-module@1.0.1:
     resolution:
       {
@@ -8714,6 +8829,12 @@ packages:
         integrity: sha512-KG8UEiEVkR3wGEb4m5yZkVCzigAD+cVEJck2CzYZO37ZGJfctvVptVO192MwrtPhzONn6go8ylnOdMhKqi4nfg==,
       }
 
+  pdfkit@0.15.2:
+    resolution:
+      {
+        integrity: sha512-s3GjpdBFSCaeDSX/v73MI5UsPqH1kjKut2AXCgxQ5OH10lPVOu5q5vLAG0OCpz/EYqKsTSw1WHpENqMvp43RKg==,
+      }
+
   pg-cloudflare@1.4.0:
     resolution:
       {
@@ -8841,6 +8962,12 @@ packages:
         integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==,
       }
     engines: { node: '>=4' }
+
+  png-js@1.1.0:
+    resolution:
+      {
+        integrity: sha512-PM/uYGzGdNSzqeOgly68+6wKQDL1SY0a/N+OEa/+br6LnHWOAJB0Npiamnodfq3jd2LS/i2fMeOKSAILjA+m5Q==,
+      }
 
   possible-typed-array-names@1.1.0:
     resolution:
@@ -9432,6 +9559,12 @@ packages:
         integrity: sha512-oMA2dcrw6u0YfxJQXm342bFKX/E4sG9rbTzO9ptUcR/e8A33cHuvStiYOwH7fszkZlZ1z/ta9AAoPk2F4qIOHA==,
       }
     engines: { node: '>=18' }
+
+  restructure@2.0.1:
+    resolution:
+      {
+        integrity: sha512-e0dOpjm5DseomnXx2M5lpdZ5zoHqF1+bqdMJUohoYVVQa7cBdnk7fdmeI6byNWP/kiME72EeTiSypTCVnpLiDg==,
+      }
 
   reusify@1.1.0:
     resolution:
@@ -10239,6 +10372,12 @@ packages:
         integrity: sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==,
       }
 
+  tiny-inflate@1.0.3:
+    resolution:
+      {
+        integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==,
+      }
+
   tiny-invariant@1.3.3:
     resolution:
       {
@@ -10659,6 +10798,18 @@ packages:
     resolution:
       {
         integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==,
+      }
+
+  unicode-properties@1.4.1:
+    resolution:
+      {
+        integrity: sha512-CLjCCLQ6UuMxWnbIylkisbRj31qxHPAurvena/0iwSVbQ2G1VY5/HjV0IRabOEbDHlzZlRdCrD4NhB0JtU40Pg==,
+      }
+
+  unicode-trie@2.0.0:
+    resolution:
+      {
+        integrity: sha512-x7bc76x0bm4prf1VLg79uhAzKw8DVboClSN5VxJuQ+LKDOVEW9CdH+VY7SP+vX7xCYQqzzgQpFqz15zeLvAtZQ==,
       }
 
   unicorn-magic@0.3.0:
@@ -13209,6 +13360,10 @@ snapshots:
 
   '@sqltools/formatter@1.2.5': {}
 
+  '@swc/helpers@0.3.17':
+    dependencies:
+      tslib: 2.8.1
+
   '@testing-library/dom@10.4.1':
     dependencies:
       '@babel/code-frame': 7.29.7
@@ -13574,6 +13729,10 @@ snapshots:
   '@types/passport@1.0.17':
     dependencies:
       '@types/express': 5.0.6
+
+  '@types/pdfkit@0.13.9':
+    dependencies:
+      '@types/node': 22.19.19
 
   '@types/prop-types@15.7.15': {}
 
@@ -14223,6 +14382,8 @@ snapshots:
 
   balanced-match@4.0.4: {}
 
+  base64-js@0.0.8: {}
+
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.10.32: {}
@@ -14290,6 +14451,14 @@ snapshots:
   braces@3.0.3:
     dependencies:
       fill-range: 7.1.1
+
+  brotli@1.3.3:
+    dependencies:
+      base64-js: 1.5.1
+
+  browserify-zlib@0.2.0:
+    dependencies:
+      pako: 1.0.11
 
   browserslist@4.28.2:
     dependencies:
@@ -14446,6 +14615,8 @@ snapshots:
 
   clone@1.0.4: {}
 
+  clone@2.1.2: {}
+
   clsx@2.1.1: {}
 
   cmdk@1.1.1(@types/react-dom@18.3.7(@types/react@18.3.29))(@types/react@18.3.29)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
@@ -14586,6 +14757,8 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
+  crypto-js@4.2.0: {}
+
   css.escape@1.5.1: {}
 
   cssesc@3.0.0: {}
@@ -14646,6 +14819,27 @@ snapshots:
 
   deep-eql@5.0.2: {}
 
+  deep-equal@2.2.3:
+    dependencies:
+      array-buffer-byte-length: 1.0.2
+      call-bind: 1.0.9
+      es-get-iterator: 1.1.3
+      get-intrinsic: 1.3.0
+      is-arguments: 1.2.0
+      is-array-buffer: 3.0.5
+      is-date-object: 1.1.0
+      is-regex: 1.2.1
+      is-shared-array-buffer: 1.0.4
+      isarray: 2.0.5
+      object-is: 1.1.6
+      object-keys: 1.1.1
+      object.assign: 4.1.7
+      regexp.prototype.flags: 1.5.4
+      side-channel: 1.1.0
+      which-boxed-primitive: 1.1.1
+      which-collection: 1.0.2
+      which-typed-array: 1.1.21
+
   deep-is@0.1.4: {}
 
   deepmerge@4.3.1: {}
@@ -14695,6 +14889,8 @@ snapshots:
     dependencies:
       asap: 2.0.6
       wrappy: 1.0.2
+
+  dfa@1.2.0: {}
 
   didyoumean@1.2.2: {}
 
@@ -14835,6 +15031,18 @@ snapshots:
   es-define-property@1.0.1: {}
 
   es-errors@1.3.0: {}
+
+  es-get-iterator@1.1.3:
+    dependencies:
+      call-bind: 1.0.9
+      get-intrinsic: 1.3.0
+      has-symbols: 1.1.0
+      is-arguments: 1.2.0
+      is-map: 2.0.3
+      is-set: 2.0.3
+      is-string: 1.1.1
+      isarray: 2.0.5
+      stop-iteration-iterator: 1.1.0
 
   es-iterator-helpers@1.3.2:
     dependencies:
@@ -15377,6 +15585,18 @@ snapshots:
 
   follow-redirects@1.16.0: {}
 
+  fontkit@1.9.0:
+    dependencies:
+      '@swc/helpers': 0.3.17
+      brotli: 1.3.3
+      clone: 2.1.2
+      deep-equal: 2.2.3
+      dfa: 1.2.0
+      restructure: 2.0.1
+      tiny-inflate: 1.0.3
+      unicode-properties: 1.4.1
+      unicode-trie: 2.0.0
+
   for-each@0.3.5:
     dependencies:
       is-callable: 1.2.7
@@ -15752,6 +15972,11 @@ snapshots:
   ip-address@10.2.0: {}
 
   ipaddr.js@1.9.1: {}
+
+  is-arguments@1.2.0:
+    dependencies:
+      call-bound: 1.0.4
+      has-tostringtag: 1.0.2
 
   is-array-buffer@3.0.5:
     dependencies:
@@ -16302,6 +16527,8 @@ snapshots:
 
   jose@6.2.3: {}
 
+  jpeg-exif@1.1.4: {}
+
   js-tokens@4.0.0: {}
 
   js-yaml@3.14.2:
@@ -16454,6 +16681,11 @@ snapshots:
   libphonenumber-js@1.13.3: {}
 
   lilconfig@3.1.3: {}
+
+  linebreak@1.1.0:
+    dependencies:
+      base64-js: 0.0.8
+      unicode-trie: 2.0.0
 
   lines-and-columns@1.2.4: {}
 
@@ -16769,6 +17001,11 @@ snapshots:
 
   object-inspect@1.13.4: {}
 
+  object-is@1.1.6:
+    dependencies:
+      call-bind: 1.0.9
+      define-properties: 1.2.1
+
   object-keys@1.1.1: {}
 
   object-treeify@1.1.33: {}
@@ -16901,6 +17138,10 @@ snapshots:
 
   package-json-from-dist@1.0.1: {}
 
+  pako@0.2.9: {}
+
+  pako@1.0.11: {}
+
   parent-module@1.0.1:
     dependencies:
       callsites: 3.1.0
@@ -16969,6 +17210,14 @@ snapshots:
 
   pause@0.0.1: {}
 
+  pdfkit@0.15.2:
+    dependencies:
+      crypto-js: 4.2.0
+      fontkit: 1.9.0
+      jpeg-exif: 1.1.4
+      linebreak: 1.1.0
+      png-js: 1.1.0
+
   pg-cloudflare@1.4.0:
     optional: true
 
@@ -17025,6 +17274,10 @@ snapshots:
       find-up: 4.1.0
 
   pluralize@8.0.0: {}
+
+  png-js@1.1.0:
+    dependencies:
+      browserify-zlib: 0.2.0
 
   possible-typed-array-names@1.1.0: {}
 
@@ -17451,6 +17704,8 @@ snapshots:
     dependencies:
       onetime: 7.0.0
       signal-exit: 4.1.0
+
+  restructure@2.0.1: {}
 
   reusify@1.1.0: {}
 
@@ -18073,6 +18328,8 @@ snapshots:
 
   through@2.3.8: {}
 
+  tiny-inflate@1.0.3: {}
+
   tiny-invariant@1.3.3: {}
 
   tinybench@2.9.0: {}
@@ -18316,6 +18573,16 @@ snapshots:
       which-boxed-primitive: 1.1.1
 
   undici-types@6.21.0: {}
+
+  unicode-properties@1.4.1:
+    dependencies:
+      base64-js: 1.5.1
+      unicode-trie: 2.0.0
+
+  unicode-trie@2.0.0:
+    dependencies:
+      pako: 0.2.9
+      tiny-inflate: 1.0.3
 
   unicorn-magic@0.3.0: {}
 

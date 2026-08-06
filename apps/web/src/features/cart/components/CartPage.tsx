@@ -1,4 +1,4 @@
-import { AlertCircle, Loader2, ShoppingCart, Trash2 } from 'lucide-react';
+import { AlertCircle, FileText, Loader2, ShoppingCart, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
@@ -101,6 +101,14 @@ export function CartPage(): JSX.Element {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* US#21 · Proceder a cotizar */}
+              <Button asChild className="w-full gap-2">
+                <Link to="/cart/summary">
+                  <FileText className="size-4" />
+                  Proceder a cotizar
+                </Link>
+              </Button>
 
               <Button
                 variant="outline"

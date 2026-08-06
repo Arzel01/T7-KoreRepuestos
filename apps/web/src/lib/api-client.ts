@@ -64,6 +64,10 @@ export const api = {
 
   postForm: <T>(url: string, form: FormData): Promise<T> =>
     instance.post<T>(url, form).then((r) => r.data),
+
+  /** Descarga binaria autenticada (p. ej. el PDF de una cotización). */
+  getBlob: (url: string): Promise<Blob> =>
+    instance.get<Blob>(url, { responseType: 'blob' }).then((r) => r.data),
 };
 
 /** Extrae mensajes de error legibles del payload normalizado de NestJS. */

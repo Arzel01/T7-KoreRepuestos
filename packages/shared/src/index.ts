@@ -16,3 +16,4 @@ export * from './dto/saved-search.dto';
 export * from './dto/notification.dto';
 export * from './dto/cart.dto';
 export * from './dto/maintenance-record.dto';
+export * from './dto/quotation.dto';
