@@ -1,4 +1,9 @@
-import { IVA_RATE, type CartItemResponse, type CartResponse } from '@kore/shared';
+import {
+  IVA_RATE,
+  type CartItemResponse,
+  type CartResponse,
+  type CartSummaryResponse,
+} from '@kore/shared';
 import {
   BadRequestException,
   ForbiddenException,
@@ -39,6 +44,26 @@ export class CartService {
   async getCart(userId: number): Promise<CartResponse> {
     const cart = await this.cartRepo.ensureCart(userId);
     return this.buildResponse(cart.id);
+  }
+
+  /**
+   * US#21 — resumen ligero del carrito (contadores + totales, sin líneas).
+   * Alimenta el mini-carrito de la barra y el paso previo a cotizar. Reutiliza
+   * el mismo cálculo de totales que `getCart` para no divergir en el IVA.
+   */
+  async getSummary(userId: number): Promise<CartSummaryResponse> {
+    const cart = await this.cartRepo.ensureCart(userId);
+    const full = await this.buildResponse(cart.id);
+    return {
+      itemCount: full.itemCount,
+      distinctCount: full.distinctCount,
+      subtotal: full.subtotal,
+      taxRate: full.taxRate,
+      tax: full.tax,
+      total: full.total,
+      canQuote: full.itemCount > 0,
+      updatedAt: full.updatedAt,
+    };
   }
 
   /**
