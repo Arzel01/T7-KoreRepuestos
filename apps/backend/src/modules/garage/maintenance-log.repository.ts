@@ -18,6 +18,15 @@ export class MaintenanceLogRepository {
     });
   }
 
+  /** Historial de un vehículo con la tarea del plan asociada (US#4). */
+  findByVehicleWithPlan(vehicleId: number): Promise<MaintenanceLog[]> {
+    return this.repo.find({
+      where: { vehicleId },
+      relations: { plan: true },
+      order: { completedAt: 'DESC', id: 'DESC' },
+    });
+  }
+
   findLastForPlan(vehicleId: number, planId: number): Promise<MaintenanceLog | null> {
     return this.repo.findOne({
       where: { vehicleId, planId },

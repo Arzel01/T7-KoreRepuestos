@@ -1,5 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
+import { MaintenancePlan } from './maintenance-plan.entity';
 import { VehicleUser } from './vehicle-user.entity';
 
 @Entity({ name: 'historial_mantenimiento' })
@@ -16,6 +17,10 @@ export class MaintenanceLog {
 
   @Column({ name: 'id_tarea', type: 'int', nullable: true })
   planId?: number;
+
+  @ManyToOne(() => MaintenancePlan, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'id_tarea' })
+  plan?: MaintenancePlan | null;
 
   @Column({ name: 'fecha_servicio', type: 'date' })
   completedAt!: string;

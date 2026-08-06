@@ -19,6 +19,7 @@ import { NotFoundPage } from '@/app/NotFoundPage';
 import { ProductDetailsPage } from '@/app/ProductDetailsPage';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { SearchAnalyticsPage } from '@/features/analytics/components/SearchAnalyticsPage';
+import { CartPage } from '@/features/cart/components/CartPage';
 import { AdvancedSearchPage } from '@/features/search/components/AdvancedSearchPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
 
@@ -36,6 +37,7 @@ export function AppRouter(): JSX.Element {
 
       {/* ── Privadas (cualquier usuario autenticado) ──────────────────── */}
       <Route element={<ProtectedRoute />}>
+        <Route path="/cart" element={<CartPage />} />
         <Route path="/garage" element={<GaragePage />} />
         <Route path="/garage/dashboard" element={<MaintenanceDashboardPage />} />
         <Route path="/garage/:vehicleId/calendar" element={<CalendarPage />} />
