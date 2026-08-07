@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
+import { CartIcon } from '@/features/cart/components/CartIcon';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 
 import { SearchAutocomplete } from './SearchAutocomplete';
@@ -67,6 +68,7 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
               </Link>
             </Button>
           )}
+          <CartIcon />
           <NotificationBell />
           {isAuthenticated ? (
             <DropdownMenu>

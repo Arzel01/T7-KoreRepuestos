@@ -6,10 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfigFactory } from './config/typeorm.config';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CartModule } from './modules/cart/cart.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { GarageModule } from './modules/garage/garage.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ProductsModule } from './modules/products/products.module';
+import { QuotationsModule } from './modules/quotations/quotations.module';
 import { RecommendationsModule } from './modules/recommendations/recommendations.module';
 import { SearchModule } from './modules/search/search.module';
 import { UsersModule } from './modules/users/users.module';
@@ -44,6 +46,8 @@ import { UsersModule } from './modules/users/users.module';
     AnalyticsModule,
     RecommendationsModule,
     SearchModule,
+    CartModule,
+    QuotationsModule,
   ],
 })
 export class AppModule {}

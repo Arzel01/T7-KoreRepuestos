@@ -4,9 +4,11 @@ import type {
   CalendarItemDto,
   CreateMaintenanceGuidePayload,
   CreateMaintenanceLogDto,
+  CreateMaintenanceRecordPayload,
   CreateVehicleDto,
   MaintenanceGuideResponse,
   MaintenanceLogResponse,
+  MaintenanceRecordResponse,
   MarcaResponse,
   ModeloResponse,
   UpdateMileageDto,
@@ -57,6 +59,13 @@ export const garageApi = {
 
   getPlan: (vehicleId: number): Promise<VehiclePlanResponse> =>
     api.get(`/vehicles/${vehicleId}/plan`),
+
+  // US#4 — Registros de mantenimiento (historial persistente).
+  getRecords: (vehicleId: number): Promise<MaintenanceRecordResponse[]> =>
+    api.get('/maintenance/records', { vehicleId }),
+
+  createRecord: (payload: CreateMaintenanceRecordPayload): Promise<MaintenanceRecordResponse> =>
+    api.post('/maintenance/records', payload),
 
   getGuides: (): Promise<MaintenanceGuideResponse[]> => api.get('/maintenance/guides'),
 

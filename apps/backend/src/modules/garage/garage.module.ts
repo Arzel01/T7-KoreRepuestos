@@ -18,6 +18,8 @@ import { MaintenanceGuidesController } from './maintenance-guides.controller';
 import { MaintenanceGuidesService } from './maintenance-guides.service';
 import { MaintenanceLogRepository } from './maintenance-log.repository';
 import { MaintenancePlannerService } from './maintenance-planner.service';
+import { MaintenanceRecordsController } from './maintenance-records.controller';
+import { MaintenanceRecordsService } from './maintenance-records.service';
 import { ReminderSchedulerService } from './reminder-scheduler.service';
 import { VehiclesController } from './vehicles.controller';
 import { VehiclesRepository } from './vehicles.repository';
@@ -37,7 +39,7 @@ import { VehiclesService } from './vehicles.service';
     ]),
     NotificationsModule,
   ],
-  controllers: [VehiclesController, MaintenanceGuidesController],
+  controllers: [VehiclesController, MaintenanceGuidesController, MaintenanceRecordsController],
   providers: [
     VehiclesRepository,
     MaintenanceLogRepository,
@@ -46,6 +48,7 @@ import { VehiclesService } from './vehicles.service';
     VehiclesService,
     MaintenanceGuideRepository,
     MaintenanceGuidesService,
+    MaintenanceRecordsService,
     JwtAuthGuard,
     JwtOrServiceGuard,
   ],
