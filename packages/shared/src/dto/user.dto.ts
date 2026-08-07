@@ -1,5 +1,7 @@
+import { Transform } from 'class-transformer';
 import { IsEmail, IsEnum, IsOptional, IsString, Length, Matches } from 'class-validator';
 
+import { IdentificationType } from '../enums/identification-type.enum';
 import { UserRole } from '../enums/user-role.enum';
 
 export class CreateUserDto {
@@ -29,6 +31,19 @@ export class CreateUserDto {
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
+
+  @Transform(({ value }) => (typeof value === 'string' ? value.toLowerCase() : value))
+  @IsEnum(IdentificationType, {
+    message: 'El tipo de identificación debe ser cédula o ruc',
+  })
+  identificationType!: IdentificationType;
+
+  @Transform(({ value }) => (typeof value === 'string' ? value.replace(/\D/g, '') : value))
+  @IsString()
+  @Matches(/^\d{10,13}$/, {
+    message: 'La identificación debe tener 10 dígitos si es cédula o 13 si es ruc',
+  })
+  identificationNumber!: string;
 }
 
 export class UpdateUserDto {
@@ -54,6 +69,8 @@ export interface UserResponse {
   firstName: string;
   lastName: string;
   phone?: string;
+  identificationType: IdentificationType;
+  identificationNumber: string;
   role: UserRole;
   isActive: boolean;
   createdAt: string;

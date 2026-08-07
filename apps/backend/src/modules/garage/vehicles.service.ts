@@ -1,3 +1,4 @@
+import { MileageSource } from '@kore/shared';
 import {
   BadRequestException,
   ConflictException,
@@ -22,7 +23,6 @@ import { ReminderSchedulerService } from './reminder-scheduler.service';
 import { VehiclesRepository } from './vehicles.repository';
 
 import type { CalendarItemDto, VehiclePlanResponse } from '@kore/shared';
-
 @Injectable()
 export class VehiclesService {
   constructor(
@@ -111,16 +111,52 @@ export class VehiclesService {
     }
   }
 
-  async updateMileage(vehicleId: number, userId: number, dto: UpdateMileageDto): Promise<void> {
+  async updateMileageFromUser(
+    vehicleId: number,
+    userId: number,
+    dto: UpdateMileageDto,
+  ): Promise<void> {
     const vehicle = await this.vehiclesRepo.findOne(vehicleId, userId);
     if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
     if (dto.currentMileage < vehicle.currentMileage) {
       throw new BadRequestException('El kilometraje no puede ser menor al actual');
     }
-    await this.vehiclesRepo.updateMileage(vehicleId, dto.currentMileage);
+
+    await this.vehiclesRepo.updateMileageByUser(vehicleId, dto.currentMileage);
 
     // US#2 — al subir el kilometraje pueden aparecer tareas vencidas: se encolan
     // recordatorios de inmediato. Nunca debe hacer fallar el PATCH.
+    vehicle.currentMileage = dto.currentMileage;
+    try {
+      await this.reminderScheduler.checkVehicle(vehicle);
+    } catch {
+      // best-effort: el barrido diario volverá a intentarlo.
+    }
+  }
+
+  async updateMileageFromService(vehicleId: number, dto: UpdateMileageDto): Promise<void> {
+    const vehicle = await this.vehiclesRepo.findById(vehicleId);
+    if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
+
+    const source = dto.source ?? MileageSource.USUARIO;
+
+    if (source === MileageSource.IA) {
+      if (dto.currentMileage < vehicle.currentMileage) {
+        throw new BadRequestException(
+          'El kilometraje estimado por IA no puede ser menor al kilometraje real del usuario',
+        );
+      }
+      await this.vehiclesRepo.updateMileageByAi(vehicleId, dto.currentMileage);
+      return;
+    }
+
+    if (dto.currentMileage < vehicle.currentMileage) {
+      throw new BadRequestException('El kilometraje no puede ser menor al actual');
+    }
+
+    await this.vehiclesRepo.updateMileageByUser(vehicleId, dto.currentMileage);
+
+    // Para fuente USUARIO vía servicio sí se agenda revisión de recordatorios.
     vehicle.currentMileage = dto.currentMileage;
     try {
       await this.reminderScheduler.checkVehicle(vehicle);

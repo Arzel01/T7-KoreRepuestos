@@ -1,3 +1,4 @@
+import { MileageSource } from '@kore/shared';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -34,6 +35,13 @@ export class VehiclesRepository {
     });
   }
 
+  findById(id: number): Promise<VehicleUser | null> {
+    return this.repo.findOne({
+      where: { id },
+      relations: { model: { marca: true } },
+    });
+  }
+
   async create(data: Partial<VehicleUser>): Promise<VehicleUser> {
     const entity = this.repo.create(data);
     const saved = await this.repo.save(entity);
@@ -51,8 +59,18 @@ export class VehiclesRepository {
     }) as Promise<VehicleUser>;
   }
 
-  async updateMileage(id: number, mileage: number): Promise<void> {
-    await this.repo.update(id, { currentMileage: mileage });
+  async updateMileageByUser(id: number, mileage: number): Promise<void> {
+    await this.repo.update(id, {
+      currentMileage: mileage,
+      lastMileageSource: MileageSource.USUARIO,
+    });
+  }
+
+  async updateMileageByAi(id: number, mileage: number): Promise<void> {
+    await this.repo.update(id, {
+      aiEstimatedMileage: mileage,
+      lastMileageSource: MileageSource.IA,
+    });
   }
 
   async delete(id: number): Promise<void> {

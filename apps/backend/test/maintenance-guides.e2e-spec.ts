@@ -53,8 +53,15 @@ describe('MaintenanceGuidesController (e2e)', () => {
     const bcrypt = await import('bcrypt');
     const hash = await bcrypt.hash('AdminPass1', 4);
     await dataSource.query(
-      `INSERT INTO usuarios (email, password_hash, nombres, rol, is_active)
-       VALUES ('admin@test.local', $1, 'Admin Test', 'Administrador', TRUE)`,
+      `INSERT INTO usuarios (
+         email,
+         password_hash,
+         identificacion_personal,
+         tipo_identificacion,
+         nombres,
+         rol,
+         is_active
+       ) VALUES ('admin@test.local', $1, '1799999999004', 'ruc', 'Admin Test', 'Administrador', TRUE)`,
       [hash],
     );
     const adminLogin = await request(app.getHttpServer())
@@ -71,6 +78,8 @@ describe('MaintenanceGuidesController (e2e)', () => {
         password: 'ClientPass1',
         firstName: 'Cliente',
         lastName: 'Test',
+        identificationType: 'cedula',
+        identificationNumber: '0401234562',
       })
       .expect(201);
     clientToken = reg.body.tokens.accessToken;

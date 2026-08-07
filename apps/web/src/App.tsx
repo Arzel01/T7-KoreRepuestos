@@ -2,6 +2,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { AuthProvider } from '@/features/auth/hooks/AuthContext';
 import { CartProvider } from '@/features/cart/hooks/CartContext';
+import { FloatingChatWidget } from '@/features/chat/components/FloatingChatWidget';
 import { AppRouter } from '@/router/AppRouter';
 
 /**
@@ -20,6 +21,7 @@ export default function App(): JSX.Element {
         <CartProvider>
           <AppRouter />
         </CartProvider>
+        <FloatingChatWidget />
       </AuthProvider>
     </BrowserRouter>
   );

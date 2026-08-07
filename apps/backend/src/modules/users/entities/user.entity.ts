@@ -1,4 +1,4 @@
-import { UserRole } from '@kore/shared';
+import { IdentificationType, UserRole } from '@kore/shared';
 import {
   Column,
   CreateDateColumn,
@@ -27,6 +27,17 @@ export class User {
 
   @Column({ name: 'password_hash' })
   passwordHash!: string;
+
+  @Column({ name: 'identificacion_personal', type: 'varchar' })
+  identificationNumber!: string;
+
+  @Column({
+    name: 'tipo_identificacion',
+    type: 'enum',
+    enum: IdentificationType,
+    enumName: 'tipo_identificacion',
+  })
+  identificationType!: IdentificationType;
 
   /** Nombre completo almacenado en un solo campo. El servicio combina firstName + lastName. */
   @Column({ type: 'varchar' })

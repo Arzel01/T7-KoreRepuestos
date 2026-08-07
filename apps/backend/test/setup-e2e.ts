@@ -51,9 +51,17 @@ export async function seedTestUsers(app: INestApplication): Promise<void> {
   ]);
 
   await ds.query(
-    `INSERT INTO usuarios (email, password_hash, nombres, rol, is_active) VALUES
-       ('test@kore.dev',  $1, 'Test User',  'Cliente',       TRUE),
-       ('admin@kore.dev', $2, 'Admin User', 'Administrador', TRUE)
+    `INSERT INTO usuarios (
+       email,
+       password_hash,
+       identificacion_personal,
+       tipo_identificacion,
+       nombres,
+       rol,
+       is_active
+     ) VALUES
+       ('test@kore.dev',  $1, '0999999999', 'cedula', 'Test User',  'Cliente',       TRUE),
+       ('admin@kore.dev', $2, '1799999999001', 'ruc',    'Admin User', 'Administrador', TRUE)
      ON CONFLICT (email) DO NOTHING`,
     [clientHash, adminHash],
   );

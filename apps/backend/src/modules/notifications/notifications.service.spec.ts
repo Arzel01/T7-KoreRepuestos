@@ -78,6 +78,51 @@ describe('NotificationsService', () => {
     });
   });
 
+  describe('createForUser', () => {
+    it('crea una notificación usando canal app por defecto', async () => {
+      const now = new Date('2026-08-07T10:00:00.000Z');
+      jest.spyOn(service, 'enqueue').mockResolvedValue({
+        id: 11,
+        tipo: 'manual',
+        titulo: 'Recordatorio',
+        mensaje: 'Revisar frenos',
+        canal: 'app',
+        estado: 'pendiente',
+        userId: 9,
+        createdAt: now,
+      } as Notification);
+
+      const res = await service.createForUser(9, {
+        tipo: 'manual',
+        titulo: 'Recordatorio',
+        mensaje: 'Revisar frenos',
+      });
+
+      expect(service.enqueue).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: 9, canal: 'app' }),
+      );
+      expect(res.id).toBe(11);
+      expect(res.canal).toBe('app');
+      expect(res.createdAt).toBe(now.toISOString());
+    });
+
+    it('lanza conflicto cuando enqueue detecta duplicado pendiente', async () => {
+      jest.spyOn(service, 'enqueue').mockResolvedValue(null);
+
+      await expect(
+        service.createForUser(9, {
+          titulo: 'Recordatorio',
+          mensaje: 'Revisar frenos',
+          canal: 'email',
+          vehicleId: 4,
+          planId: 21,
+        }),
+      ).rejects.toThrow(
+        'Ya existe una notificación pendiente para el mismo vehículo, tarea y canal',
+      );
+    });
+  });
+
   describe('preferencias', () => {
     it('crea preferencias por defecto en el primer acceso', async () => {
       prefsRepo.findOne.mockResolvedValue(null);

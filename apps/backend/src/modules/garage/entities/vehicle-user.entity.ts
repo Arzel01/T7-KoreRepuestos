@@ -1,3 +1,4 @@
+import { MileageSource } from '@kore/shared';
 import {
   Column,
   CreateDateColumn,
@@ -37,6 +38,17 @@ export class VehicleUser {
 
   @Column({ name: 'kilometraje_actual', type: 'int' })
   currentMileage!: number;
+
+  @Column({ name: 'kilometraje_estimado_ia', type: 'int', nullable: true })
+  aiEstimatedMileage?: number;
+
+  @Column({
+    name: 'fuente_ultimo_kilometraje',
+    type: 'varchar',
+    length: 20,
+    default: MileageSource.USUARIO,
+  })
+  lastMileageSource!: MileageSource;
 
   @Column({ name: 'kilometraje_diario_promedio', type: 'int', default: 20 })
   averageDailyMileage!: number;

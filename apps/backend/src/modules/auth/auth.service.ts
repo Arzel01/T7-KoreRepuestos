@@ -8,9 +8,15 @@ import { UsersService } from '../users/users.service';
 
 import { SessionsRepository } from './sessions.repository';
 
-import type { AuthResponse, AuthTokens, JwtPayload } from './dto/auth-response.dto';
+import type {
+  AuthResponse,
+  AuthTokens,
+  AuthValidationResponse,
+  JwtPayload,
+} from './dto/auth-response.dto';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
+import type { UserResponse } from '@kore/shared';
 
 @Injectable()
 export class AuthService {
@@ -72,6 +78,24 @@ export class AuthService {
     if (session) {
       await this.sessionsRepository.revoke(session.id);
     }
+  }
+
+  async me(payload: JwtPayload): Promise<UserResponse> {
+    const userId = Number(payload.sub);
+    const user = await this.usersService.findById(userId);
+    return this.usersService.toResponse(user);
+  }
+
+  async validate(payload: JwtPayload): Promise<AuthValidationResponse> {
+    const userId = Number(payload.sub);
+    const user = await this.usersService.findActiveById(userId);
+    return {
+      valid: true,
+      active: true,
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    };
   }
 
   private async issueTokens(

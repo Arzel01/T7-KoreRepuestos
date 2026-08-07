@@ -48,6 +48,8 @@ describe('AuthController (e2e)', () => {
       password: 'StrongPass1',
       firstName: 'Nuevo',
       lastName: 'Usuario',
+      identificationType: 'cedula',
+      identificationNumber: '0101234565',
     };
 
     it('registra un usuario y devuelve tokens', async () => {
@@ -117,6 +119,8 @@ describe('AuthController (e2e)', () => {
       password: 'LoginPass1',
       firstName: 'Login',
       lastName: 'Tester',
+      identificationType: 'cedula',
+      identificationNumber: '0201234564',
     };
 
     beforeEach(async () => {
@@ -172,6 +176,8 @@ describe('AuthController (e2e)', () => {
           password: 'MePass1234',
           firstName: 'Yo',
           lastName: 'Mismo',
+          identificationType: 'cedula',
+          identificationNumber: '0301234563',
         })
         .expect(201);
 
@@ -181,8 +187,10 @@ describe('AuthController (e2e)', () => {
         .expect(200);
 
       expect(res.body).toMatchObject({
-        sub: expect.any(String),
+        id: expect.any(Number),
         email: 'me@kore.test',
+        firstName: 'Yo',
+        lastName: 'Mismo',
         role: 'Cliente',
       });
     });

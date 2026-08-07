@@ -26,6 +26,10 @@ export interface UpdateVehiclePayload {
   alias?: string;
 }
 
+export interface UpdateMileagePayload extends UpdateMileageDto {
+  source?: UpdateMileageDto['source'];
+}
+
 export const garageApi = {
   getBrands: (): Promise<MarcaResponse[]> => api.get('/vehicles/brands'),
 
@@ -42,7 +46,7 @@ export const garageApi = {
 
   deleteVehicle: (id: number): Promise<void> => api.delete(`/vehicles/${id}`),
 
-  updateMileage: (id: number, payload: UpdateMileageDto): Promise<void> =>
+  updateMileage: (id: number, payload: UpdateMileagePayload): Promise<void> =>
     api.patch(`/vehicles/${id}/mileage`, payload),
 
   createLog: (

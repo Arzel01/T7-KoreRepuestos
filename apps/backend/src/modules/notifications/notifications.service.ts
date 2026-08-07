@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LessThanOrEqual, Repository } from 'typeorm';
 
+import { CreateNotificationDto } from './dto/create-notification.dto';
 import { NotificationPreference } from './entities/notification-preference.entity';
 import { Notification } from './entities/notification.entity';
 
@@ -74,6 +75,27 @@ export class NotificationsService {
       if ((err as { code?: string }).code === '23505') return null;
       throw err;
     }
+  }
+
+  async createForUser(userId: number, dto: CreateNotificationDto): Promise<NotificationResponse> {
+    const created = await this.enqueue({
+      userId,
+      tipo: dto.tipo,
+      titulo: dto.titulo,
+      mensaje: dto.mensaje,
+      canal: dto.canal ?? 'app',
+      vehicleId: dto.vehicleId,
+      planId: dto.planId,
+      scheduledFor: dto.scheduledFor ? new Date(dto.scheduledFor) : undefined,
+    });
+
+    if (!created) {
+      throw new ConflictException(
+        'Ya existe una notificación pendiente para el mismo vehículo, tarea y canal',
+      );
+    }
+
+    return NotificationsService.toResponse(created);
   }
 
   /** Notificaciones del centro in-app del usuario (canal `app`), recientes primero. */

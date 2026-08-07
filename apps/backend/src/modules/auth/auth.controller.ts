@@ -8,7 +8,8 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
-import type { AuthResponse, JwtPayload } from './dto/auth-response.dto';
+import type { AuthResponse, AuthValidationResponse, JwtPayload } from './dto/auth-response.dto';
+import type { UserResponse } from '@kore/shared';
 import type { Request } from 'express';
 
 /**
@@ -55,9 +56,16 @@ export class AuthController {
 
   @Get('me')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Devuelve el payload del JWT del usuario actual' })
-  me(@CurrentUser() user: JwtPayload): JwtPayload {
-    return user;
+  @ApiOperation({ summary: 'Devuelve el perfil del usuario autenticado' })
+  me(@CurrentUser() user: JwtPayload): Promise<UserResponse> {
+    return this.authService.me(user);
+  }
+
+  @Get('validate')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Valida token vigente y estado activo del usuario' })
+  validate(@CurrentUser() user: JwtPayload): Promise<AuthValidationResponse> {
+    return this.authService.validate(user);
   }
 
   /** Extrae IP + UA para auditoría de sesiones. */
