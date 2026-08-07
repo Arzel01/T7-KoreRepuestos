@@ -48,6 +48,8 @@ describe('AuthController (e2e)', () => {
       password: 'StrongPass1',
       firstName: 'Nuevo',
       lastName: 'Usuario',
+      identificationType: 'cedula',
+      identificationNumber: '0987654321',
     };
 
     it('registra un usuario y devuelve tokens', async () => {
@@ -117,6 +119,8 @@ describe('AuthController (e2e)', () => {
       password: 'LoginPass1',
       firstName: 'Login',
       lastName: 'Tester',
+      identificationType: 'cedula',
+      identificationNumber: '0987654321',
     };
 
     beforeEach(async () => {
@@ -172,6 +176,8 @@ describe('AuthController (e2e)', () => {
           password: 'MePass1234',
           firstName: 'Yo',
           lastName: 'Mismo',
+          identificationType: 'cedula',
+          identificationNumber: '0987654322',
         })
         .expect(201);
 

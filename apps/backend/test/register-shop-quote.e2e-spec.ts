@@ -60,7 +60,14 @@ describe('Register → Shop → Quote (integration e2e)', () => {
   it('1) el cliente se registra y recibe un token', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/v1/auth/register')
-      .send({ email: EMAIL, password: PASSWORD, firstName: 'Cliente', lastName: 'Flujo' })
+      .send({
+        email: EMAIL,
+        password: PASSWORD,
+        firstName: 'Cliente',
+        lastName: 'Flujo',
+        identificationType: 'cedula',
+        identificationNumber: '0987654325',
+      })
       .expect(201);
     token = res.body.tokens.accessToken as string;
     expect(res.body.user.role).toBe('Cliente');

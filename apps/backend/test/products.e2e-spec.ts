@@ -44,8 +44,15 @@ describe('ProductsController POST /api/v1/products (e2e)', () => {
     const bcrypt = await import('bcrypt');
     const hash = await bcrypt.hash(adminPassword, 4);
     await dataSource.query(
-      `INSERT INTO usuarios (email, password_hash, nombres, rol, is_active)
-       VALUES ($1, $2, 'Admin Test', 'Administrador', TRUE)`,
+      `INSERT INTO usuarios (
+         email,
+         password_hash,
+         identificacion_personal,
+         tipo_identificacion,
+         nombres,
+         rol,
+         is_active
+       ) VALUES ($1, $2, '1799999999005', 'ruc', 'Admin Test', 'Administrador', TRUE)`,
       [adminEmail, hash],
     );
 
@@ -63,6 +70,8 @@ describe('ProductsController POST /api/v1/products (e2e)', () => {
         password: 'ClientPass1',
         firstName: 'Cliente',
         lastName: 'Test',
+        identificationType: 'cedula',
+        identificationNumber: '0987654324',
       })
       .expect(201);
     clientToken = reg.body.tokens.accessToken;

@@ -47,8 +47,15 @@ describe('CategoriesController /api/v1/categories (e2e)', () => {
     const bcrypt = await import('bcrypt');
     const hash = await bcrypt.hash('AdminPass1', 4);
     await dataSource.query(
-      `INSERT INTO usuarios (email, password_hash, nombres, rol, is_active)
-       VALUES ($1, $2, 'Admin Test', 'Administrador', TRUE)`,
+      `INSERT INTO usuarios (
+         email,
+         password_hash,
+         identificacion_personal,
+         tipo_identificacion,
+         nombres,
+         rol,
+         is_active
+       ) VALUES ($1, $2, '1799999999003', 'ruc', 'Admin Test', 'Administrador', TRUE)`,
       ['admin@test.local', hash],
     );
 
