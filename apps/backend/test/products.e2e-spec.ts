@@ -71,7 +71,7 @@ describe('ProductsController POST /api/v1/products (e2e)', () => {
         firstName: 'Cliente',
         lastName: 'Test',
         identificationType: 'cedula',
-        identificationNumber: '0987654324',
+        identificationNumber: '0501234561',
       })
       .expect(201);
     clientToken = reg.body.tokens.accessToken;

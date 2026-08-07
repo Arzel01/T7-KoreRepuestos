@@ -79,7 +79,7 @@ describe('MaintenanceGuidesController (e2e)', () => {
         firstName: 'Cliente',
         lastName: 'Test',
         identificationType: 'cedula',
-        identificationNumber: '0987654323',
+        identificationNumber: '0401234562',
       })
       .expect(201);
     clientToken = reg.body.tokens.accessToken;

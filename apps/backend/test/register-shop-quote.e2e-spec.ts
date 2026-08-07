@@ -66,7 +66,7 @@ describe('Register → Shop → Quote (integration e2e)', () => {
         firstName: 'Cliente',
         lastName: 'Flujo',
         identificationType: 'cedula',
-        identificationNumber: '0987654325',
+        identificationNumber: '0601234560',
       })
       .expect(201);
     token = res.body.tokens.accessToken as string;
