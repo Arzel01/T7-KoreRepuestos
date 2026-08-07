@@ -187,8 +187,10 @@ describe('AuthController (e2e)', () => {
         .expect(200);
 
       expect(res.body).toMatchObject({
-        sub: expect.any(String),
+        id: expect.any(Number),
         email: 'me@kore.test',
+        firstName: 'Yo',
+        lastName: 'Mismo',
         role: 'Cliente',
       });
     });
