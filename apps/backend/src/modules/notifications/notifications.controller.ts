@@ -1,10 +1,11 @@
 import { UpdateNotificationPreferencesDto } from '@kore/shared';
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { ParsePositiveIntPipe } from '../../common/pipes/parse-positive-int.pipe';
 
+import { CreateNotificationDto } from './dto/create-notification.dto';
 import { NotificationsService } from './notifications.service';
 
 import type { JwtPayload } from '../auth/dto/auth-response.dto';
@@ -19,6 +20,21 @@ import type { NotificationPreferencesResponse, NotificationResponse } from '@kor
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly service: NotificationsService) {}
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Crear una notificación para el usuario autenticado.' })
+  @ApiResponse({ status: 201 })
+  @ApiResponse({
+    status: 409,
+    description: 'Notificación pendiente duplicada para el mismo vehículo, tarea y canal.',
+  })
+  create(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: CreateNotificationDto,
+  ): Promise<NotificationResponse> {
+    return this.service.createForUser(Number(user.sub), dto);
+  }
 
   @Get('preferences')
   @ApiOperation({ summary: 'Preferencias de notificación del usuario.' })
