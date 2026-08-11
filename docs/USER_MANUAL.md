@@ -1,9 +1,9 @@
 # Manual de Usuario — Kore Repuestos
 
-Guía para el **cliente** de la tienda de repuestos Kore. Cubre el flujo completo: crear una cuenta,
-buscar repuestos, gestionar el garaje y su mantenimiento, y finalizar con una **cotización** en PDF.
-
-> Los administradores tienen un panel aparte (`/admin`) que no se documenta aquí.
+Guía para los dos roles del sistema: el **cliente** (propietario de vehículo) y el
+**administrador**. La sección de cliente cubre el flujo completo: crear una cuenta, buscar
+repuestos, gestionar el garaje y su mantenimiento, y finalizar con una **cotización** en PDF. La
+sección de administrador cubre la gestión del catálogo que hoy tiene interfaz propia.
 
 ---
 
@@ -95,3 +95,58 @@ _simulado_ (la app te lo indica). Igual puedes **descargar el PDF** desde la vis
 
 **¿Dónde veo mis cotizaciones anteriores?** El historial está disponible vía el API
 (`GET /quotations`); la vista de historial en la UI se irá ampliando en próximas versiones.
+
+---
+
+# Parte 2 — Administrador
+
+Guía para el rol **Administrador** (`UserRole.ADMINISTRADOR`). Cubre la gestión del catálogo, que
+hoy tiene interfaz propia en el panel (`apps/web/src/features/products`, `/admin`). Todo lo listado
+aquí corresponde a rutas de la API marcadas como acceso **Admin** en
+[`docs/api/API_REFERENCE.md`](./api/API_REFERENCE.md) — si una acción no aparece en esa tabla como
+`Admin`, no está restringida al administrador (por ejemplo, ver o generar una cotización es una
+acción del cliente, no del admin).
+
+## 7. Gestión de catálogo
+
+- **Listado de productos** (`ProductsListPage`): búsqueda, edición y eliminación (soft delete —
+  el producto pasa a `isActive = false`, no se borra de la base de datos).
+- **Crear producto** (`ProductCreatePage`): datos base, precio, stock, categoría.
+- **Editar producto** (`ProductEditPage`): además de los datos base, gestiona:
+  - **Imágenes** (`ImageUploader`) — galería con arrastrar y soltar; cada imagen genera un
+    thumbnail automáticamente.
+  - **Ficha técnica** (`TechnicalSheetEditor`) — tabla de atributo/valor (ej. "Diámetro: 25mm"),
+    con alta y baja de filas.
+  - **Descripción** (`DescriptionEditor`) — editor de texto enriquecido.
+  - **Compatibilidad de vehículos** — asocia el repuesto a los modelos que lo usan; esta
+    compatibilidad es la que alimenta la búsqueda por kilometraje (US#11) y el plan de
+    mantenimiento del cliente.
+
+## 8. Categorías
+
+- **Árbol de categorías** (`CategoriesPage`): CRUD completo sobre una estructura jerárquica
+  (categoría padre/hijo). No se puede eliminar una categoría que todavía tenga subcategorías o
+  productos asociados — hay que reasignarlos o eliminarlos primero.
+
+## 9. Guías de mantenimiento
+
+- Alta de guías de mantenimiento por modelo de vehículo (`POST /maintenance/guides`), que son la
+  base del plan de mantenimiento y de la búsqueda de repuestos por kilometraje que ve el cliente.
+
+## 10. Analítica de búsquedas
+
+- Reporte de los términos que los clientes buscan en el catálogo (`GET /analytics/searches`),
+  útil para detectar repuestos con demanda pero sin stock o sin buena cobertura de sinónimos.
+
+## 11. Preguntas frecuentes (administrador)
+
+**¿Por qué no puedo eliminar una categoría?** Tiene subcategorías o productos asociados —
+reasígnalos primero.
+
+**¿Eliminar un producto lo borra definitivamente?** No. Es un soft delete (`isActive = false`): el
+producto deja de verse en el catálogo público pero se conserva en la base de datos, junto con el
+historial de cotizaciones que ya lo incluyan.
+
+**¿Puedo moderar o eliminar una review de un cliente?** No en la versión actual — la moderación de
+reviews no tiene endpoint de administrador todavía; es una funcionalidad pendiente, no un permiso
+oculto.

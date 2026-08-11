@@ -25,12 +25,21 @@ function VehicleCardWithCalendar({
   onUpdate: (id: number, payload: UpdateVehiclePayload) => Promise<unknown>;
   onDelete: () => void;
 }) {
-  const { calendar } = useVehicleCalendar(vehicle.id);
+  const { calendar, reload } = useVehicleCalendar(vehicle.id);
+
+  // Subir el kilometraje puede cambiar cuál es el próximo servicio (o
+  // vencer uno existente) — sin recargar el calendario, "Próximo
+  // Mantenimiento" se queda con los datos del kilometraje anterior.
+  async function handleUpdateMileage(mileage: number) {
+    await onUpdateMileage(mileage);
+    await reload();
+  }
+
   return (
     <VehicleCard
       vehicle={vehicle}
       nextService={calendar[0]}
-      onUpdateMileage={onUpdateMileage}
+      onUpdateMileage={handleUpdateMileage}
       onUpdate={onUpdate}
       onDelete={onDelete}
     />
@@ -57,14 +66,14 @@ export function GaragePage() {
     <div className="storefront min-h-screen bg-muted text-foreground">
       <CatalogNavbar />
       <div className="mx-auto max-w-4xl px-4 py-8">
-        <div className="mb-8 flex items-start justify-between">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-neutral-900">Mi Garaje</h1>
             <p className="mt-1 text-neutral-500">
               Gestiona tus vehículos y mantén el control del mantenimiento
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button asChild variant="outline">
               <Link to="/garage/dashboard">Panel de mantenimiento</Link>
             </Button>

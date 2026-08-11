@@ -89,7 +89,7 @@ export function CalendarPage() {
             <CardContent className="px-6 py-5">
               <p className="text-xs font-semibold text-primary mb-2">Próximo Mantenimiento</p>
               <h2 className="text-xl font-bold text-foreground">{nextService.description}</h2>
-              <div className="mt-2 flex gap-6 text-sm text-foreground">
+              <div className="mt-2 flex flex-col gap-1 text-sm text-foreground sm:flex-row sm:gap-6">
                 <span>Kilometraje: {nextService.mileageInterval.toLocaleString()} km</span>
                 <span>
                   Faltan:{' '}
@@ -99,7 +99,7 @@ export function CalendarPage() {
                 </span>
               </div>
               <Button
-                className="mt-4 gap-1.5"
+                className="mt-4 w-full gap-1.5 sm:w-auto"
                 variant="outline"
                 disabled={nextService.products.length === 0 || addingNext}
                 onClick={() => void handleAddNextParts()}
@@ -127,9 +127,9 @@ export function CalendarPage() {
 
         {!loading && calendar.length > 0 && vehicle && (
           <Tabs defaultValue="timeline">
-            <div className="mb-4 flex items-center justify-between gap-4">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h2 className="text-lg font-semibold text-foreground">Próximos Mantenimientos</h2>
-              <TabsList>
+              <TabsList className="grid w-full grid-cols-3 sm:inline-flex sm:w-auto">
                 <TabsTrigger value="timeline">Línea de tiempo</TabsTrigger>
                 <TabsTrigger value="calendar">Calendario</TabsTrigger>
                 <TabsTrigger value="history">Historial</TabsTrigger>

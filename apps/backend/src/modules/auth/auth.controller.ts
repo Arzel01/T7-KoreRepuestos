@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
-import type { AuthResponse, JwtPayload } from './dto/auth-response.dto';
+import type { AuthResponse, AuthTokens, JwtPayload } from './dto/auth-response.dto';
 import type { Request } from 'express';
 
 /**
@@ -17,10 +17,12 @@ import type { Request } from 'express';
  * Endpoints expuestos bajo el prefijo global `/api/v1` (ver `main.ts`):
  *   · POST /api/v1/auth/register  (público)
  *   · POST /api/v1/auth/login     (público)
+ *   · POST /api/v1/auth/refresh   (público — el refresh token es la credencial)
  *   · POST /api/v1/auth/logout    (autenticado)
  *   · GET  /api/v1/auth/me        (autenticado)
  *
- * Las dos primeras llevan `@Public()` para saltar el `JwtAuthGuard` global.
+ * register/login/refresh llevan `@Public()` para saltar el `JwtAuthGuard`
+ * global — cada una valida su propia credencial (password o refresh token).
  */
 @ApiTags('auth')
 @Controller('auth')
@@ -41,6 +43,14 @@ export class AuthController {
   @ApiOperation({ summary: 'Autentica un usuario existente' })
   login(@Body() dto: LoginDto, @Req() req: Request): Promise<AuthResponse> {
     return this.authService.login(dto, this.extractMeta(req));
+  }
+
+  @Public()
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Canjea un refresh token vigente por un par de tokens nuevo' })
+  refresh(@Body() body: { refreshToken: string }, @Req() req: Request): Promise<AuthTokens> {
+    return this.authService.refresh(body?.refreshToken, this.extractMeta(req));
   }
 
   @Post('logout')

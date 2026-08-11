@@ -29,7 +29,11 @@ async function bootstrap(): Promise<void> {
   app.useStaticAssets(uploadsDir, { prefix: '/uploads' });
 
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
-  app.enableCors({ origin: corsOrigins.length ? corsOrigins : true, credentials: true });
+  // Falla cerrado: sin CORS_ORIGINS configurado, se rechaza todo origen
+  // cross-site en vez de reflejar cualquiera (origin: true + credentials:
+  // true es la combinación insegura clásica). Llamadas same-origin, curl o
+  // Postman no pasan por CORS y no se ven afectadas.
+  app.enableCors({ origin: corsOrigins.length ? corsOrigins : false, credentials: true });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
