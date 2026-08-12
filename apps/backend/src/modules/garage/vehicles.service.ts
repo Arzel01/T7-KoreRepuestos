@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -10,26 +11,29 @@ import { Repository } from 'typeorm';
 import { CreateMaintenanceLogDto } from './dto/create-maintenance-log.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
-import { MaintenancePlan } from './entities/maintenance-plan.entity';
+import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { Marca } from './entities/marca.entity';
 import { Modelo } from './entities/modelo.entity';
 import { VehicleUser } from './entities/vehicle-user.entity';
+import { summarizePlan } from './maintenance-calc';
 import { MaintenanceLogRepository } from './maintenance-log.repository';
+import { MaintenancePlannerService } from './maintenance-planner.service';
+import { ReminderSchedulerService } from './reminder-scheduler.service';
 import { VehiclesRepository } from './vehicles.repository';
 
-import type { CalendarItemDto } from '@kore/shared';
+import type { CalendarItemDto, VehiclePlanResponse } from '@kore/shared';
 
 @Injectable()
 export class VehiclesService {
   constructor(
     private readonly vehiclesRepo: VehiclesRepository,
     private readonly logsRepo: MaintenanceLogRepository,
+    private readonly planner: MaintenancePlannerService,
+    private readonly reminderScheduler: ReminderSchedulerService,
     @InjectRepository(Marca)
     private readonly marcasRepo: Repository<Marca>,
     @InjectRepository(Modelo)
     private readonly modelosRepo: Repository<Modelo>,
-    @InjectRepository(MaintenancePlan)
-    private readonly plansRepo: Repository<MaintenancePlan>,
   ) {}
 
   listBrands(): Promise<Marca[]> {
@@ -37,19 +41,15 @@ export class VehiclesService {
   }
 
   /**
-   * Band-aid temporal: `modelos` tiene filas duplicadas (mismo id_marca+nombre)
-   * porque a la tabla le falta un UNIQUE que el seed pueda usar como conflict
-   * target. `DISTINCT ON` deja una sola fila por nombre (la de id más bajo)
-   * sin tocar los datos. Arreglo de raíz (constraint + limpieza) pendiente.
+   * `modelos` ya tiene UNIQUE (id_marca, nombre) tras la migración
+   * DedupeModelos1781137369808, así que un `find` simple basta — sin el
+   * DISTINCT ON que antes ocultaba las filas duplicadas.
    */
   listModelsByBrand(brandId: number): Promise<Modelo[]> {
-    return this.modelosRepo
-      .createQueryBuilder('m')
-      .distinctOn(['m.nombre'])
-      .where('m.id_marca = :brandId', { brandId })
-      .orderBy('m.nombre', 'ASC')
-      .addOrderBy('m.id_modelo', 'ASC')
-      .getMany();
+    return this.modelosRepo.find({
+      where: { marcaId: brandId },
+      order: { nombre: 'ASC' },
+    });
   }
 
   getByUser(userId: number): Promise<VehicleUser[]> {
@@ -75,6 +75,42 @@ export class VehiclesService {
     });
   }
 
+  async update(vehicleId: number, userId: number, dto: UpdateVehicleDto): Promise<VehicleUser> {
+    const vehicle = await this.vehiclesRepo.findOne(vehicleId, userId);
+    if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
+
+    if (dto.modelId !== undefined || dto.brandId !== undefined) {
+      const brandId = dto.brandId ?? vehicle.model.marcaId;
+      const modelId = dto.modelId ?? vehicle.modelId;
+      const modelo = await this.modelosRepo.findOne({
+        where: { id: modelId, marcaId: brandId },
+      });
+      if (!modelo) throw new BadRequestException('Modelo no encontrado para la marca indicada');
+    }
+
+    if (dto.currentMileage !== undefined && dto.currentMileage < vehicle.currentMileage) {
+      throw new BadRequestException('El kilometraje no puede ser menor al actual');
+    }
+
+    const patch: Partial<VehicleUser> = {};
+    if (dto.modelId !== undefined) patch.modelId = dto.modelId;
+    if (dto.year !== undefined) patch.year = dto.year;
+    if (dto.plate !== undefined) patch.placa = dto.plate;
+    if (dto.currentMileage !== undefined) patch.currentMileage = dto.currentMileage;
+    if (dto.averageDailyMileage !== undefined) patch.averageDailyMileage = dto.averageDailyMileage;
+    if (Object.prototype.hasOwnProperty.call(dto, 'alias')) patch.alias = dto.alias;
+
+    try {
+      return await this.vehiclesRepo.update(vehicleId, patch);
+    } catch (err: unknown) {
+      const pg = err as { code?: string };
+      if (pg.code === '23505') {
+        throw new ConflictException('Ya existe un vehículo con esa placa');
+      }
+      throw err;
+    }
+  }
+
   async updateMileage(vehicleId: number, userId: number, dto: UpdateMileageDto): Promise<void> {
     const vehicle = await this.vehiclesRepo.findOne(vehicleId, userId);
     if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
@@ -82,6 +118,15 @@ export class VehiclesService {
       throw new BadRequestException('El kilometraje no puede ser menor al actual');
     }
     await this.vehiclesRepo.updateMileage(vehicleId, dto.currentMileage);
+
+    // US#2 — al subir el kilometraje pueden aparecer tareas vencidas: se encolan
+    // recordatorios de inmediato. Nunca debe hacer fallar el PATCH.
+    vehicle.currentMileage = dto.currentMileage;
+    try {
+      await this.reminderScheduler.checkVehicle(vehicle);
+    } catch {
+      // best-effort: el barrido diario volverá a intentarlo.
+    }
   }
 
   async delete(vehicleId: number, userId: number): Promise<void> {
@@ -99,7 +144,7 @@ export class VehiclesService {
     return this.logsRepo.create({
       vehicleId,
       planId: dto.planId,
-      completedAt: today,
+      completedAt: dto.completedAt ?? today,
       completedMileage: dto.completedMileage,
       notes: dto.notes,
     });
@@ -108,71 +153,33 @@ export class VehiclesService {
   async getCalendar(vehicleId: number, userId: number): Promise<CalendarItemDto[]> {
     const vehicle = await this.vehiclesRepo.findOne(vehicleId, userId);
     if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
+    return this.planner.buildCalendar(vehicle);
+  }
 
-    const plans = await this.plansRepo
-      .createQueryBuilder('t')
-      .innerJoinAndSelect('t.guide', 'g')
-      .where('g.id_modelo = :modelId', { modelId: vehicle.modelId })
-      .leftJoinAndSelect('t.productTasks', 'pt')
-      .leftJoinAndSelect('pt.product', 'prod')
-      .getMany();
+  /**
+   * Plan de mantenimiento del vehículo (US#3): los mismos servicios del
+   * calendario más la agregación de costos y contadores (críticos/vencidos).
+   */
+  async getPlan(vehicleId: number, userId: number): Promise<VehiclePlanResponse> {
+    const vehicle = await this.vehiclesRepo.findOne(vehicleId, userId);
+    if (!vehicle) throw new NotFoundException('Vehículo no encontrado');
 
-    const today = new Date();
+    const services = await this.planner.buildCalendar(vehicle);
+    const summary = summarizePlan(services);
 
-    const items = await Promise.all(
-      plans.map(async (plan): Promise<CalendarItemDto> => {
-        const lastLog = await this.logsRepo.findLastForPlan(vehicleId, plan.id);
-
-        const cycleKm =
-          Math.floor(vehicle.currentMileage / plan.mileageInterval) * plan.mileageInterval;
-        const nextKmTarget =
-          cycleKm < vehicle.currentMileage ? cycleKm + plan.mileageInterval : cycleKm;
-        const kmRemaining = Math.max(0, nextKmTarget - vehicle.currentMileage);
-
-        const daysUntilKm =
-          vehicle.averageDailyMileage > 0 ? kmRemaining / vehicle.averageDailyMileage : Infinity;
-
-        let nextServiceDate = new Date(today);
-        nextServiceDate.setDate(today.getDate() + Math.ceil(daysUntilKm));
-
-        if (plan.monthInterval) {
-          const baseDate = lastLog?.completedAt ? new Date(lastLog.completedAt) : today;
-          const dateByMonths = new Date(baseDate);
-          dateByMonths.setMonth(dateByMonths.getMonth() + plan.monthInterval);
-          if (dateByMonths < nextServiceDate) {
-            nextServiceDate = dateByMonths;
-          }
-        }
-
-        const products = (plan.productTasks ?? []).map((pt) => ({
-          id: pt.product.id,
-          name: pt.product.name,
-          price: pt.product.price,
-          quantity: pt.cantidad,
-        }));
-
-        return {
-          planId: plan.id,
-          description: plan.description,
-          mileageInterval: plan.mileageInterval,
-          monthInterval: plan.monthInterval ?? undefined,
-          isCritical: plan.isCritical,
-          kmRemaining,
-          nextServiceDate: nextServiceDate.toISOString().split('T')[0],
-          lastLog: lastLog
-            ? {
-                id: lastLog.id,
-                planId: lastLog.planId,
-                completedAt: lastLog.completedAt,
-                completedMileage: lastLog.completedMileage,
-                notes: lastLog.notes,
-              }
-            : undefined,
-          products,
-        };
-      }),
-    );
-
-    return items.sort((a, b) => a.nextServiceDate.localeCompare(b.nextServiceDate));
+    return {
+      vehicleId: vehicle.id,
+      alias: vehicle.alias,
+      year: vehicle.year,
+      currentMileage: vehicle.currentMileage,
+      averageDailyMileage: vehicle.averageDailyMileage,
+      model: {
+        id: vehicle.model.id,
+        nombre: vehicle.model.nombre,
+        marca: { id: vehicle.model.marca.id, nombre: vehicle.model.marca.nombre },
+      },
+      services,
+      ...summary,
+    };
   }
 }

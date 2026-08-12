@@ -1,5 +1,6 @@
 import * as crypto from 'node:crypto';
 
+import { UserRole } from '@kore/shared';
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -34,7 +35,11 @@ export class AuthService {
     dto: RegisterDto,
     meta?: { userAgent?: string; ipAddress?: string },
   ): Promise<AuthResponse> {
-    const user = await this.usersService.create(dto);
+    // El registro público SIEMPRE crea un Cliente. `dto.role` se ignora a
+    // propósito: es un campo válido de CreateUserDto (lo usan otros flujos
+    // internos), pero permitir que el propio solicitante se autoasigne un rol
+    // por este endpoint público es una escalada de privilegios.
+    const user = await this.usersService.create({ ...dto, role: UserRole.CLIENTE });
     this.logger.log(`Usuario registrado: ${user.email} (${user.id})`);
     const tokens = await this.issueTokens(
       { sub: String(user.id), email: user.email, role: user.role },
@@ -72,6 +77,43 @@ export class AuthService {
     if (session) {
       await this.sessionsRepository.revoke(session.id);
     }
+  }
+
+  /**
+   * Canjea un refresh token vigente por un par de tokens nuevo.
+   *
+   * Valida la firma/expiración del JWT (secreto de refresh, no el de acceso) y
+   * que la sesión siga activa (no revocada, no expirada) contra el hash
+   * guardado en `sesiones`. Rota el refresh token: revoca la sesión usada al
+   * canjearla, así uno robado deja de servir en cuanto el dueño lo reutiliza.
+   */
+  async refresh(
+    refreshToken: string,
+    meta?: { userAgent?: string; ipAddress?: string },
+  ): Promise<AuthTokens> {
+    const invalid = new UnauthorizedException('Refresh token inválido, expirado o revocado');
+    if (!refreshToken) throw invalid;
+
+    let payload: JwtPayload;
+    try {
+      payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
+        secret: this.refreshSecret,
+      });
+    } catch {
+      throw invalid;
+    }
+
+    const session = await this.sessionsRepository.findActiveByRefreshHash(
+      this.hashToken(refreshToken),
+    );
+    if (!session) throw invalid;
+
+    await this.sessionsRepository.revoke(session.id);
+
+    const user = await this.usersService.findByEmail(payload.email);
+    if (!user || !user.isActive) throw invalid;
+
+    return this.issueTokens({ sub: String(user.id), email: user.email, role: user.role }, meta);
   }
 
   private async issueTokens(

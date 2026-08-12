@@ -4,6 +4,7 @@ import { extractApiErrorMessage } from '@/lib/api-client';
 
 import { garageApi } from '../server/garage.api';
 
+import type { UpdateVehiclePayload } from '../server/garage.api';
 import type { CreateVehicleDto, VehicleResponse } from '@kore/shared';
 
 export function useVehicles() {
@@ -44,5 +45,14 @@ export function useVehicles() {
     setVehicles((prev) => prev.map((v) => (v.id === id ? { ...v, currentMileage } : v)));
   }, []);
 
-  return { vehicles, loading, error, addVehicle, removeVehicle, refreshMileage };
+  const updateVehicle = useCallback(
+    async (id: number, payload: UpdateVehiclePayload): Promise<VehicleResponse> => {
+      const updated = await garageApi.updateVehicle(id, payload);
+      setVehicles((prev) => prev.map((v) => (v.id === id ? updated : v)));
+      return updated;
+    },
+    [],
+  );
+
+  return { vehicles, loading, error, addVehicle, removeVehicle, refreshMileage, updateVehicle };
 }

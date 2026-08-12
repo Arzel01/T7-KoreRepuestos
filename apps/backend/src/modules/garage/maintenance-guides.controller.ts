@@ -8,6 +8,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -32,6 +33,26 @@ import type { MaintenanceGuide } from './entities/maintenance-guide.entity';
 @Controller('maintenance')
 export class MaintenanceGuidesController {
   constructor(private readonly guidesService: MaintenanceGuidesService) {}
+
+  @Get('parts')
+  @Public()
+  @ApiOperation({ summary: 'Piezas recomendadas según kilometraje actual del vehículo.' })
+  @ApiResponse({ status: 200, description: 'Lista de productos de mantenimiento recomendados.' })
+  findPartsByMileage(@Query('mileage') mileage: string): Promise<
+    Array<{
+      id: number;
+      sku: string;
+      name: string;
+      price: number;
+      stock: number;
+      quantity: number;
+      taskDescription: string;
+      mileageInterval: number;
+      isCritical: boolean;
+    }>
+  > {
+    return this.guidesService.findPartsByMileage(Number(mileage));
+  }
 
   @Get('guides')
   @Public()

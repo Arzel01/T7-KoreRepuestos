@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 
 interface NavItem {
@@ -8,25 +9,34 @@ interface NavItem {
   to: string;
   icon: string;
   disabled?: boolean;
+  /** Si se omite: visible para cualquier rol que ya haya entrado al panel. */
+  adminOnly?: boolean;
 }
 
 const NAV: NavItem[] = [
   { id: '00', label: 'Dashboard', to: '/admin', icon: '◧' },
-  { id: '01', label: 'Productos', to: '/admin/products', icon: '◆' },
-  { id: '02', label: 'Categorías', to: '/admin/categories', icon: '⊞' },
-  { id: '03', label: 'Mantenimiento', to: '/admin/maintenance', icon: '⚙' },
-  { id: '04', label: 'Usuarios', to: '/admin/users', icon: '◉', disabled: true },
-  { id: '05', label: 'Mi Garaje', to: '/garage', icon: '⛐' },
+  { id: '01', label: 'Cotizaciones', to: '/admin/quotations', icon: '✉' },
+  { id: '02', label: 'Productos', to: '/admin/products', icon: '◆', adminOnly: true },
+  { id: '03', label: 'Categorías', to: '/admin/categories', icon: '⊞', adminOnly: true },
+  { id: '04', label: 'Mantenimiento', to: '/admin/maintenance', icon: '⚙', adminOnly: true },
+  { id: '05', label: 'Analíticas', to: '/admin/analytics', icon: '◈', adminOnly: true },
+  { id: '06', label: 'Usuarios', to: '/admin/users', icon: '◉', disabled: true, adminOnly: true },
+  { id: '07', label: 'Mi Garaje', to: '/garage', icon: '⛐' },
 ];
 
-export function Sidebar(): JSX.Element {
-  const { user, logout } = useAuth();
+interface SidebarProps {
+  /** Controla el drawer móvil (<lg). En desktop la barra siempre está visible. */
+  mobileOpen: boolean;
+  onMobileOpenChange: (open: boolean) => void;
+}
+
+/** Contenido compartido entre la barra fija de desktop y el drawer móvil. */
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }): JSX.Element {
+  const { user, isAdmin, logout } = useAuth();
+  const items = NAV.filter((item) => !item.adminOnly || isAdmin);
 
   return (
-    <aside
-      className="flex w-72 shrink-0 flex-col border-r border-white/10 bg-navy-900 text-white"
-      aria-label="Navegación del panel"
-    >
+    <div className="flex h-full flex-col">
       <div className="border-b border-white/10 px-6 py-6">
         <div className="flex items-baseline gap-2">
           <span className="text-3xl font-extrabold tracking-tight text-white">KORE</span>
@@ -39,7 +49,7 @@ export function Sidebar(): JSX.Element {
 
       <nav className="flex-1 overflow-y-auto py-4" aria-label="Secciones del panel">
         <ul className="space-y-1 px-3">
-          {NAV.map((item) =>
+          {items.map((item) =>
             item.disabled ? (
               <li key={item.to}>
                 <div
@@ -58,9 +68,10 @@ export function Sidebar(): JSX.Element {
                 <NavLink
                   to={item.to}
                   end={item.to === '/admin'}
+                  onClick={onNavigate}
                   className={({ isActive }) =>
                     [
-                      'group flex items-center gap-3 rounded-xl px-4 py-3 transition-colors',
+                      'group flex min-h-11 items-center gap-3 rounded-xl px-4 py-3 transition-colors',
                       isActive
                         ? 'bg-white/15 text-white shadow-sm'
                         : 'text-white/80 hover:bg-white/10 hover:text-white',
@@ -96,11 +107,45 @@ export function Sidebar(): JSX.Element {
         <button
           type="button"
           onClick={() => void logout()}
-          className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-white/10 bg-white/10 text-sm font-medium text-white transition-colors hover:bg-white/15"
+          className="inline-flex h-11 w-full items-center justify-center rounded-lg border border-white/10 bg-white/10 text-sm font-medium text-white transition-colors hover:bg-white/15"
         >
           Cerrar sesión
         </button>
       </div>
-    </aside>
+    </div>
+  );
+}
+
+/**
+ * Navegación del panel admin (3.4 — responsive).
+ *
+ * Desktop (lg+): barra fija de 288px, siempre visible.
+ * Móvil/tablet (<lg): mismo contenido dentro de un drawer (`Sheet`), abierto
+ * por el botón de menú en `Topbar` — mismo patrón que `CatalogSidebar`.
+ */
+export function Sidebar({ mobileOpen, onMobileOpenChange }: SidebarProps): JSX.Element {
+  return (
+    <>
+      <aside
+        className="hidden w-72 shrink-0 flex-col border-r border-white/10 bg-navy-900 text-white lg:flex"
+        aria-label="Navegación del panel"
+      >
+        <SidebarContent />
+      </aside>
+
+      <Sheet open={mobileOpen} onOpenChange={onMobileOpenChange}>
+        <SheetContent
+          side="left"
+          showCloseButton={false}
+          className="border-white/10 bg-navy-900 p-0 text-white"
+        >
+          <SheetTitle className="sr-only">Navegación del panel</SheetTitle>
+          <SheetDescription className="sr-only">
+            Secciones del panel administrativo de Kore Repuestos.
+          </SheetDescription>
+          <SidebarContent onNavigate={() => onMobileOpenChange(false)} />
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

@@ -19,6 +19,14 @@ export class VehiclesRepository {
     });
   }
 
+  /** Todos los vehículos (con modelo+marca) para el barrido de recordatorios. */
+  findAllForReminders(): Promise<VehicleUser[]> {
+    return this.repo.find({
+      relations: { model: { marca: true } },
+      order: { userId: 'ASC' },
+    });
+  }
+
   findOne(id: number, userId: number): Promise<VehicleUser | null> {
     return this.repo.findOne({
       where: { id, userId },
@@ -31,6 +39,14 @@ export class VehiclesRepository {
     const saved = await this.repo.save(entity);
     return this.repo.findOne({
       where: { id: saved.id },
+      relations: { model: { marca: true } },
+    }) as Promise<VehicleUser>;
+  }
+
+  async update(id: number, data: Partial<VehicleUser>): Promise<VehicleUser> {
+    await this.repo.update(id, data);
+    return this.repo.findOne({
+      where: { id },
       relations: { model: { marca: true } },
     }) as Promise<VehicleUser>;
   }

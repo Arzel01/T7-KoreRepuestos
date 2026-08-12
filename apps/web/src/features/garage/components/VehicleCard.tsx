@@ -1,3 +1,4 @@
+import { Pencil } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -5,20 +6,24 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
+import { EditVehicleModal } from './EditVehicleModal';
 import { UpdateMileageModal } from './UpdateMileageModal';
 
+import type { UpdateVehiclePayload } from '../server/garage.api';
 import type { CalendarItemDto, VehicleResponse } from '@kore/shared';
 
 interface Props {
   vehicle: VehicleResponse;
   nextService?: CalendarItemDto;
   onUpdateMileage: (mileage: number) => Promise<void>;
+  onUpdate: (id: number, payload: UpdateVehiclePayload) => Promise<unknown>;
   onDelete: () => void;
 }
 
-export function VehicleCard({ vehicle, nextService, onUpdateMileage, onDelete }: Props) {
+export function VehicleCard({ vehicle, nextService, onUpdateMileage, onUpdate, onDelete }: Props) {
   const navigate = useNavigate();
   const [showMileage, setShowMileage] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
 
   const vehicleName =
     `${vehicle.model?.marca?.nombre ?? ''} ${vehicle.model?.nombre ?? ''} ${vehicle.year}`.trim();
@@ -35,28 +40,38 @@ export function VehicleCard({ vehicle, nextService, onUpdateMileage, onDelete }:
               </Badge>
             )}
           </div>
-          <button
-            type="button"
-            aria-label="Eliminar vehículo"
-            onClick={onDelete}
-            className="text-neutral-400 hover:text-red-500 transition-colors mt-0.5"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          <div className="flex items-center gap-2 mt-0.5">
+            <button
+              type="button"
+              aria-label="Editar vehículo"
+              onClick={() => setShowEdit(true)}
+              className="text-neutral-400 hover:text-primary transition-colors"
             >
-              <polyline points="3 6 5 6 21 6" />
-              <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-              <path d="M10 11v6M14 11v6" />
-              <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-            </svg>
-          </button>
+              <Pencil className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              aria-label="Eliminar vehículo"
+              onClick={onDelete}
+              className="text-neutral-400 hover:text-red-500 transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+                <path d="M10 11v6M14 11v6" />
+                <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
+              </svg>
+            </button>
+          </div>
         </CardHeader>
 
         <CardContent className="px-6 pb-5 space-y-4">
@@ -103,6 +118,13 @@ export function VehicleCard({ vehicle, nextService, onUpdateMileage, onDelete }:
         currentMileage={vehicle.currentMileage}
         onClose={() => setShowMileage(false)}
         onSave={onUpdateMileage}
+      />
+
+      <EditVehicleModal
+        open={showEdit}
+        vehicle={vehicle}
+        onClose={() => setShowEdit(false)}
+        onSave={onUpdate}
       />
     </>
   );

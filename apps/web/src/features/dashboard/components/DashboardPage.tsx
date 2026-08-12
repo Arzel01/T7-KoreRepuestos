@@ -1,9 +1,16 @@
 import { Link } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/hooks/AuthContext';
+import { formatCurrency } from '@/lib/utils';
+
+import { useDashboardData } from '../hooks/useDashboardData';
+
+import { SalesTrendChart } from './SalesTrendChart';
+import { TopProductsChart } from './TopProductsChart';
 
 export function DashboardPage(): JSX.Element {
   const { user } = useAuth();
+  const { summary, salesTrend, topProducts, loading, error } = useDashboardData();
 
   return (
     <div className="storefront min-h-screen bg-background">
@@ -41,14 +48,80 @@ export function DashboardPage(): JSX.Element {
           </div>
         </header>
 
+        {error && (
+          <p className="mt-8 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+            No se pudieron cargar los indicadores: {error}
+          </p>
+        )}
+
         <section
           aria-label="Indicadores"
-          className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+          className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
         >
-          <Kpi id="01" label="Productos activos" value="—" hint="Crear el primero" />
-          <Kpi id="02" label="Categorías" value="11" hint="Semilla · 7 raíz · 4 subcat" />
-          <Kpi id="03" label="Usuarios" value="—" hint="Solo administrador inicial" />
-          <Kpi id="04" label="Sesiones abiertas" value="1" hint="Esta sesión" highlighted />
+          <Kpi
+            id="01"
+            label="Productos activos"
+            value={loading ? '—' : String(summary?.activeProducts ?? 0)}
+            hint={loading ? 'Cargando…' : `${summary?.categories ?? 0} categorías`}
+          />
+          <Kpi
+            id="02"
+            label="Bajo stock"
+            value={loading ? '—' : String(summary?.lowStockCount ?? 0)}
+            hint="Stock ≤ 5 unidades"
+            highlighted={!loading && (summary?.lowStockCount ?? 0) > 0}
+          />
+          <Kpi
+            id="03"
+            label="Usuarios activos"
+            value={loading ? '—' : String(summary?.activeUsers ?? 0)}
+            hint="Clientes, asesores y administradores"
+          />
+          <Kpi
+            id="04"
+            label="Cotizaciones pendientes"
+            value={loading ? '—' : String(summary?.pendingQuotations ?? 0)}
+            hint="Esperando respuesta del cliente"
+          />
+          <Kpi
+            id="05"
+            label="Cotizaciones del mes"
+            value={loading ? '—' : String(summary?.quotationsThisMonth ?? 0)}
+            hint="Emitidas este mes calendario"
+          />
+          <Kpi
+            id="06"
+            label="Ingresos del mes"
+            value={loading ? '—' : formatCurrency(summary?.revenueThisMonth ?? 0)}
+            hint="Suma de líneas cotizadas este mes"
+            highlighted
+          />
+        </section>
+
+        <section aria-label="Gráficos" className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <article className="rounded-2xl border border-border bg-card p-6">
+            <p className="text-sm font-semibold text-primary">Ventas · últimos 30 días</p>
+            <p className="mb-4 text-xs text-muted-foreground">Total cotizado por día</p>
+            {loading ? (
+              <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
+                Cargando…
+              </div>
+            ) : (
+              <SalesTrendChart data={salesTrend} />
+            )}
+          </article>
+
+          <article className="rounded-2xl border border-border bg-card p-6">
+            <p className="text-sm font-semibold text-primary">Productos más vendidos</p>
+            <p className="mb-4 text-xs text-muted-foreground">Por unidades en cotizaciones</p>
+            {loading ? (
+              <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
+                Cargando…
+              </div>
+            ) : (
+              <TopProductsChart data={topProducts} />
+            )}
+          </article>
         </section>
 
         <section aria-label="Accesos rápidos" className="mt-8">
@@ -61,10 +134,10 @@ export function DashboardPage(): JSX.Element {
               description="Registrar un nuevo repuesto en el catálogo activo."
             />
             <QuickAction
-              to="/admin/products"
+              to="/admin/quotations"
               number="✓"
-              title="Ver productos"
-              description="Listado completo con stock, precios y estado."
+              title="Ver cotizaciones"
+              description="Consultar, reenviar y contactar clientes por sus cotizaciones."
             />
           </div>
         </section>

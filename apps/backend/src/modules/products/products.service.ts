@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
+import { SearchAnalyticsService } from '../analytics/search-analytics.service';
 import { AuditLogService } from '../audit/audit-log.service';
 import { CategoriesService } from '../categories/categories.service';
 
@@ -13,8 +14,11 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { ProductsRepository } from './products.repository';
+import { SynonymsService } from './synonyms.service';
 
 import type { QueryProductsDto } from './dto/query-products.dto';
+import type { SuggestProductsDto } from './dto/suggest-products.dto';
+import type { ProductSuggestion, ProductWithHighlight } from './products.repository';
 import type { PaginatedResult } from '@kore/shared';
 
 @Injectable()
@@ -25,6 +29,8 @@ export class ProductsService {
     private readonly productsRepository: ProductsRepository,
     private readonly categoriesService: CategoriesService,
     private readonly auditLogService: AuditLogService,
+    private readonly searchAnalytics: SearchAnalyticsService,
+    private readonly synonyms: SynonymsService,
   ) {}
 
   async create(dto: CreateProductDto, userId?: number): Promise<Product> {
@@ -55,6 +61,13 @@ export class ProductsService {
   async update(id: number, dto: UpdateProductDto, userId?: number): Promise<Product> {
     const existing = await this.productsRepository.findById(id);
     if (!existing) throw new NotFoundException('Producto no encontrado');
+
+    if (dto.sku !== undefined && dto.sku !== existing.sku) {
+      const skuTaken = await this.productsRepository.findBySku(dto.sku);
+      if (skuTaken) {
+        throw new ConflictException(`Ya existe un producto con SKU "${dto.sku}"`);
+      }
+    }
 
     if (dto.price !== undefined) this.assertPositive('price', dto.price);
     if (dto.categoryId !== undefined) {
@@ -103,8 +116,68 @@ export class ProductsService {
     return product;
   }
 
-  async findCatalog(query: QueryProductsDto): Promise<PaginatedResult<Product>> {
-    return this.productsRepository.findCatalog(query);
+  async findCatalog(
+    query: QueryProductsDto,
+    userId?: number,
+  ): Promise<PaginatedResult<ProductWithHighlight>> {
+    const searchTerms = query.search ? await this.synonyms.expand(query.search) : undefined;
+    const result = await this.productsRepository.findCatalog(query, searchTerms);
+    if (query.search) {
+      await this.searchAnalytics.log(query.search, result.total, userId).catch((err: unknown) => {
+        this.logger.warn('Error al registrar búsqueda en analytics', err);
+      });
+    }
+    return result;
+  }
+
+  async findSuggestions(dto: SuggestProductsDto): Promise<ProductSuggestion[]> {
+    const searchTerms = await this.synonyms.expand(dto.q);
+    return this.productsRepository.findSuggestions(dto, searchTerms);
+  }
+
+  async findCompatibility(id: number): Promise<
+    Array<{
+      modelId: number;
+      modelName: string;
+      brandName: string;
+      yearStart: number;
+      yearEnd: number;
+    }>
+  > {
+    const product = await this.productsRepository.findActiveById(id);
+    if (!product) throw new NotFoundException('Producto no encontrado');
+    return this.productsRepository.findCompatibilityForProduct(id);
+  }
+
+  async addCompatibility(productId: number, modeloId: number, userId?: number): Promise<void> {
+    const product = await this.productsRepository.findById(productId);
+    if (!product) throw new NotFoundException('Producto no encontrado');
+
+    const modeloOk = await this.productsRepository.modeloExists(modeloId);
+    if (!modeloOk) throw new NotFoundException(`Modelo ${modeloId} no encontrado`);
+
+    await this.productsRepository.addCompatibility(productId, modeloId);
+
+    await this.auditLogService.log({
+      userId,
+      tableName: 'compatibilidad',
+      action: 'INSERT',
+      description: `Compatibilidad producto ${productId} ↔ modelo ${modeloId} agregada`,
+    });
+  }
+
+  async removeCompatibility(productId: number, modeloId: number, userId?: number): Promise<void> {
+    const product = await this.productsRepository.findById(productId);
+    if (!product) throw new NotFoundException('Producto no encontrado');
+
+    await this.productsRepository.removeCompatibility(productId, modeloId);
+
+    await this.auditLogService.log({
+      userId,
+      tableName: 'compatibilidad',
+      action: 'DELETE',
+      description: `Compatibilidad producto ${productId} ↔ modelo ${modeloId} eliminada`,
+    });
   }
 
   private assertPositive(field: string, value: number): void {

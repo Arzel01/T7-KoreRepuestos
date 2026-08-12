@@ -4,14 +4,27 @@ import type {
   CalendarItemDto,
   CreateMaintenanceGuidePayload,
   CreateMaintenanceLogDto,
+  CreateMaintenanceRecordPayload,
   CreateVehicleDto,
   MaintenanceGuideResponse,
   MaintenanceLogResponse,
+  MaintenanceRecordResponse,
   MarcaResponse,
   ModeloResponse,
   UpdateMileageDto,
+  VehiclePlanResponse,
   VehicleResponse,
 } from '@kore/shared';
+
+export interface UpdateVehiclePayload {
+  brandId?: number;
+  modelId?: number;
+  year?: number;
+  plate?: string;
+  currentMileage?: number;
+  averageDailyMileage?: number;
+  alias?: string;
+}
 
 export const garageApi = {
   getBrands: (): Promise<MarcaResponse[]> => api.get('/vehicles/brands'),
@@ -23,6 +36,9 @@ export const garageApi = {
 
   createVehicle: (payload: CreateVehicleDto): Promise<VehicleResponse> =>
     api.post('/vehicles', payload),
+
+  updateVehicle: (id: number, payload: UpdateVehiclePayload): Promise<VehicleResponse> =>
+    api.put(`/vehicles/${id}`, payload),
 
   deleteVehicle: (id: number): Promise<void> => api.delete(`/vehicles/${id}`),
 
@@ -36,6 +52,16 @@ export const garageApi = {
 
   getCalendar: (vehicleId: number): Promise<CalendarItemDto[]> =>
     api.get(`/vehicles/${vehicleId}/calendar`),
+
+  getPlan: (vehicleId: number): Promise<VehiclePlanResponse> =>
+    api.get(`/vehicles/${vehicleId}/plan`),
+
+  // US#4 — Registros de mantenimiento (historial persistente).
+  getRecords: (vehicleId: number): Promise<MaintenanceRecordResponse[]> =>
+    api.get('/maintenance/records', { vehicleId }),
+
+  createRecord: (payload: CreateMaintenanceRecordPayload): Promise<MaintenanceRecordResponse> =>
+    api.post('/maintenance/records', payload),
 
   getGuides: (): Promise<MaintenanceGuideResponse[]> => api.get('/maintenance/guides'),
 

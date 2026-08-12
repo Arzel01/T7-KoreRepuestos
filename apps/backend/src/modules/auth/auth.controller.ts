@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Post, Req } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 
-import type { AuthResponse, JwtPayload } from './dto/auth-response.dto';
+import type { AuthResponse, AuthTokens, JwtPayload } from './dto/auth-response.dto';
 import type { Request } from 'express';
 
 /**
@@ -17,10 +17,12 @@ import type { Request } from 'express';
  * Endpoints expuestos bajo el prefijo global `/api/v1` (ver `main.ts`):
  *   · POST /api/v1/auth/register  (público)
  *   · POST /api/v1/auth/login     (público)
+ *   · POST /api/v1/auth/refresh   (público — el refresh token es la credencial)
  *   · POST /api/v1/auth/logout    (autenticado)
  *   · GET  /api/v1/auth/me        (autenticado)
  *
- * Las dos primeras llevan `@Public()` para saltar el `JwtAuthGuard` global.
+ * register/login/refresh llevan `@Public()` para saltar el `JwtAuthGuard`
+ * global — cada una valida su propia credencial (password o refresh token).
  */
 @ApiTags('auth')
 @Controller('auth')
@@ -31,6 +33,9 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registra un nuevo usuario y devuelve tokens' })
+  @ApiResponse({ status: 201, description: 'Usuario creado; devuelve el par de tokens.' })
+  @ApiResponse({ status: 400, description: 'Datos de registro inválidos.' })
+  @ApiResponse({ status: 409, description: 'Ya existe un usuario con ese email.' })
   register(@Body() dto: RegisterDto, @Req() req: Request): Promise<AuthResponse> {
     return this.authService.register(dto, this.extractMeta(req));
   }
@@ -39,14 +44,31 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Autentica un usuario existente' })
+  @ApiResponse({ status: 200, description: 'Credenciales válidas; devuelve el par de tokens.' })
+  @ApiResponse({ status: 401, description: 'Credenciales inválidas.' })
   login(@Body() dto: LoginDto, @Req() req: Request): Promise<AuthResponse> {
     return this.authService.login(dto, this.extractMeta(req));
+  }
+
+  @Public()
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Canjea un refresh token vigente por un par de tokens nuevo' })
+  @ApiResponse({
+    status: 200,
+    description: 'Refresh token vigente; devuelve un par de tokens nuevo.',
+  })
+  @ApiResponse({ status: 401, description: 'Refresh token inválido, expirado o revocado.' })
+  refresh(@Body() body: { refreshToken: string }, @Req() req: Request): Promise<AuthTokens> {
+    return this.authService.refresh(body?.refreshToken, this.extractMeta(req));
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Revoca la sesión activa (refresh token)' })
+  @ApiResponse({ status: 204, description: 'Sesión revocada (o ya inexistente).' })
+  @ApiResponse({ status: 401, description: 'No autenticado.' })
   async logout(@Body() body: { refreshToken: string }): Promise<void> {
     if (body?.refreshToken) {
       await this.authService.logout(body.refreshToken);
@@ -56,6 +78,8 @@ export class AuthController {
   @Get('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Devuelve el payload del JWT del usuario actual' })
+  @ApiResponse({ status: 200, description: 'Payload del JWT actual.' })
+  @ApiResponse({ status: 401, description: 'No autenticado.' })
   me(@CurrentUser() user: JwtPayload): JwtPayload {
     return user;
   }

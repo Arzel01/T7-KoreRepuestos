@@ -54,4 +54,20 @@ export class MaintenanceGuidesService {
     }
     return guide;
   }
+
+  findPartsByMileage(mileage: number): Promise<
+    Array<{
+      id: number;
+      sku: string;
+      name: string;
+      price: number;
+      stock: number;
+      quantity: number;
+      taskDescription: string;
+      mileageInterval: number;
+      isCritical: boolean;
+    }>
+  > {
+    return this.guidesRepo.findPartsByMileage(mileage);
+  }
 }

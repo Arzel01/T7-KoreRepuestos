@@ -2,26 +2,35 @@ import { ShoppingCart, AlertCircle, CheckCircle, Loader, FileText } from 'lucide
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
+import { RichText } from '@/components/RichText';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
+import { useCart } from '@/features/cart/hooks/CartContext';
 import { CompatibilityCheck } from '@/features/catalog/components/CompatibilityCheck';
 import { ImageGallery } from '@/features/catalog/components/ImageGallery';
+import { MileageSearch } from '@/features/catalog/components/MileageSearch';
 import { RelatedProducts } from '@/features/catalog/components/RelatedProducts';
+import { ReviewList } from '@/features/catalog/components/ReviewList';
 import { TechnicalSpecifications } from '@/features/catalog/components/TechnicalSpecifications';
 import { productsApi } from '@/features/products/server/products.api';
 import { extractApiErrorMessage } from '@/lib/api-client';
+import { toast } from '@/lib/toast';
 
 import type { ProductDetailResponse } from '@kore/shared';
 
 export function ProductDetailsPage(): JSX.Element {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const { addItem } = useCart();
   const [product, setProduct] = useState<ProductDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
+  const [cartError, setCartError] = useState<string | null>(null);
 
   const productId = id ? parseInt(id, 10) : null;
 
@@ -49,10 +58,24 @@ export function ProductDetailsPage(): JSX.Element {
     void fetchProduct();
   }, [productId]);
 
-  const handleAddToCart = (): void => {
+  const handleAddToCart = async (): Promise<void> => {
     if (!product) return;
-    // TODO: Implement cart functionality
-    console.info(`Added ${quantity} of product ${product.id} to cart`);
+    // El carrito es por usuario: si no hay sesión, llevamos al login.
+    if (!isAuthenticated) {
+      navigate('/auth/login', { state: { from: `/product/${product.id}` } });
+      return;
+    }
+    setAdding(true);
+    setCartError(null);
+    try {
+      await addItem(product.id, quantity);
+      setAdded(true);
+      window.setTimeout(() => setAdded(false), 2500);
+    } catch (err) {
+      setCartError(extractApiErrorMessage(err));
+    } finally {
+      setAdding(false);
+    }
   };
 
   if (loading) {
@@ -224,14 +247,27 @@ export function ProductDetailsPage(): JSX.Element {
 
             {/* Add to Cart Button */}
             <Button
-              onClick={handleAddToCart}
-              disabled={!canAddToCart}
+              onClick={() => void handleAddToCart()}
+              disabled={!canAddToCart || adding}
               className="w-full py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed text-white"
               size="lg"
             >
-              <ShoppingCart className="w-5 h-5 mr-2" />
-              {isInStock ? 'Añadir al carrito' : 'Sin stock'}
+              {adding ? (
+                <Loader className="w-5 h-5 mr-2 animate-spin" />
+              ) : added ? (
+                <CheckCircle className="w-5 h-5 mr-2" />
+              ) : (
+                <ShoppingCart className="w-5 h-5 mr-2" />
+              )}
+              {!isInStock ? 'Sin stock' : added ? 'Agregado al carrito' : 'Añadir al carrito'}
             </Button>
+
+            {cartError && (
+              <p className="flex items-center gap-2 text-sm text-red-600">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {cartError}
+              </p>
+            )}
 
             {/* Wishlist / Share */}
             <div className="flex gap-2 pt-2 border-t border-neutral-200">
@@ -250,6 +286,7 @@ export function ProductDetailsPage(): JSX.Element {
                     document.execCommand('copy');
                     document.body.removeChild(input);
                   }
+                  toast.success('Enlace copiado al portapapeles');
                 }}
               >
                 Compartir
@@ -275,16 +312,27 @@ export function ProductDetailsPage(): JSX.Element {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="prose prose-sm max-w-none text-neutral-700 leading-relaxed">
-                {product.description}
-              </div>
+              <RichText
+                html={product.description}
+                className="prose prose-sm max-w-none text-neutral-700 leading-relaxed"
+              />
             </CardContent>
           </Card>
         )}
 
+        {/* Mileage Search Section */}
+        <div className="mb-12">
+          <MileageSearch />
+        </div>
+
         {/* Related Products Section */}
         <div className="mb-12">
           <RelatedProducts currentProductId={product.id} categoryId={product.categoryId} />
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mb-12">
+          <ReviewList productId={product.id} />
         </div>
       </main>
     </div>

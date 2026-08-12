@@ -172,7 +172,45 @@ jobs:
       - run: pnpm --filter @kore/web build
 
   # ---------------------------------------------------------------------------
-  # 6. Final gate: fails if any of the above jobs fail.
+  # 6. SonarCloud static analysis (NFR 3.7 / 3.9 — complexity, duplication,
+  #    bugs/vulnerabilities Quality Gate). NOT in ci-passed's `needs` yet:
+  #    it requires a SONAR_TOKEN repo secret (Sonar > My Account > Security)
+  #    plus sonar.projectKey/sonar.organization filled in at
+  #    sonar-project.properties. Until that's configured this job fails
+  #    harmlessly (continue-on-error) — remove that line once it's set up,
+  #    then add `sonar` to ci-passed's `needs` to make the Quality Gate a
+  #    required check.
+  # ---------------------------------------------------------------------------
+  sonar:
+    name: SonarCloud scan
+    runs-on: ubuntu-latest
+    needs: setup
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # SonarCloud wants full history for blame/new-code analysis.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:shared
+
+      - name: Backend coverage (mocked repos, no DB needed)
+        run: pnpm --filter @kore/backend test:cov
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ---------------------------------------------------------------------------
+  # 7. Final gate: fails if any of the above jobs fail.
   #    Useful as a single required check in branch protection rules.
   # ---------------------------------------------------------------------------
   ci-passed:

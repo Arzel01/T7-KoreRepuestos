@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -18,6 +19,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { CreateMaintenanceLogDto } from './dto/create-maintenance-log.dto';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
+import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import { VehiclesService } from './vehicles.service';
 
 import type { JwtPayload } from '../auth/dto/auth-response.dto';
@@ -57,6 +59,20 @@ export class VehiclesController {
   @ApiResponse({ status: 201 })
   createVehicle(@CurrentUser() user: JwtPayload, @Body() dto: CreateVehicleDto) {
     return this.vehiclesService.create(Number(user.sub), dto);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Actualizar datos de un vehículo del usuario.' })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 400, description: 'Modelo inválido o kilometraje menor al actual.' })
+  @ApiResponse({ status: 404, description: 'Vehículo no encontrado.' })
+  @ApiResponse({ status: 409, description: 'Placa duplicada.' })
+  updateVehicle(
+    @Param('id', new ParseIntPipe()) id: number,
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: UpdateVehicleDto,
+  ) {
+    return this.vehiclesService.update(id, Number(user.sub), dto);
   }
 
   @Delete(':id')
@@ -99,5 +115,15 @@ export class VehiclesController {
   @ApiResponse({ status: 200 })
   getCalendar(@Param('id', new ParseIntPipe()) id: number, @CurrentUser() user: JwtPayload) {
     return this.vehiclesService.getCalendar(id, Number(user.sub));
+  }
+
+  @Get(':id/plan')
+  @ApiOperation({
+    summary: 'Plan de mantenimiento de un vehículo (servicios, costos y contadores).',
+  })
+  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 404, description: 'Vehículo no encontrado.' })
+  getPlan(@Param('id', new ParseIntPipe()) id: number, @CurrentUser() user: JwtPayload) {
+    return this.vehiclesService.getPlan(id, Number(user.sub));
   }
 }

@@ -2,20 +2,27 @@ import { Star, StarHalf } from 'lucide-react';
 
 import { getPlaceholderRating } from '../data/vehicle-placeholder';
 
-/**
- * Estrellas de calificación — PLACEHOLDER visual.
- * El backend aún no tiene reseñas; el valor se deriva determinísticamente
- * del id del producto (ver `data/vehicle-placeholder.ts`).
- */
-export function RatingStars({ productId }: { productId: number }): JSX.Element {
-  const { stars, count } = getPlaceholderRating(productId);
+interface RatingStarsProps {
+  productId: number;
+  rating?: number | null;
+  count?: number;
+}
+
+export function RatingStars({
+  productId,
+  rating: propRating,
+  count: propCount,
+}: RatingStarsProps): JSX.Element {
+  const placeholder = getPlaceholderRating(productId);
+  const stars = propRating ?? placeholder.stars;
+  const count = propCount ?? placeholder.count;
   const full = Math.floor(stars);
-  const hasHalf = stars % 1 !== 0;
+  const hasHalf = stars % 1 >= 0.25 && stars % 1 < 0.75;
 
   return (
     <div
       className="flex items-center gap-1"
-      aria-label={`Calificación: ${stars} de 5 estrellas, ${count} reseñas`}
+      aria-label={`Calificación: ${stars.toFixed(1)} de 5 estrellas, ${count} reseñas`}
     >
       <div className="flex" aria-hidden="true">
         {Array.from({ length: 5 }, (_, i) => {
@@ -34,7 +41,7 @@ export function RatingStars({ productId }: { productId: number }): JSX.Element {
         })}
       </div>
       <span className="text-xs text-muted-foreground">
-        {stars} ({count})
+        {stars.toFixed(1)} ({count})
       </span>
     </div>
   );

@@ -48,8 +48,8 @@ instance.interceptors.response.use(
 );
 
 export const api = {
-  get: <T>(url: string, params?: Record<string, unknown>): Promise<T> =>
-    instance.get<T>(url, { params }).then((r) => r.data),
+  get: <T>(url: string, params?: Record<string, unknown>, signal?: AbortSignal): Promise<T> =>
+    instance.get<T>(url, { params, signal }).then((r) => r.data),
 
   post: <T>(url: string, body?: unknown): Promise<T> =>
     instance.post<T>(url, body).then((r) => r.data),
@@ -64,6 +64,10 @@ export const api = {
 
   postForm: <T>(url: string, form: FormData): Promise<T> =>
     instance.post<T>(url, form).then((r) => r.data),
+
+  /** Descarga binaria autenticada (p. ej. el PDF de una cotización). */
+  getBlob: (url: string): Promise<Blob> =>
+    instance.get<Blob>(url, { responseType: 'blob' }).then((r) => r.data),
 };
 
 /** Extrae mensajes de error legibles del payload normalizado de NestJS. */

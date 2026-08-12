@@ -5,7 +5,7 @@ import { extractApiErrorMessage } from '@/lib/api-client';
 
 import type { PaginatedResult, ProductQueryParams, ProductResponse } from '@kore/shared';
 
-interface CatalogProductsState {
+export interface CatalogProductsState {
   data: PaginatedResult<ProductResponse> | null;
   loading: boolean;
   error: string | null;

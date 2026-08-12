@@ -106,6 +106,88 @@ describe('AuthController (e2e)', () => {
         .send({ ...validPayload, isAdmin: true })
         .expect(400);
     });
+
+    it('ignora un `role` inyectado en el payload: siempre crea un Cliente (anti-privesc)', async () => {
+      // `role` SÍ es un campo declarado de CreateUserDto (lo usan otros
+      // flujos internos), así que `forbidNonWhitelisted` no lo bloquea. El
+      // registro público debe forzar Cliente igual, sin confiar en el valor
+      // que mande quien se registra.
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/auth/register')
+        .send({ ...validPayload, role: 'Administrador' })
+        .expect(201);
+
+      expect(res.body.user.role).toBe('Cliente');
+
+      // Prueba end-to-end: con ese token no debe poder pasar un guard @Roles(ADMINISTRADOR).
+      await request(app.getHttpServer())
+        .post('/api/v1/products')
+        .set('Authorization', `Bearer ${res.body.tokens.accessToken}`)
+        .send({ sku: 'PRIVESC-TEST', name: 'X', price: 1, stock: 1 })
+        .expect(403);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // POST /api/v1/auth/refresh
+  // ---------------------------------------------------------------------------
+  describe('POST /api/v1/auth/refresh', () => {
+    const creds = {
+      email: 'refresh@kore.test',
+      password: 'RefreshPass1',
+      firstName: 'Refresh',
+      lastName: 'Tester',
+    };
+
+    it('canjea un refresh token vigente por un par de tokens nuevo', async () => {
+      const reg = await request(app.getHttpServer())
+        .post('/api/v1/auth/register')
+        .send(creds)
+        .expect(201);
+
+      const res = await request(app.getHttpServer())
+        .post('/api/v1/auth/refresh')
+        .send({ refreshToken: reg.body.tokens.refreshToken })
+        .expect(200);
+
+      expect(res.body).toMatchObject({
+        accessToken: expect.any(String),
+        refreshToken: expect.any(String),
+        tokenType: 'Bearer',
+      });
+      // El nuevo access token debe servir para acceder a una ruta protegida.
+      await request(app.getHttpServer())
+        .get('/api/v1/auth/me')
+        .set('Authorization', `Bearer ${res.body.accessToken}`)
+        .expect(200);
+    });
+
+    it('rota el refresh token: el usado no vuelve a servir (401 al reintentarlo)', async () => {
+      const reg = await request(app.getHttpServer())
+        .post('/api/v1/auth/register')
+        .send({ ...creds, email: 'refresh-rotate@kore.test' })
+        .expect(201);
+      const firstRefresh = reg.body.tokens.refreshToken as string;
+
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/refresh')
+        .send({ refreshToken: firstRefresh })
+        .expect(200);
+
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/refresh')
+        .send({ refreshToken: firstRefresh })
+        .expect(401);
+    });
+
+    it('rechaza un refresh token inventado o vacío (401)', async () => {
+      await request(app.getHttpServer())
+        .post('/api/v1/auth/refresh')
+        .send({ refreshToken: 'no-es-un-jwt' })
+        .expect(401);
+
+      await request(app.getHttpServer()).post('/api/v1/auth/refresh').send({}).expect(401);
+    });
   });
 
   // ---------------------------------------------------------------------------

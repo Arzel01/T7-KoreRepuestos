@@ -5,6 +5,7 @@ import { extractApiErrorMessage } from '@/lib/api-client';
 
 import { productsApi, type UpdateProductPayload } from '../server/products.api';
 
+import { CompatibilityEditor } from './CompatibilityEditor';
 import { ImageUploader } from './ImageUploader';
 import { ProductForm } from './ProductForm';
 import { TechnicalSheetEditor } from './TechnicalSheetEditor';
@@ -109,9 +110,20 @@ export function ProductEditPage(): JSX.Element {
       </section>
 
       {/* Ficha técnica */}
-      <section className="border-t border-border pt-10">
+      <section className="mb-12 border-t border-border pt-10">
         <h2 className="mb-6 text-sm font-semibold text-muted-foreground">03 → Ficha técnica</h2>
         <TechnicalSheetEditor productId={productId} />
+      </section>
+
+      {/* Compatibilidad */}
+      <section className="border-t border-border pt-10">
+        <h2 className="mb-2 text-sm font-semibold text-muted-foreground">
+          04 → Vehículos compatibles
+        </h2>
+        <p className="mb-6 text-xs text-muted-foreground">
+          Los modelos listados aparecen en el filtro de vehículo del catálogo.
+        </p>
+        <CompatibilityEditor productId={productId} />
       </section>
     </div>
   );

@@ -1,6 +1,21 @@
-import { IsBoolean, IsInt, IsNumber, IsOptional, IsString, Length, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+  Min,
+} from 'class-validator';
 
 export class UpdateProductDto {
+  @IsOptional()
+  @IsString()
+  @Length(1, 64)
+  @Matches(/^[A-Z0-9-]+$/i, { message: 'El SKU solo admite letras, dígitos y guiones' })
+  sku?: string;
+
   @IsOptional()
   @IsString()
   @Length(1, 200)

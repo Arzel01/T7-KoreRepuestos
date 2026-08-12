@@ -1,12 +1,23 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { typeOrmConfigFactory } from './config/typeorm.config';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CartModule } from './modules/cart/cart.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { GarageModule } from './modules/garage/garage.module';
+import { HealthModule } from './modules/health/health.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { ProductsModule } from './modules/products/products.module';
+import { QuotationsModule } from './modules/quotations/quotations.module';
+import { RecommendationsModule } from './modules/recommendations/recommendations.module';
+import { SearchModule } from './modules/search/search.module';
 import { UsersModule } from './modules/users/users.module';
 
 /**
@@ -15,8 +26,9 @@ import { UsersModule } from './modules/users/users.module';
  * Orden de imports significativo:
  *   1. ConfigModule global → variables de entorno disponibles vía DI.
  *   2. TypeOrmModule async → conexión a Postgres usando ConfigService.
- *   3. AuthModule          → registra JwtAuthGuard como guard GLOBAL.
- *   4. Módulos de dominio  → todos quedan protegidos por defecto.
+ *   3. ThrottlerModule     → registra ThrottlerGuard como guard GLOBAL (3.2).
+ *   4. AuthModule          → registra JwtAuthGuard/RolesGuard como guards GLOBALES.
+ *   5. Módulos de dominio  → todos quedan protegidos por defecto.
  */
 @Module({
   imports: [
@@ -29,11 +41,33 @@ import { UsersModule } from './modules/users/users.module';
       inject: [ConfigService],
       useFactory: typeOrmConfigFactory,
     }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            ttl: Number(config.get<string>('THROTTLE_TTL', '60')) * 1000,
+            limit: Number(config.get<string>('THROTTLE_LIMIT', '100')),
+          },
+        ],
+      }),
+    }),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     CategoriesModule,
     ProductsModule,
+    NotificationsModule,
     GarageModule,
+    AnalyticsModule,
+    RecommendationsModule,
+    SearchModule,
+    CartModule,
+    QuotationsModule,
+    HealthModule,
+    DashboardModule,
   ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
