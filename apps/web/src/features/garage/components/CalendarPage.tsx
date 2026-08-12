@@ -4,10 +4,13 @@ import { Link, useParams } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCart } from '@/features/cart/hooks/CartContext';
 import { CatalogNavbar } from '@/features/catalog/components/CatalogNavbar';
+import { extractApiErrorMessage } from '@/lib/api-client';
+import { toast } from '@/lib/toast';
 
 import { useVehicleCalendar } from '../hooks/useVehicleCalendar';
 import { useVehicles } from '../hooks/useVehicles';
@@ -33,9 +36,17 @@ export function CalendarPage() {
 
   const nextService = calendar[0];
   const loading = loadingVehicles || loadingCalendar;
+  const completedCount = calendar.filter((item) => item.lastLog).length;
+  const completionPct =
+    calendar.length > 0 ? Math.round((completedCount / calendar.length) * 100) : 0;
 
-  async function handleMarkComplete(planId: number, mileage: number, notes?: string) {
-    await markComplete({ planId, completedMileage: mileage, notes });
+  async function handleMarkComplete(
+    planId: number,
+    mileage: number,
+    notes?: string,
+    completedAt?: string,
+  ) {
+    await markComplete({ planId, completedMileage: mileage, notes, completedAt });
   }
 
   async function handleAddNextParts() {
@@ -45,8 +56,8 @@ export function CalendarPage() {
       await addMany(nextService.products.map((p) => ({ productId: p.id, quantity: p.quantity })));
       setAddedNext(true);
       window.setTimeout(() => setAddedNext(false), 2500);
-    } catch {
-      // El error del carrito se refleja en la página del carrito.
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err));
     } finally {
       setAddingNext(false);
     }
@@ -122,6 +133,18 @@ export function CalendarPage() {
             <p className="text-muted-foreground">
               No hay tareas de mantenimiento configuradas para este vehículo.
             </p>
+          </div>
+        )}
+
+        {!loading && calendar.length > 0 && vehicle && (
+          <div className="mb-6">
+            <div className="mb-2 flex items-center justify-between text-sm">
+              <span className="font-medium text-foreground">Progreso de mantenimiento</span>
+              <span className="text-muted-foreground">
+                {completedCount} de {calendar.length} completados
+              </span>
+            </div>
+            <Progress value={completionPct} />
           </div>
         )}
 

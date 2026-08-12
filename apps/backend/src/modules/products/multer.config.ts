@@ -10,6 +10,8 @@ export const UPLOADS_DIR = path.resolve(process.cwd(), 'uploads');
 
 const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
+export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+
 // Usa memoryStorage para poder validar magic bytes antes de persistir al disco.
 export const multerOptions: MulterOptions = {
   storage: multer.memoryStorage(),
@@ -20,5 +22,5 @@ export const multerOptions: MulterOptions = {
       cb(new BadRequestException('Solo se permiten imágenes JPG, PNG o WebP'), false);
     }
   },
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: MAX_UPLOAD_BYTES },
 };

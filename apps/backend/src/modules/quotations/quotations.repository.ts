@@ -78,6 +78,18 @@ export class QuotationsRepository {
     });
   }
 
+  /**
+   * Todas las cotizaciones del sistema, con el cliente dueño (Admin/Asesor —
+   * ver QuotationsService.list). Misma forma que findByUser + `user` para
+   * poder mostrar a quién pertenece cada una.
+   */
+  findAll(): Promise<Quotation[]> {
+    return this.quotations.find({
+      relations: { items: true, user: true },
+      order: { issuedAt: 'DESC', id: 'DESC' },
+    });
+  }
+
   async updateStatus(id: number, status: string): Promise<void> {
     await this.quotations.update(id, { status });
   }

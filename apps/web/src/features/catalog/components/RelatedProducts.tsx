@@ -24,7 +24,7 @@ export function RelatedProducts({ currentProductId }: RelatedProductsProps): JSX
       try {
         setLoading(true);
         setError(null);
-        const result = await recommendationsApi.getRecommendations(currentProductId);
+        const result = await recommendationsApi.getFrequentlyBoughtTogether(currentProductId);
         setProducts(result);
       } catch (err) {
         const message = extractApiErrorMessage(err);

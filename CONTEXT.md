@@ -314,10 +314,25 @@ git checkout -b feature/nombre-feature
 
 ## Patrones de Diseño Implementados
 
-1. **Repository Pattern** — Abstracción de acceso a datos vía `IRepository<T>`
-2. **Strategy Pattern** — Algoritmos intercambiables para cálculo de planes de mantenimiento
-3. **Observer Pattern** — Notificaciones de stock bajo y vencimientos de mantenimiento
-4. **Builder Pattern** — Construcción incremental de cotizaciones y planes
+> Verificado contra el código (auditoría NFR 3.9, 2026-08-11) — se corrigen dos
+> entradas que no correspondían a una implementación real.
+
+1. **Repository Pattern** — Abstracción de acceso a datos vía `IRepository<T, ID>`
+   (`common/interfaces/repository.interface.ts`), implementada por
+   `base.repository.ts` y extendida por `users`, `products`, `categories` y
+   `auth/sessions`.
+2. **Strategy Pattern** — `notifications/notification-dispatcher.service.ts`
+   selecciona la implementación de `NotificationChannel` (`InAppChannel` /
+   `EmailChannel` / `PushChannel`) a despachar según el canal de cada
+   notificación. (El cálculo de mantenimiento en `maintenance-calc.ts` son
+   funciones puras, no Strategy.)
+
+Sin evidencia en el código: no hay un Observer (event emitter/subscriber) para
+stock bajo ni vencimientos — los recordatorios de mantenimiento usan el
+outbox de `ReminderSchedulerService` (ver ADR-0002), no un patrón Observer. Y
+no hay una clase Builder para cotizaciones o planes — las únicas coincidencias
+de "Builder" en el código son `TypeORM.createQueryBuilder()` y el
+`DocumentBuilder` de Swagger.
 
 ---
 

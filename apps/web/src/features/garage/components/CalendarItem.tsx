@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useCart } from '@/features/cart/hooks/CartContext';
+import { extractApiErrorMessage } from '@/lib/api-client';
+import { toast } from '@/lib/toast';
 
 import { MarkCompleteModal } from './MarkCompleteModal';
 
@@ -14,7 +16,12 @@ interface Props {
   item: CalendarItemDto;
   vehicleId: number;
   currentMileage: number;
-  onMarkComplete: (planId: number, mileage: number, notes?: string) => Promise<void>;
+  onMarkComplete: (
+    planId: number,
+    mileage: number,
+    notes?: string,
+    completedAt?: string,
+  ) => Promise<void>;
 }
 
 export function CalendarItem({
@@ -37,8 +44,8 @@ export function CalendarItem({
       await addMany(item.products.map((p) => ({ productId: p.id, quantity: p.quantity })));
       setAddedParts(true);
       window.setTimeout(() => setAddedParts(false), 2500);
-    } catch {
-      // El error del carrito se refleja en la página del carrito.
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err));
     } finally {
       setAddingParts(false);
     }

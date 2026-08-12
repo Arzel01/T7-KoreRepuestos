@@ -43,10 +43,12 @@ export class QuotationsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Historial de cotizaciones del usuario.' })
+  @ApiOperation({
+    summary: 'Historial de cotizaciones. Admin/Asesor Comercial ven las de todos los clientes.',
+  })
   @ApiResponse({ status: 200 })
   list(@CurrentUser() user: JwtPayload): Promise<QuotationSummaryResponse[]> {
-    return this.quotations.list(Number(user.sub));
+    return this.quotations.list(user);
   }
 
   @Get(':id')
@@ -57,7 +59,7 @@ export class QuotationsController {
     @CurrentUser() user: JwtPayload,
     @Param('id', new ParseIntPipe()) id: number,
   ): Promise<QuotationResponse> {
-    return this.quotations.findOne(Number(user.sub), id);
+    return this.quotations.findOne(user, id);
   }
 
   @Get(':id/pdf')
@@ -70,7 +72,7 @@ export class QuotationsController {
     @Param('id', new ParseIntPipe()) id: number,
     @Res() res: Response,
   ): Promise<void> {
-    const { filename, pdf } = await this.quotations.generatePdf(Number(user.sub), id);
+    const { filename, pdf } = await this.quotations.generatePdf(user, id);
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="${filename}"`,
@@ -81,13 +83,16 @@ export class QuotationsController {
 
   @Post(':id/email')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Envía la cotización por email con el PDF adjunto (US#22).' })
+  @ApiOperation({
+    summary:
+      'Envía la cotización por email con el PDF adjunto (US#22). Admin/Asesor pueden reenviar cualquiera, para cerrar la venta.',
+  })
   @ApiResponse({ status: 200 })
   @ApiResponse({ status: 404, description: 'Cotización no encontrada.' })
   email(
     @CurrentUser() user: JwtPayload,
     @Param('id', new ParseIntPipe()) id: number,
   ): Promise<QuotationEmailResult> {
-    return this.quotations.email(Number(user.sub), id);
+    return this.quotations.email(user, id);
   }
 }

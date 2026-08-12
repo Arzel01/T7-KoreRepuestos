@@ -1,13 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { CartItem } from './entities/cart-item.entity';
 import { ShoppingCart } from './entities/shopping-cart.entity';
 
+/** Cantidad final ya resuelta (tope de stock aplicado) para un producto del alta masiva. */
+export interface BulkUpsertEntry {
+  productId: number;
+  quantity: number;
+}
+
 @Injectable()
 export class CartRepository {
   constructor(
+    @InjectDataSource() private readonly dataSource: DataSource,
     @InjectRepository(ShoppingCart)
     private readonly carts: Repository<ShoppingCart>,
     @InjectRepository(CartItem)
@@ -62,5 +69,28 @@ export class CartRepository {
   /** Marca el carrito como modificado (refresca `actualizado_en`). */
   async touch(cartId: number): Promise<void> {
     await this.carts.update(cartId, { updatedAt: new Date() });
+  }
+
+  /**
+   * US#5 — alta masiva, en una sola transacción (3.11): el barrido
+   * find-then-upsert por producto y el `touch` final son todo o nada, en vez
+   * de N escrituras sueltas que podrían dejar el carrito a medio actualizar
+   * si una falla a mitad de camino.
+   */
+  async bulkUpsertItems(cartId: number, entries: BulkUpsertEntry[]): Promise<void> {
+    if (entries.length === 0) return;
+    await this.dataSource.transaction(async (manager) => {
+      for (const { productId, quantity } of entries) {
+        const existing = await manager.findOne(CartItem, { where: { cartId, productId } });
+        if (existing) {
+          if (existing.quantity !== quantity) {
+            await manager.update(CartItem, existing.id, { quantity });
+          }
+        } else {
+          await manager.save(manager.create(CartItem, { cartId, productId, quantity }));
+        }
+      }
+      await manager.update(ShoppingCart, cartId, { updatedAt: new Date() });
+    });
   }
 }

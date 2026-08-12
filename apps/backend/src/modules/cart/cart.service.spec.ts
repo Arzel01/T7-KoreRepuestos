@@ -61,6 +61,7 @@ describe('CartService', () => {
       removeItem: jest.fn().mockResolvedValue(undefined),
       clearItems: jest.fn().mockResolvedValue(undefined),
       touch: jest.fn().mockResolvedValue(undefined),
+      bulkUpsertItems: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<CartRepository>;
 
     products = { findOne: jest.fn(), find: jest.fn() };
@@ -255,16 +256,10 @@ describe('CartService', () => {
         ],
       });
 
-      expect(cartRepo.saveItem).toHaveBeenCalledWith({
-        cartId: CART_ID,
-        productId: 5,
-        quantity: 3,
-      });
-      expect(cartRepo.saveItem).toHaveBeenCalledWith({
-        cartId: CART_ID,
-        productId: 6,
-        quantity: 4,
-      });
+      expect(cartRepo.bulkUpsertItems).toHaveBeenCalledWith(CART_ID, [
+        { productId: 5, quantity: 3 },
+        { productId: 6, quantity: 4 },
+      ]);
     });
 
     it('ignora productos inexistentes/inactivos (no devueltos por el find)', async () => {
@@ -273,7 +268,7 @@ describe('CartService', () => {
 
       await service.bulkAdd(USER_ID, { items: [{ productId: 999, quantity: 1 }] });
 
-      expect(cartRepo.saveItem).not.toHaveBeenCalled();
+      expect(cartRepo.bulkUpsertItems).toHaveBeenCalledWith(CART_ID, []);
     });
   });
 

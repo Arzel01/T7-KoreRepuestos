@@ -15,7 +15,7 @@ import { In, Repository } from 'typeorm';
 
 import { Product } from '../products/entities/product.entity';
 
-import { CartRepository } from './cart.repository';
+import { CartRepository, type BulkUpsertEntry } from './cart.repository';
 import { AddCartItemDto } from './dto/add-cart-item.dto';
 import { BulkAddCartDto } from './dto/bulk-add-cart.dto';
 import { UpdateCartItemDto } from './dto/update-cart-item.dto';
@@ -112,21 +112,19 @@ export class CartService {
     });
     const byId = new Map(products.map((p) => [p.id, p]));
 
+    // Cantidades ya topadas al stock disponible; la existente por producto se
+    // resuelve dentro de la misma transacción para evitar una condición de
+    // carrera entre leer y escribir (ver CartRepository.bulkUpsertItems).
+    const entries: BulkUpsertEntry[] = [];
     for (const [productId, addQty] of requested) {
       const product = byId.get(productId);
       if (!product || product.stock <= 0) continue;
-
       const existing = await this.cartRepo.findItem(cart.id, productId);
       const nextQty = Math.min((existing?.quantity ?? 0) + addQty, product.stock);
-      if (existing) {
-        if (nextQty !== existing.quantity) {
-          await this.cartRepo.updateItemQuantity(existing.id, nextQty);
-        }
-      } else {
-        await this.cartRepo.saveItem({ cartId: cart.id, productId, quantity: nextQty });
-      }
+      entries.push({ productId, quantity: nextQty });
     }
-    await this.cartRepo.touch(cart.id);
+
+    await this.cartRepo.bulkUpsertItems(cart.id, entries);
     return this.buildResponse(cart.id);
   }
 

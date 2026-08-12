@@ -144,7 +144,7 @@ export class VehiclesService {
     return this.logsRepo.create({
       vehicleId,
       planId: dto.planId,
-      completedAt: today,
+      completedAt: dto.completedAt ?? today,
       completedMileage: dto.completedMileage,
       notes: dto.notes,
     });

@@ -18,6 +18,8 @@ interface AuthState {
   user: UserResponse | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  /** Administrador o Asesor Comercial — ambos ven el panel operativo/cotizaciones. */
+  isStaff: boolean;
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<UserResponse>;
   register: (payload: RegisterPayload) => Promise<UserResponse>;
@@ -74,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
       user,
       isAuthenticated: Boolean(user),
       isAdmin: user?.role === UserRole.ADMINISTRADOR,
+      isStaff: user?.role === UserRole.ADMINISTRADOR || user?.role === UserRole.ASESOR_COMERCIAL,
       isLoading,
       login,
       register,

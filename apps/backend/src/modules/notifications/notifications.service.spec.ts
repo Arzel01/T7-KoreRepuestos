@@ -2,6 +2,7 @@ import { NotificationsService } from './notifications.service';
 
 import type { NotificationPreference } from './entities/notification-preference.entity';
 import type { Notification } from './entities/notification.entity';
+import type { PushSubscription } from './entities/push-subscription.entity';
 import type { ObjectLiteral, Repository } from 'typeorm';
 
 type RepoMock<T extends ObjectLiteral> = jest.Mocked<
@@ -20,14 +21,17 @@ function buildRepo<T extends ObjectLiteral>(): RepoMock<T> {
 describe('NotificationsService', () => {
   let notifRepo: RepoMock<Notification>;
   let prefsRepo: RepoMock<NotificationPreference>;
+  let pushSubsRepo: RepoMock<PushSubscription>;
   let service: NotificationsService;
 
   beforeEach(() => {
     notifRepo = buildRepo<Notification>();
     prefsRepo = buildRepo<NotificationPreference>();
+    pushSubsRepo = buildRepo<PushSubscription>();
     service = new NotificationsService(
       notifRepo as unknown as Repository<Notification>,
       prefsRepo as unknown as Repository<NotificationPreference>,
+      pushSubsRepo as unknown as Repository<PushSubscription>,
     );
   });
 

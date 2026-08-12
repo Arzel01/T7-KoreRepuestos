@@ -82,7 +82,53 @@ npx autocannon -c 20 -d 30 -H "Authorization=Bearer $TOKEN" $BASE/quotations/1/p
   (el documento es inmutable salvo su estado) o materializarlo a disco/almacenamiento al emitir.
 - La conexión a Postgres debe usar **Transaction Mode/pgBouncer (6543)** para la app en cargas altas
   con conexiones cortas; **Direct (5432)** solo para migraciones.
-- El rate limiting (`@nestjs/throttler`, `THROTTLE_LIMIT`) protege ante ráfagas abusivas.
+- El rate limiting (`@nestjs/throttler`, `THROTTLE_LIMIT`) protege ante ráfagas abusivas — **subir
+  `THROTTLE_LIMIT` antes de correr el plan de JMeter de abajo**, o cada usuario virtual empezará a
+  recibir 429 en vez de las respuestas reales que el NFR 3.1 quiere medir.
+
+### 3.1 Protocolo formal (NFR 3.1 — JMeter, 100 usuarios / 60 min)
+
+El autocannon de arriba es un chequeo rápido de desarrollo sobre el endpoint más caro. El protocolo
+que exige la NFR 3.1 (100 usuarios concurrentes, 60 minutos, degradación < 10 %, error 5xx = 0 %) vive
+como un plan de JMeter versionado: [`docs/testing/load/kore-nfr-3.1-load-test.jmx`](./testing/load/kore-nfr-3.1-load-test.jmx).
+
+Qué hace el plan por cada uno de los 100 usuarios virtuales:
+
+1. **Setup (una vez)**: se registra con un email único (`loadtest-<hilo>-<timestamp>@kore.dev`) y
+   captura su `accessToken`.
+2. **En bucle durante 60 minutos**: `GET /products` (explorar catálogo) → `GET /products?search=…`
+   (buscar) → `POST /cart/items` (agregar al carrito) → `GET /cart` (ver carrito), con una pausa
+   aleatoria de 0.5–2s entre pasos simulando a una persona real.
+
+Cómo correrlo:
+
+```bash
+# 1. Backend corriendo contra una BD real (no la de test, para no truncarla a mitad de la corrida).
+pnpm dev:backend
+
+# 2. Sube el rate limit temporalmente (100 hilos van a superar el límite normal de 100 req/60s).
+#    En apps/backend/.env: THROTTLE_LIMIT=100000
+
+# 3. Instala JMeter (https://jmeter.apache.org/download_jmeter.cgi) y corre en modo no-GUI:
+jmeter -n \
+  -t docs/testing/load/kore-nfr-3.1-load-test.jmx \
+  -l docs/testing/load/results.jtl \
+  -e -o docs/testing/load/report
+```
+
+**Criterios de éxito** (leer del reporte HTML generado en `docs/testing/load/report/index.html`):
+
+| Métrica                           | Objetivo  |
+| --------------------------------- | --------- |
+| Tiempo de respuesta promedio      | < 2000 ms |
+| Degradación vs. baseline (1 user) | < 10 %    |
+| Tasa de error 5xx                 | 0 %       |
+
+Para el baseline de degradación: corré el mismo plan con `ThreadGroup.num_threads=1` primero y
+compará el tiempo de respuesta promedio contra la corrida de 100 usuarios.
+
+`results.jtl` y `report/` quedan fuera de git (son salidas de una corrida local, no artefactos del
+repo) — agregalos a `.gitignore` si los generás dentro de `docs/testing/load/`.
 
 ---
 
@@ -117,3 +163,27 @@ pnpm --filter @kore/backend lint     # reglas de estilo/seguridad de ESLint
 
 - Considerar cachear/limitar la generación de PDF (ver §3) para evitar abuso de CPU.
 - Añadir un escaneo DAST (p. ej. OWASP ZAP baseline) al pipeline antes de releases mayores.
+
+---
+
+## 5. Calidad estática (NFR 3.7 / 3.9 — SonarCloud)
+
+El job `sonar` en `.github/workflows/ci.yml` corre el análisis, pero necesita configuración de cuenta
+que no se puede versionar:
+
+1. Crear un proyecto en [sonarcloud.io](https://sonarcloud.io) importando este repo de GitHub.
+2. Copiar el `projectKey`/`organization` que SonarCloud asigna a `sonar-project.properties`
+   (reemplazar los dos `CHANGE_ME_*`).
+3. Generar un token en Sonar → My Account → Security, y guardarlo como secret `SONAR_TOKEN` en
+   GitHub (Settings → Secrets and variables → Actions).
+4. Quitar `continue-on-error: true` del job `sonar` y agregarlo a `needs` de `ci-passed` para que el
+   Quality Gate bloquee merges (0 bugs, 0 vulnerabilidades, < 3 % duplicación, complejidad < 10 por
+   método — los umbrales de la NFR 3.7/3.9 son el Quality Gate "Sonar way" por defecto).
+
+Sin este setup el job falla de forma inofensiva (no bloquea CI) — es trabajo de cuenta, no de código.
+
+## 6. Usabilidad (NFR 3.3)
+
+Requiere sesiones con personas reales — no es algo verificable por análisis de código. El guion
+completo (5 participantes, 5 tareas, cuestionario SUS, cálculo de puntaje) está en
+[`docs/testing/usability-test-script.md`](./testing/usability-test-script.md).

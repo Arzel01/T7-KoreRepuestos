@@ -4,14 +4,20 @@ import { useAuth } from '@/features/auth/hooks/AuthContext';
 
 import type { UserRole } from '@kore/shared';
 
-export function ProtectedRoute({ requireRole }: { requireRole?: UserRole }): JSX.Element {
+interface ProtectedRouteProps {
+  /** Uno o varios roles permitidos. Sin especificar: cualquier usuario autenticado. */
+  requireRole?: UserRole | UserRole[];
+}
+
+export function ProtectedRoute({ requireRole }: ProtectedRouteProps): JSX.Element {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
   if (!isAuthenticated) {
     return <Navigate to="/auth/login" state={{ from: location.pathname }} replace />;
   }
-  if (requireRole && user?.role !== requireRole) {
+  const allowedRoles = requireRole === undefined ? null : ([] as UserRole[]).concat(requireRole);
+  if (allowedRoles && (!user || !allowedRoles.includes(user.role))) {
     return <ForbiddenScreen />;
   }
   return <Outlet />;

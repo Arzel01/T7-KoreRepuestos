@@ -15,6 +15,8 @@ export interface UpdateMileageDto {
 export interface CreateMaintenanceLogDto {
   planId?: number;
   completedMileage: number;
+  /** Fecha del servicio (YYYY-MM-DD). Por defecto hoy si se omite. */
+  completedAt?: string;
   notes?: string;
 }
 

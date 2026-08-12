@@ -2,6 +2,7 @@ import { ShoppingCart, AlertCircle, CheckCircle, Loader, FileText } from 'lucide
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
+import { RichText } from '@/components/RichText';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
@@ -14,6 +15,7 @@ import { ReviewList } from '@/features/catalog/components/ReviewList';
 import { TechnicalSpecifications } from '@/features/catalog/components/TechnicalSpecifications';
 import { productsApi } from '@/features/products/server/products.api';
 import { extractApiErrorMessage } from '@/lib/api-client';
+import { toast } from '@/lib/toast';
 
 import type { ProductDetailResponse } from '@kore/shared';
 
@@ -284,6 +286,7 @@ export function ProductDetailsPage(): JSX.Element {
                     document.execCommand('copy');
                     document.body.removeChild(input);
                   }
+                  toast.success('Enlace copiado al portapapeles');
                 }}
               >
                 Compartir
@@ -309,9 +312,10 @@ export function ProductDetailsPage(): JSX.Element {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="prose prose-sm max-w-none text-neutral-700 leading-relaxed">
-                {product.description}
-              </div>
+              <RichText
+                html={product.description}
+                className="prose prose-sm max-w-none text-neutral-700 leading-relaxed"
+              />
             </CardContent>
           </Card>
         )}

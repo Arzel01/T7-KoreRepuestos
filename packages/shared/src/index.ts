@@ -14,6 +14,8 @@ export * from './dto/plan.dto';
 export * from './dto/analytics.dto';
 export * from './dto/saved-search.dto';
 export * from './dto/notification.dto';
+export * from './dto/push-subscription.dto';
 export * from './dto/cart.dto';
 export * from './dto/maintenance-record.dto';
 export * from './dto/quotation.dto';
+export * from './dto/dashboard.dto';

@@ -13,6 +13,7 @@ import {
   Put,
   Query,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -38,6 +39,7 @@ import { QueryProductsDto } from './dto/query-products.dto';
 import { QueryReviewsDto } from './dto/query-reviews.dto';
 import { SuggestProductsDto } from './dto/suggest-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { MaxContentLengthGuard } from './guards/max-content-length.guard';
 import { multerOptions } from './multer.config';
 import { ProductImagesService } from './product-images.service';
 import { ProductsService } from './products.service';
@@ -223,6 +225,7 @@ export class ProductsController {
   @Roles(UserRole.ADMINISTRADOR)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
+  @UseGuards(MaxContentLengthGuard)
   @UseInterceptors(FileInterceptor('file', multerOptions))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -240,6 +243,7 @@ export class ProductsController {
   @ApiResponse({ status: 401, description: 'No autenticado.' })
   @ApiResponse({ status: 403, description: 'Sin permiso (requiere Administrador).' })
   @ApiResponse({ status: 404, description: 'Producto no encontrado.' })
+  @ApiResponse({ status: 413, description: 'Archivo excede el límite de 5MB.' })
   uploadImage(
     @Param('id', new ParseIntPipe()) productId: number,
     @UploadedFile() file: Express.Multer.File,

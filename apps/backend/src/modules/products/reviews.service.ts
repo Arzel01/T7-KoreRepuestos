@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { CreateReviewDto } from './dto/create-review.dto';
 import { QueryReviewsDto } from './dto/query-reviews.dto';
@@ -28,6 +33,11 @@ export class ReviewsService {
     const existing = await this.reviewsRepository.findByProductAndUser(productId, userId);
     if (existing) {
       throw new ConflictException('Ya publicaste una reseña para este producto');
+    }
+
+    const purchased = await this.reviewsRepository.hasPurchased(userId, productId);
+    if (!purchased) {
+      throw new ForbiddenException('Solo quienes compraron este producto pueden reseñarlo');
     }
 
     return this.reviewsRepository.create({

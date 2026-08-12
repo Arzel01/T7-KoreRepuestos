@@ -1,7 +1,7 @@
 import { IsBoolean, IsInt, IsOptional, Max, Min } from 'class-validator';
 
 /** Canal por el que se entrega una notificación. */
-export type NotificationChannel = 'app' | 'email';
+export type NotificationChannel = 'app' | 'email' | 'push';
 
 /**
  * Estado de una notificación dentro del outbox Postgres (ver ADR-0002):
@@ -27,6 +27,8 @@ export interface NotificationPreferencesResponse {
   remindersEnabled: boolean;
   emailChannel: boolean;
   appChannel: boolean;
+  /** Notificaciones push del navegador (Web Push), ver ADR-0002/ADR-0006. */
+  pushChannel: boolean;
   /** Días de anticipación con los que se avisa antes de un servicio. */
   daysBefore: number;
 }
@@ -44,6 +46,10 @@ export class UpdateNotificationPreferencesDto {
   @IsOptional()
   @IsBoolean()
   appChannel?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  pushChannel?: boolean;
 
   @IsOptional()
   @IsInt()

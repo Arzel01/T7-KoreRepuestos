@@ -52,7 +52,8 @@ export class ReminderSchedulerService {
    */
   async checkVehicle(vehicle: VehicleUser): Promise<number> {
     const prefs = await this.notifications.getPreferences(vehicle.userId);
-    if (!prefs.remindersEnabled || (!prefs.appChannel && !prefs.emailChannel)) return 0;
+    if (!prefs.remindersEnabled || (!prefs.appChannel && !prefs.emailChannel && !prefs.pushChannel))
+      return 0;
 
     const services = await this.planner.buildCalendar(vehicle);
     const now = new Date();
@@ -88,6 +89,9 @@ export class ReminderSchedulerService {
         enqueued += 1;
       }
       if (prefs.emailChannel && (await this.notifications.enqueue({ ...base, canal: 'email' }))) {
+        enqueued += 1;
+      }
+      if (prefs.pushChannel && (await this.notifications.enqueue({ ...base, canal: 'push' }))) {
         enqueued += 1;
       }
     }

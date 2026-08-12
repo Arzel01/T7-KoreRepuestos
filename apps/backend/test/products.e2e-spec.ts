@@ -141,3 +141,86 @@ describe('ProductsController POST /api/v1/products (e2e)', () => {
       .expect(400);
   });
 });
+
+/**
+ * Tests e2e de PUT /api/v1/products/:id — foco en la edición del SKU
+ * (US#2 del acceptance report): antes de este cambio, `sku` no era un campo
+ * editable en absoluto.
+ */
+describe('ProductsController PUT /api/v1/products/:id (e2e)', () => {
+  let app: INestApplication;
+  let dataSource: DataSource;
+  let adminToken: string;
+
+  beforeAll(async () => {
+    app = await createTestingApp();
+    dataSource = app.get<DataSource>(getDataSourceToken());
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(async () => {
+    await dataSource.query(
+      'TRUNCATE TABLE sesiones, productos, categorias, usuarios RESTART IDENTITY CASCADE',
+    );
+
+    const adminEmail = 'admin@test.local';
+    const adminPassword = 'AdminPass1';
+    const bcrypt = await import('bcrypt');
+    const hash = await bcrypt.hash(adminPassword, 4);
+    await dataSource.query(
+      `INSERT INTO usuarios (email, password_hash, nombres, rol, is_active)
+       VALUES ($1, $2, 'Admin Test', 'Administrador', TRUE)`,
+      [adminEmail, hash],
+    );
+    const adminLogin = await request(app.getHttpServer())
+      .post('/api/v1/auth/login')
+      .send({ email: adminEmail, password: adminPassword })
+      .expect(200);
+    adminToken = adminLogin.body.tokens.accessToken;
+  });
+
+  async function createProduct(sku: string): Promise<number> {
+    const res = await request(app.getHttpServer())
+      .post('/api/v1/products')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ sku, name: `Producto ${sku}`, price: 10, stock: 5 })
+      .expect(201);
+    return res.body.id;
+  }
+
+  it('permite cambiar el SKU a uno libre (200)', async () => {
+    const id = await createProduct('SKU-ORIGINAL');
+
+    const res = await request(app.getHttpServer())
+      .put(`/api/v1/products/${id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ sku: 'SKU-NUEVO' })
+      .expect(200);
+
+    expect(res.body.sku).toBe('SKU-NUEVO');
+  });
+
+  it('rechaza cambiar el SKU a uno que ya usa otro producto (409)', async () => {
+    await createProduct('SKU-A');
+    const idB = await createProduct('SKU-B');
+
+    await request(app.getHttpServer())
+      .put(`/api/v1/products/${idB}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ sku: 'SKU-A' })
+      .expect(409);
+  });
+
+  it('permite reenviar el mismo SKU sin cambios (200, no es "colisión consigo mismo")', async () => {
+    const id = await createProduct('SKU-SIN-CAMBIOS');
+
+    await request(app.getHttpServer())
+      .put(`/api/v1/products/${id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ sku: 'SKU-SIN-CAMBIOS', stock: 20 })
+      .expect(200);
+  });
+});
