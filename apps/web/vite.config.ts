@@ -33,8 +33,7 @@ export default defineConfig({
         ],
       },
       injectManifest: {
-        // Placeholder icons/manifest — swap for real brand assets before shipping.
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        globPatterns: ['*/.{js,css,html,svg,png,ico,woff2}'],
       },
       devOptions: {
         enabled: true,
@@ -52,6 +51,10 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
     open: false,
+  },
+  preview: {
+    host: true,
+    allowedHosts: ['.railway.app'],
   },
   build: {
     outDir: 'dist',
