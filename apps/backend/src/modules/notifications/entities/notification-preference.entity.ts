@@ -24,6 +24,9 @@ export class NotificationPreference {
   @Column({ name: 'canal_app', default: true })
   appChannel!: boolean;
 
+  @Column({ name: 'canal_push', default: false })
+  pushChannel!: boolean;
+
   @Column({ name: 'dias_anticipacion', type: 'int', default: 7 })
   daysBefore!: number;
 

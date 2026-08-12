@@ -2,10 +2,14 @@ import type { NotificationChannel as NotificationChannelName } from '@kore/share
 
 /** Mensaje saliente ya materializado, listo para entregar por un canal. */
 export interface OutboundNotification {
-  /** Destinatario (email) — requerido por el canal `email`, ignorado por `app`. */
+  /** Destinatario (email) — requerido por el canal `email`, ignorado por `app`/`push`. */
   to?: string;
+  /** Requerido por el canal `push` para resolver las suscripciones del usuario. */
+  userId: number;
   titulo: string;
   mensaje: string;
+  /** Ruta del frontend a abrir al tocar la notificación (deep link). */
+  url?: string;
 }
 
 /**

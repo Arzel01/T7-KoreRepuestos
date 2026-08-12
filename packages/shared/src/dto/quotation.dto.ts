@@ -86,6 +86,15 @@ export interface QuotationSummaryResponse {
   issuedAt: string;
   validUntil: string;
   expired: boolean;
+  /**
+   * Solo presente cuando el listado lo pide Administrador/Asesor Comercial
+   * (ven las cotizaciones de todos los clientes, no solo las propias).
+   */
+  customer?: {
+    id: number;
+    name: string;
+    email: string;
+  };
 }
 
 /**

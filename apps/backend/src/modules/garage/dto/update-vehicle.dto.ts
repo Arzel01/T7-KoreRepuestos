@@ -1,5 +1,8 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsPositive, IsString, Length, Min } from 'class-validator';
+import { IsInt, IsOptional, IsPositive, IsString, Length, Max, Min } from 'class-validator';
+
+const MIN_VEHICLE_YEAR = 1980;
+const MAX_VEHICLE_YEAR = new Date().getFullYear() + 1;
 
 export class UpdateVehicleDto {
   @ApiPropertyOptional()
@@ -14,10 +17,11 @@ export class UpdateVehicleDto {
   @IsPositive()
   modelId?: number;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ minimum: MIN_VEHICLE_YEAR, maximum: MAX_VEHICLE_YEAR })
   @IsOptional()
   @IsInt()
-  @Min(1900)
+  @Min(MIN_VEHICLE_YEAR)
+  @Max(MAX_VEHICLE_YEAR)
   year?: number;
 
   @ApiPropertyOptional()

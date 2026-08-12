@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { useCart } from '@/features/cart/hooks/CartContext';
+import { extractApiErrorMessage } from '@/lib/api-client';
+import { toast } from '@/lib/toast';
 
 import { MarkCompleteModal } from './MarkCompleteModal';
 
@@ -14,7 +16,12 @@ interface Props {
   item: CalendarItemDto;
   vehicleId: number;
   currentMileage: number;
-  onMarkComplete: (planId: number, mileage: number, notes?: string) => Promise<void>;
+  onMarkComplete: (
+    planId: number,
+    mileage: number,
+    notes?: string,
+    completedAt?: string,
+  ) => Promise<void>;
 }
 
 export function CalendarItem({
@@ -37,8 +44,8 @@ export function CalendarItem({
       await addMany(item.products.map((p) => ({ productId: p.id, quantity: p.quantity })));
       setAddedParts(true);
       window.setTimeout(() => setAddedParts(false), 2500);
-    } catch {
-      // El error del carrito se refleja en la página del carrito.
+    } catch (err) {
+      toast.error(extractApiErrorMessage(err));
     } finally {
       setAddingParts(false);
     }
@@ -54,7 +61,7 @@ export function CalendarItem({
   return (
     <>
       <Card className={`rounded-2xl border shadow-sm ${borderClass}`}>
-        <CardHeader className="px-5 pt-4 pb-2 flex flex-row items-start justify-between gap-2">
+        <CardHeader className="px-5 pt-4 pb-2 flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <h3
               className={`font-semibold text-foreground ${isCompleted ? 'line-through text-muted-foreground' : ''}`}
@@ -64,13 +71,11 @@ export function CalendarItem({
             {item.isCritical && <Badge className="bg-orange-500 text-white text-xs">Crítico</Badge>}
             {isCompleted && <Badge className="bg-green-500 text-white text-xs">Completado</Badge>}
           </div>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {formatDate(item.nextServiceDate)}
-          </span>
+          <span className="text-xs text-muted-foreground">{formatDate(item.nextServiceDate)}</span>
         </CardHeader>
 
         <CardContent className="px-5 pb-5 space-y-3">
-          <div className="flex gap-4 text-sm text-muted-foreground">
+          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             <span>Programado: {item.mileageInterval.toLocaleString()} km</span>
             {item.monthInterval && <span>/ {item.monthInterval} meses</span>}
           </div>
@@ -114,7 +119,7 @@ export function CalendarItem({
             </div>
           )}
 
-          <div className="flex gap-3 pt-1">
+          <div className="flex flex-wrap gap-3 pt-1">
             {!isCompleted && (
               <Button
                 size="sm"

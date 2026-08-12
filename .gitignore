@@ -53,6 +53,10 @@ coverage/
 *.lcov
 junit.xml
 
+# --- Salidas locales de pruebas de carga (JMeter) ---
+docs/testing/load/results.jtl
+docs/testing/load/report/
+
 # --- Bases de datos locales / dumps ---
 *.sqlite
 *.sqlite3
@@ -131,6 +135,7 @@ docker-volume-data/
 
 # --- Vite / Storybook / herramientas ---
 .vite/
+dev-dist/
 storybook-static/
 .turbo/
 .nx/

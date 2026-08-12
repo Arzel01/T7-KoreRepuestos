@@ -1,6 +1,7 @@
 import { api } from '@/lib/api-client';
 
 import type {
+  CreatePushSubscriptionDto,
   NotificationPreferencesResponse,
   NotificationResponse,
   UpdateNotificationPreferencesDto,
@@ -19,4 +20,11 @@ export const notificationsApi = {
   updatePreferences: (
     payload: UpdateNotificationPreferencesDto,
   ): Promise<NotificationPreferencesResponse> => api.patch('/notifications/preferences', payload),
+
+  // ADR-0006 — Web Push.
+  subscribePush: (payload: CreatePushSubscriptionDto): Promise<void> =>
+    api.post('/notifications/push-subscriptions', payload),
+
+  unsubscribePush: (endpoint: string): Promise<void> =>
+    api.delete(`/notifications/push-subscriptions?endpoint=${encodeURIComponent(endpoint)}`),
 };

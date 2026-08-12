@@ -18,6 +18,8 @@ vi.mock('../server/notifications.api', () => ({
     unreadCount: vi.fn(),
     getPreferences: vi.fn(),
     updatePreferences: vi.fn(),
+    subscribePush: vi.fn(),
+    unsubscribePush: vi.fn(),
   },
 }));
 
@@ -30,6 +32,7 @@ const prefs = (
   remindersEnabled: true,
   emailChannel: true,
   appChannel: true,
+  pushChannel: false,
   daysBefore: 7,
   ...over,
 });

@@ -26,24 +26,44 @@ export class RecommendationsService {
       where: { id: productId, isActive: true },
     });
 
-    const qb = this.productRepo
+    const base = this.productRepo
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.images', 'img')
       .where('p.is_active = TRUE')
       .andWhere('p.id_producto != :productId', { productId })
       .andWhere('p.stock_actual > 0');
 
+    // Prioridad por categoría en JS, no en SQL: dos consultas simples + concat,
+    // en vez de un ORDER BY con CASE crudo (getMany() con leftJoinAndSelect
+    // dispara la subquery de paginación de TypeORM para relaciones a-muchos,
+    // que exige nombres de PROPIEDAD de la entidad en orderBy — no columnas
+    // SQL crudas — o revienta intentando resolver metadata inexistente).
+    let products: Product[];
     if (source?.categoryId) {
-      qb.orderBy(
-        `CASE WHEN p.id_categoria = ${source.categoryId} THEN 0 ELSE 1 END`,
-        'ASC',
-      ).addOrderBy('p.stock_actual', 'DESC');
-    } else {
-      qb.orderBy('p.stock_actual', 'DESC');
-    }
+      const sameCategory = await base
+        .clone()
+        .andWhere('p.id_categoria = :catId', { catId: source.categoryId })
+        .orderBy('p.stock', 'DESC')
+        .take(limit)
+        .getMany();
 
-    qb.take(limit);
-    const products = await qb.getMany();
+      const remaining = limit - sameCategory.length;
+      const otherCategory =
+        remaining > 0
+          ? await base
+              .clone()
+              .andWhere('(p.id_categoria != :catId OR p.id_categoria IS NULL)', {
+                catId: source.categoryId,
+              })
+              .orderBy('p.stock', 'DESC')
+              .take(remaining)
+              .getMany()
+          : [];
+
+      products = [...sameCategory, ...otherCategory];
+    } else {
+      products = await base.orderBy('p.stock', 'DESC').take(limit).getMany();
+    }
 
     return products.map((p) => ({
       id: p.id,
@@ -56,24 +76,35 @@ export class RecommendationsService {
     }));
   }
 
+  /**
+   * "Frecuentemente comprados juntos" (US#9): a diferencia de
+   * `getRecommendations` (mismo Category/System), esto usa co-ocurrencia
+   * REAL en `detalle_cotizacion` — productos que aparecieron en las mismas
+   * cotizaciones que `productId`. Si el producto aún no tiene historial de
+   * compra (cold-start), cae a `getRecommendations` para no devolver vacío.
+   */
   async getFrequentlyBoughtTogether(productId: number, limit = 4): Promise<RecommendedProduct[]> {
-    return this.productRepo.manager.query<RecommendedProduct[]>(
+    const coPurchased = await this.productRepo.manager.query<RecommendedProduct[]>(
       `SELECT p.id_producto AS id, p.sku, p.nombre AS name,
               p.precio_base::float AS price, p.stock_actual AS stock,
               p.id_categoria AS "categoryId",
-              (SELECT pi.url FROM imagenes_producto pi
+              (SELECT pi.url_imagen FROM imagenes_producto pi
                WHERE pi.id_producto = p.id_producto
                LIMIT 1) AS "imageUrl"
-       FROM productos p
-       WHERE p.is_active = TRUE
-         AND p.id_producto != $1
+       FROM detalle_cotizacion d1
+       JOIN detalle_cotizacion d2
+         ON d2.id_cotizacion = d1.id_cotizacion AND d2.id_producto != d1.id_producto
+       JOIN productos p ON p.id_producto = d2.id_producto
+       WHERE d1.id_producto = $1
+         AND p.is_active = TRUE
          AND p.stock_actual > 0
-         AND p.id_categoria = (
-           SELECT id_categoria FROM productos WHERE id_producto = $1
-         )
-       ORDER BY p.stock_actual DESC
+       GROUP BY p.id_producto, p.sku, p.nombre, p.precio_base, p.stock_actual, p.id_categoria
+       ORDER BY COUNT(*) DESC, p.stock_actual DESC
        LIMIT $2`,
       [productId, limit],
     );
+
+    if (coPurchased.length > 0) return coPurchased;
+    return this.getRecommendations(productId, limit);
   }
 }

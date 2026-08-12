@@ -1,6 +1,7 @@
 import {
   IVA_RATE,
   QuotationStatus,
+  UserRole,
   type CreateQuotationPayload,
   type QuotationEmailResult,
   type QuotationItemResponse,
@@ -11,6 +12,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 
@@ -21,6 +23,10 @@ import { QuotationMailerService } from './quotation-mailer.service';
 import { QuotationsRepository } from './quotations.repository';
 
 import type { Quotation } from './entities/quotation.entity';
+import type { JwtPayload } from '../auth/dto/auth-response.dto';
+
+/** Administrador y Asesor Comercial ven/gestionan las cotizaciones de todos los clientes. */
+const STAFF_ROLES: string[] = [UserRole.ADMINISTRADOR, UserRole.ASESOR_COMERCIAL];
 
 /** Redondeo monetario a 2 decimales evitando errores de coma flotante. */
 function money(value: number): number {
@@ -31,6 +37,8 @@ const DEFAULT_VALIDITY_DAYS = 15;
 
 @Injectable()
 export class QuotationsService {
+  private readonly logger = new Logger(QuotationsService.name);
+
   constructor(
     private readonly repo: QuotationsRepository,
     private readonly cartService: CartService,
@@ -74,16 +82,29 @@ export class QuotationsService {
     }
 
     if (dto.clearCart ?? true) {
-      await this.cartService.clear(userId);
+      // La cotización ya está confirmada (3.11): un fallo al vaciar el
+      // carrito no debe reportarse como error de creación — mismo criterio
+      // que el envío de email arriba. Deja el carrito poblado, no corrupto.
+      await this.cartService
+        .clear(userId)
+        .catch((err) => this.logger.warn(`No se pudo vaciar el carrito de ${userId}: ${err}`));
     }
 
     const finalEntity = await this.loadOwned(userId, id);
     return this.toResponse(finalEntity);
   }
 
-  /** Cotizaciones del usuario (para su historial), como resúmenes sin líneas. */
-  async list(userId: number): Promise<QuotationSummaryResponse[]> {
-    const rows = await this.repo.findByUser(userId);
+  /**
+   * Cotizaciones para historial/listado. Administrador y Asesor Comercial ven
+   * las de todos los clientes (con el dato del cliente incluido, para poder
+   * contactarlo); un cliente normal solo ve las suyas.
+   */
+  async list(requester: JwtPayload): Promise<QuotationSummaryResponse[]> {
+    const staff = this.isStaff(requester);
+    const rows = staff
+      ? await this.repo.findAll()
+      : await this.repo.findByUser(Number(requester.sub));
+
     return rows.map((q) => {
       const totals = this.computeTotals(q);
       return {
@@ -95,27 +116,37 @@ export class QuotationsService {
         issuedAt: q.issuedAt.toISOString(),
         validUntil: q.validUntil.toISOString(),
         expired: this.isExpired(q),
+        ...(staff && {
+          customer: {
+            id: q.userId,
+            name: q.user?.nombres ?? 'Cliente',
+            email: q.user?.email ?? '',
+          },
+        }),
       };
     });
   }
 
-  /** Cotización completa (con líneas y totales), validando propiedad. */
-  async findOne(userId: number, id: number): Promise<QuotationResponse> {
-    const entity = await this.loadOwned(userId, id);
+  /** Cotización completa (con líneas y totales). Staff ve cualquiera; cliente solo la suya. */
+  async findOne(requester: JwtPayload, id: number): Promise<QuotationResponse> {
+    const entity = await this.loadForRequester(requester, id);
     return this.toResponse(entity);
   }
 
-  /** Genera el PDF de la cotización (validando propiedad). */
-  async generatePdf(userId: number, id: number): Promise<{ filename: string; pdf: Buffer }> {
-    const entity = await this.loadOwned(userId, id);
+  /** Genera el PDF de la cotización. Staff ve cualquiera; cliente solo la suya. */
+  async generatePdf(requester: JwtPayload, id: number): Promise<{ filename: string; pdf: Buffer }> {
+    const entity = await this.loadForRequester(requester, id);
     const quotation = this.toResponse(entity);
     const pdf = await this.pdfService.render(quotation);
     return { filename: `${quotation.number}.pdf`, pdf };
   }
 
-  /** Envía la cotización por email con el PDF adjunto (validando propiedad). */
-  async email(userId: number, id: number): Promise<QuotationEmailResult> {
-    const entity = await this.loadOwned(userId, id);
+  /**
+   * Envía la cotización por email con el PDF adjunto. Staff puede reenviarla
+   * a cualquier cliente — es la vía para "cerrar la venta" desde el panel.
+   */
+  async email(requester: JwtPayload, id: number): Promise<QuotationEmailResult> {
+    const entity = await this.loadForRequester(requester, id);
     const quotation = this.toResponse(entity);
     const result = await this.emailInternal(quotation);
     await this.repo.updateStatus(id, QuotationStatus.ENVIADA);
@@ -123,6 +154,10 @@ export class QuotationsService {
   }
 
   // ─── helpers ────────────────────────────────────────────────────────────
+
+  private isStaff(requester: JwtPayload): boolean {
+    return STAFF_ROLES.includes(requester.role);
+  }
 
   private async emailInternal(quotation: QuotationResponse): Promise<QuotationEmailResult> {
     const pdf = await this.pdfService.render(quotation);
@@ -134,6 +169,16 @@ export class QuotationsService {
     if (!entity) throw new NotFoundException('Cotización no encontrada');
     if (entity.userId !== userId) throw new ForbiddenException();
     return entity;
+  }
+
+  /** Como loadOwned, pero Administrador/Asesor Comercial no necesitan ser el dueño. */
+  private async loadForRequester(requester: JwtPayload, id: number): Promise<Quotation> {
+    if (this.isStaff(requester)) {
+      const entity = await this.repo.findByIdWithRelations(id);
+      if (!entity) throw new NotFoundException('Cotización no encontrada');
+      return entity;
+    }
+    return this.loadOwned(Number(requester.sub), id);
   }
 
   private computeTotals(q: Quotation): { subtotal: number; tax: number; total: number } {

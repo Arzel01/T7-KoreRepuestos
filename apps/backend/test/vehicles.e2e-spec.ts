@@ -122,6 +122,38 @@ describe('Vehicles (e2e)', () => {
       expect(vehicleId).toBeGreaterThan(0);
     });
 
+    it('POST /vehicles con año fuera de rango (1980-actual+1) → 400', async () => {
+      const brands = await request(app.getHttpServer())
+        .get('/api/v1/vehicles/brands')
+        .then((r) => r.body as { id: number }[]);
+      if (brands.length === 0) return;
+
+      const models = await request(app.getHttpServer())
+        .get(`/api/v1/vehicles/brands/${brands[0].id}/models`)
+        .then((r) => r.body as { id: number }[]);
+      if (models.length === 0) return;
+
+      const base = { brandId: brands[0].id, modelId: models[0].id, currentMileage: 1000 };
+
+      await request(app.getHttpServer())
+        .post('/api/v1/vehicles')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ...base, year: 1979 })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post('/api/v1/vehicles')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ...base, year: new Date().getFullYear() + 2 })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post('/api/v1/vehicles')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ...base, year: 1980 })
+        .expect(201);
+    });
+
     it('PUT /vehicles/:id → 200 happy path', async () => {
       if (!vehicleId) return;
       const res = await request(app.getHttpServer())

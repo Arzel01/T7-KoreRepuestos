@@ -62,6 +62,13 @@ export class ProductsService {
     const existing = await this.productsRepository.findById(id);
     if (!existing) throw new NotFoundException('Producto no encontrado');
 
+    if (dto.sku !== undefined && dto.sku !== existing.sku) {
+      const skuTaken = await this.productsRepository.findBySku(dto.sku);
+      if (skuTaken) {
+        throw new ConflictException(`Ya existe un producto con SKU "${dto.sku}"`);
+      }
+    }
+
     if (dto.price !== undefined) this.assertPositive('price', dto.price);
     if (dto.categoryId !== undefined) {
       await this.categoriesService.assertExists(dto.categoryId);

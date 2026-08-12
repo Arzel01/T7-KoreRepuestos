@@ -1,10 +1,22 @@
 import { UpdateNotificationPreferencesDto } from '@kore/shared';
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { ParsePositiveIntPipe } from '../../common/pipes/parse-positive-int.pipe';
 
+import { CreatePushSubscriptionDto } from './dto/create-push-subscription.dto';
 import { NotificationsService } from './notifications.service';
 
 import type { JwtPayload } from '../auth/dto/auth-response.dto';
@@ -60,5 +72,27 @@ export class NotificationsController {
     @Param('id', ParsePositiveIntPipe) id: number,
   ): Promise<NotificationResponse> {
     return this.service.markRead(Number(user.sub), id);
+  }
+
+  @Post('push-subscriptions')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Registra la suscripción Web Push del navegador (ADR-0006).' })
+  @ApiResponse({ status: 204 })
+  registerPushSubscription(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: CreatePushSubscriptionDto,
+  ): Promise<void> {
+    return this.service.addPushSubscription(Number(user.sub), dto);
+  }
+
+  @Delete('push-subscriptions')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Da de baja una suscripción Web Push.' })
+  @ApiResponse({ status: 204 })
+  unregisterPushSubscription(
+    @CurrentUser() user: JwtPayload,
+    @Query('endpoint') endpoint: string,
+  ): Promise<void> {
+    return this.service.removePushSubscription(Number(user.sub), endpoint);
   }
 }

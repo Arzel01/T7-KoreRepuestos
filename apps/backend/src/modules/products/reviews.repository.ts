@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 
 import { Review } from './entities/review.entity';
 
@@ -32,7 +32,30 @@ export class ReviewsRepository {
   constructor(
     @InjectRepository(Review)
     private readonly repository: Repository<Review>,
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
+
+  /**
+   * ¿El usuario tiene alguna cotización (de cualquier estado) que incluya
+   * este producto? Es el proxy de "compró el producto" más honesto que este
+   * sistema puede dar hoy: no hay un flujo de checkout/pago separado — la
+   * cotización es el único registro transaccional que existe.
+   */
+  async hasPurchased(userId: number, productId: number): Promise<boolean> {
+    const rows = await this.dataSource.query<Array<{ exists: boolean }>>(
+      `
+      SELECT EXISTS (
+        SELECT 1
+        FROM detalle_cotizacion d
+        JOIN cotizaciones c ON c.id_cotizacion = d.id_cotizacion
+        WHERE c.id_usuario = $1 AND d.id_producto = $2
+      ) AS "exists"
+      `,
+      [userId, productId],
+    );
+    return rows[0].exists;
+  }
 
   async findByProduct(
     productId: number,

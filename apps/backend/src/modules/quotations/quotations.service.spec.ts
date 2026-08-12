@@ -1,3 +1,4 @@
+import { UserRole } from '@kore/shared';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 
 import { QuotationsService } from './quotations.service';
@@ -6,6 +7,7 @@ import type { Quotation } from './entities/quotation.entity';
 import type { QuotationPdfService } from './pdf/quotation-pdf.service';
 import type { QuotationMailerService } from './quotation-mailer.service';
 import type { QuotationsRepository } from './quotations.repository';
+import type { JwtPayload } from '../auth/dto/auth-response.dto';
 import type { CartService } from '../cart/cart.service';
 import type { CartResponse } from '@kore/shared';
 
@@ -24,6 +26,14 @@ describe('QuotationsService', () => {
   let mailer: { send: jest.Mock };
 
   const USER_ID = 7;
+
+  function customerUser(id: number): JwtPayload {
+    return { sub: String(id), email: 'cliente@kore.dev', role: UserRole.CLIENTE };
+  }
+
+  function staffUser(role: UserRole = UserRole.ADMINISTRADOR): JwtPayload {
+    return { sub: '999', email: 'staff@kore.dev', role };
+  }
 
   function cart(items: CartResponse['items'] = []): CartResponse {
     const subtotal = items.reduce((s, i) => s + i.lineTotal, 0);
@@ -84,6 +94,7 @@ describe('QuotationsService', () => {
       createWithItems: jest.fn().mockResolvedValue(42),
       findByIdWithRelations: jest.fn(),
       findByUser: jest.fn(),
+      findAll: jest.fn(),
       updateStatus: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<QuotationsRepository>;
 
@@ -130,6 +141,17 @@ describe('QuotationsService', () => {
       expect(cartService.clear).toHaveBeenCalledWith(USER_ID);
     });
 
+    it('no falla la creación si el vaciado del carrito rechaza (3.11: no corromper la cotización ya confirmada)', async () => {
+      cartService.getCart.mockResolvedValue(cart([cartItem({})]));
+      repo.findByIdWithRelations.mockResolvedValue(quotationEntity());
+      cartService.clear.mockRejectedValue(new Error('DB caída'));
+
+      const res = await service.create(USER_ID, {});
+
+      expect(res.id).toBe(42);
+      expect(cartService.clear).toHaveBeenCalledWith(USER_ID);
+    });
+
     it('no vacía el carrito si clearCart=false', async () => {
       cartService.getCart.mockResolvedValue(cart([cartItem({})]));
       repo.findByIdWithRelations.mockResolvedValue(quotationEntity());
@@ -167,12 +189,22 @@ describe('QuotationsService', () => {
   describe('findOne · propiedad', () => {
     it('404 si no existe', async () => {
       repo.findByIdWithRelations.mockResolvedValue(null);
-      await expect(service.findOne(USER_ID, 1)).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.findOne(customerUser(USER_ID), 1)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
 
     it('prohíbe ver la cotización de otro usuario', async () => {
       repo.findByIdWithRelations.mockResolvedValue(quotationEntity({ userId: 999 }));
-      await expect(service.findOne(USER_ID, 42)).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(service.findOne(customerUser(USER_ID), 42)).rejects.toBeInstanceOf(
+        ForbiddenException,
+      );
+    });
+
+    it('Administrador/Asesor Comercial pueden ver la cotización de cualquier cliente', async () => {
+      repo.findByIdWithRelations.mockResolvedValue(quotationEntity({ userId: 999 }));
+      const res = await service.findOne(staffUser(UserRole.ASESOR_COMERCIAL), 42);
+      expect(res.id).toBe(42);
     });
   });
 
@@ -181,7 +213,7 @@ describe('QuotationsService', () => {
       repo.findByIdWithRelations.mockResolvedValue(
         quotationEntity({ validUntil: new Date(Date.now() - 86_400_000) }),
       );
-      const res = await service.findOne(USER_ID, 42);
+      const res = await service.findOne(customerUser(USER_ID), 42);
       expect(res.expired).toBe(true);
       expect(res.status).toBe('Expirada');
     });
@@ -190,10 +222,38 @@ describe('QuotationsService', () => {
   describe('generatePdf', () => {
     it('renderiza el PDF de una cotización propia', async () => {
       repo.findByIdWithRelations.mockResolvedValue(quotationEntity());
-      const { filename, pdf: buffer } = await service.generatePdf(USER_ID, 42);
+      const { filename, pdf: buffer } = await service.generatePdf(customerUser(USER_ID), 42);
       expect(filename).toBe('COT-2026-000042.pdf');
       expect(buffer.length).toBeGreaterThan(0);
       expect(pdf.render).toHaveBeenCalled();
+    });
+  });
+
+  describe('list · Admin/Asesor Comercial ven todas las cotizaciones', () => {
+    it('un cliente normal solo ve las suyas (sin dato de cliente)', async () => {
+      repo.findByUser.mockResolvedValue([quotationEntity()]);
+      const res = await service.list(customerUser(USER_ID));
+      expect(repo.findByUser).toHaveBeenCalledWith(USER_ID);
+      expect(repo.findAll).not.toHaveBeenCalled();
+      expect(res[0].customer).toBeUndefined();
+    });
+
+    it('staff ve las de todos los clientes, con el dato de contacto incluido', async () => {
+      repo.findAll.mockResolvedValue([quotationEntity({ userId: 999 })]);
+      const res = await service.list(staffUser(UserRole.ADMINISTRADOR));
+      expect(repo.findAll).toHaveBeenCalled();
+      expect(repo.findByUser).not.toHaveBeenCalled();
+      expect(res[0].customer).toEqual({ id: 999, name: 'Ana Cliente', email: 'ana@kore.dev' });
+    });
+  });
+
+  describe('email · staff puede reenviar cualquier cotización', () => {
+    it('Asesor Comercial puede reenviar la cotización de un cliente ajeno', async () => {
+      repo.findByIdWithRelations.mockResolvedValue(quotationEntity({ userId: 999 }));
+      const result = await service.email(staffUser(UserRole.ASESOR_COMERCIAL), 42);
+      expect(mailer.send).toHaveBeenCalled();
+      expect(repo.updateStatus).toHaveBeenCalledWith(42, 'Enviada');
+      expect(result.to).toBe('ana@kore.dev');
     });
   });
 });

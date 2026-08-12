@@ -4,6 +4,7 @@ import { DataSource } from 'typeorm';
 
 import { EmailChannel } from './channels/email.channel';
 import { InAppChannel } from './channels/in-app.channel';
+import { PushChannel } from './channels/push.channel';
 import { NotificationsService } from './notifications.service';
 
 import type { NotificationChannel } from './channels/notification-channel';
@@ -25,9 +26,10 @@ export class NotificationDispatcher {
     private readonly notifications: NotificationsService,
     inApp: InAppChannel,
     email: EmailChannel,
+    push: PushChannel,
     @InjectDataSource() private readonly dataSource: DataSource,
   ) {
-    this.channels = { [inApp.canal]: inApp, [email.canal]: email };
+    this.channels = { [inApp.canal]: inApp, [email.canal]: email, [push.canal]: push };
   }
 
   /** Procesa las notificaciones pendientes vencidas. Devuelve cuántas envió. */
@@ -40,7 +42,8 @@ export class NotificationDispatcher {
       try {
         if (!channel) throw new Error(`Canal desconocido: ${n.canal}`);
         const to = n.canal === 'email' ? await this.resolveEmail(n.userId) : undefined;
-        await channel.send({ to, titulo: n.titulo, mensaje: n.mensaje });
+        const url = n.vehicleId ? '/garage' : undefined;
+        await channel.send({ to, userId: n.userId, titulo: n.titulo, mensaje: n.mensaje, url });
         n.estado = 'enviada';
         n.sentAt = now;
         sent += 1;

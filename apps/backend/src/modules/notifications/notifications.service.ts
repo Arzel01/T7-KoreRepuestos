@@ -4,8 +4,10 @@ import { LessThanOrEqual, Repository } from 'typeorm';
 
 import { NotificationPreference } from './entities/notification-preference.entity';
 import { Notification } from './entities/notification.entity';
+import { PushSubscription } from './entities/push-subscription.entity';
 
 import type {
+  CreatePushSubscriptionDto,
   NotificationChannel,
   NotificationPreferencesResponse,
   NotificationResponse,
@@ -35,6 +37,8 @@ export class NotificationsService {
     private readonly repo: Repository<Notification>,
     @InjectRepository(NotificationPreference)
     private readonly prefsRepo: Repository<NotificationPreference>,
+    @InjectRepository(PushSubscription)
+    private readonly pushSubsRepo: Repository<PushSubscription>,
   ) {}
 
   /**
@@ -128,9 +132,35 @@ export class NotificationsService {
     if (dto.remindersEnabled !== undefined) prefs.remindersEnabled = dto.remindersEnabled;
     if (dto.emailChannel !== undefined) prefs.emailChannel = dto.emailChannel;
     if (dto.appChannel !== undefined) prefs.appChannel = dto.appChannel;
+    if (dto.pushChannel !== undefined) prefs.pushChannel = dto.pushChannel;
     if (dto.daysBefore !== undefined) prefs.daysBefore = dto.daysBefore;
     const saved = await this.prefsRepo.save(prefs);
     return NotificationsService.toPrefsResponse(saved);
+  }
+
+  /** Registra (o actualiza) la suscripción Web Push de un navegador (ADR-0006). */
+  async addPushSubscription(userId: number, dto: CreatePushSubscriptionDto): Promise<void> {
+    const existing = await this.pushSubsRepo.findOne({ where: { endpoint: dto.endpoint } });
+    if (existing) {
+      existing.userId = userId;
+      existing.p256dh = dto.keys.p256dh;
+      existing.auth = dto.keys.auth;
+      await this.pushSubsRepo.save(existing);
+      return;
+    }
+    await this.pushSubsRepo.save(
+      this.pushSubsRepo.create({
+        userId,
+        endpoint: dto.endpoint,
+        p256dh: dto.keys.p256dh,
+        auth: dto.keys.auth,
+      }),
+    );
+  }
+
+  /** Da de baja una suscripción Web Push (logout / botón "desactivar push"). */
+  async removePushSubscription(userId: number, endpoint: string): Promise<void> {
+    await this.pushSubsRepo.delete({ userId, endpoint });
   }
 
   /** Filas pendientes cuya hora programada ya pasó — la cola del despachador. */
@@ -166,6 +196,7 @@ export class NotificationsService {
       remindersEnabled: p.remindersEnabled,
       emailChannel: p.emailChannel,
       appChannel: p.appChannel,
+      pushChannel: p.pushChannel,
       daysBefore: p.daysBefore,
     };
   }

@@ -55,14 +55,14 @@ export function MaintenanceDashboard(): JSX.Element {
     <div className="storefront min-h-screen bg-muted text-foreground">
       <CatalogNavbar />
       <div className="mx-auto max-w-5xl px-4 py-8">
-        <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold">Panel de Mantenimiento</h1>
             <p className="mt-1 text-muted-foreground">
               Resumen de tus vehículos y próximos servicios.
             </p>
           </div>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
             <Link to="/garage">Mi Garaje</Link>
           </Button>
         </div>
@@ -120,7 +120,7 @@ export function MaintenanceDashboard(): JSX.Element {
             {!loading &&
               overview?.plans.map((plan) => (
                 <Card key={plan.vehicleId} className="rounded-2xl">
-                  <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
+                  <CardHeader className="flex flex-col gap-2 pb-2 sm:flex-row sm:items-center sm:justify-between">
                     <CardTitle className="text-base">
                       {plan.model.marca.nombre} {plan.model.nombre} {plan.year}
                       {plan.alias && (
@@ -129,7 +129,7 @@ export function MaintenanceDashboard(): JSX.Element {
                         </span>
                       )}
                     </CardTitle>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       {plan.overdueCount > 0 && (
                         <Badge className="bg-destructive text-destructive-foreground">
                           {plan.overdueCount} vencido{plan.overdueCount > 1 ? 's' : ''}

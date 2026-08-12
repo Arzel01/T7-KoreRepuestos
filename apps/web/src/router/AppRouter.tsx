@@ -8,6 +8,7 @@ import { MaintenanceGuidesListPage } from '@/app/admin/maintenance/MaintenanceGu
 import { ProductCreatePage } from '@/app/admin/products/ProductCreatePage';
 import { ProductEditPage } from '@/app/admin/products/ProductEditPage';
 import { ProductsListPage } from '@/app/admin/products/ProductsListPage';
+import { QuotationsAdminListPage } from '@/app/admin/QuotationsListPage';
 import { LoginPage } from '@/app/auth/LoginPage';
 import { RegisterPage } from '@/app/auth/RegisterPage';
 import { CatalogPage } from '@/app/CatalogPage';
@@ -47,10 +48,18 @@ export function AppRouter(): JSX.Element {
         <Route path="/garage/:vehicleId/calendar" element={<CalendarPage />} />
       </Route>
 
-      {/* ── Privadas (admin) ───────────────────────────────────────────── */}
-      <Route element={<ProtectedRoute requireRole={UserRole.ADMINISTRADOR} />}>
+      {/* ── Privadas (admin + asesor comercial) ─────────────────────────
+          Ambos roles entran al panel (dashboard + cotizaciones); las rutas
+          de gestión del catálogo quedan admin-only vía Sidebar (UX) y el
+          backend (@Roles) sigue siendo el límite real de autorización. ── */}
+      <Route
+        element={
+          <ProtectedRoute requireRole={[UserRole.ADMINISTRADOR, UserRole.ASESOR_COMERCIAL]} />
+        }
+      >
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardPage />} />
+          <Route path="quotations" element={<QuotationsAdminListPage />} />
           <Route path="products" element={<ProductsListPage />} />
           <Route path="products/new" element={<ProductCreatePage />} />
           <Route path="products/:id/edit" element={<ProductEditPage />} />

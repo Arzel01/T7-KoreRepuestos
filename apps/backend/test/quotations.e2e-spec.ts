@@ -50,6 +50,7 @@ describe('Quotations (e2e)', () => {
       `DELETE FROM cotizaciones WHERE id_usuario IN (SELECT id_usuario FROM usuarios WHERE email = 'test@kore.dev')`,
     );
     await ds.query(`DELETE FROM productos WHERE sku = $1`, [SKU]);
+    await ds.query(`DELETE FROM usuarios WHERE email = 'other-user@kore.dev'`);
     await app.close();
   });
 
@@ -157,10 +158,19 @@ describe('Quotations (e2e)', () => {
   });
 
   it('no permite ver la cotización de otro usuario → 403', async () => {
-    const adminToken = await login('admin@kore.dev', 'Admin1234!');
+    const res = await request(app.getHttpServer())
+      .post('/api/v1/auth/register')
+      .send({
+        email: 'other-user@kore.dev',
+        password: 'Other1234!',
+        firstName: 'Other',
+        lastName: 'User',
+      })
+      .expect(201);
+    const otherToken = (res.body as { tokens: { accessToken: string } }).tokens.accessToken;
     await request(app.getHttpServer())
       .get(`/api/v1/quotations/${quotationId}`)
-      .set('Authorization', `Bearer ${adminToken}`)
+      .set('Authorization', `Bearer ${otherToken}`)
       .expect(403);
   });
 });
