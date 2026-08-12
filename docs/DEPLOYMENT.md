@@ -116,12 +116,6 @@ docker compose -f docker-compose.staging.yml up -d --build
 - `backend` → puerto 3000
 - `web` (Nginx) → puerto 80, `depends_on: backend`
 
-### 5.3 Serverless (Vercel)
-
-`vercel.json` reescribe todo a `/api/index`. Si despliegas el backend en un entorno serverless con
-muchas conexiones cortas, usa la URL de **Transaction Mode / pgBouncer (6543)** (`DATABASE_TRANSACTION_URL`)
-para la app, pero **mantén Direct (5432)** para correr migraciones.
-
 ---
 
 ## 6. Verificación post-despliegue (smoke test)
