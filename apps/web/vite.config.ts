@@ -43,8 +43,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(dirname, './src'),
-      '@kore/shared': path.resolve(dirname, '../../packages/shared/src'),
+      '@': path.resolve(__dirname, './src'),
+      '@kore/shared': path.resolve(__dirname, '../../packages/shared/src'),
     },
   },
   server: {
@@ -52,7 +52,6 @@ export default defineConfig({
     strictPort: false,
     open: false,
   },
-  // Configuración de vista previa segura para producción
   preview: {
     host: true,
     allowedHosts: ['.railway.app'],
