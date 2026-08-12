@@ -33,8 +33,7 @@ export default defineConfig({
         ],
       },
       injectManifest: {
-        // Placeholder icons/manifest — swap for real brand assets before shipping.
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        globPatterns: ['*/.{js,css,html,svg,png,ico,woff2}'],
       },
       devOptions: {
         enabled: true,
@@ -44,14 +43,19 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@kore/shared': path.resolve(__dirname, '../../packages/shared/src'),
+      '@': path.resolve(dirname, './src'),
+      '@kore/shared': path.resolve(dirname, '../../packages/shared/src'),
     },
   },
   server: {
     port: 5173,
     strictPort: false,
     open: false,
+  },
+  // Configuración de vista previa segura para producción
+  preview: {
+    host: true,
+    allowedHosts: ['.railway.app'],
   },
   build: {
     outDir: 'dist',
