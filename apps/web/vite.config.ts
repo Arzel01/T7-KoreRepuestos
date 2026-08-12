@@ -54,7 +54,7 @@ export default defineConfig({
   },
   preview: {
     host: true,
-    allowedHosts: ['.railway.app'],
+    allowedHosts: ['.koreautoec.com'],
   },
   build: {
     outDir: 'dist',
