@@ -17,8 +17,8 @@ export interface ProductSuggestion {
   price: number;
 }
 
-/** Producto del catálogo con el fragmento resaltado (`ts_headline`) del match. */
-export type ProductWithHighlight = Product & { highlight?: string };
+/** Producto del catálogo con el fragmento resaltado (`ts_headline`) del match y su imagen principal. */
+export type ProductWithHighlight = Product & { highlight?: string; imageUrl?: string };
 
 /**
  * Mapa columna-ordenable → expresión SQL.
@@ -56,6 +56,16 @@ export class ProductsRepository extends BaseRepository<Product, number> {
     searchTerms?: string[],
   ): Promise<PaginatedResult<ProductWithHighlight>> {
     const qb = this.repository.createQueryBuilder('p').where('p.is_active = TRUE');
+
+    // Imagen principal (o la primera disponible) — evita el N+1 de cargar
+    // la relación `images` completa solo para mostrar la miniatura del listado.
+    qb.addSelect(
+      `(SELECT pi.url_imagen FROM imagenes_producto pi
+         WHERE pi.id_producto = p.id_producto
+         ORDER BY pi.es_principal DESC, pi.id_imagen ASC
+         LIMIT 1)`,
+      'imageUrl',
+    );
 
     if (q.categoryIds?.length) {
       qb.andWhere('p.id_categoria IN (:...categoryIds)', { categoryIds: q.categoryIds });
@@ -140,16 +150,13 @@ export class ProductsRepository extends BaseRepository<Product, number> {
     const total = await qb.getCount();
     qb.skip((q.page - 1) * q.pageSize).take(q.pageSize);
 
-    let items: ProductWithHighlight[];
-    if (terms.length) {
-      const { entities, raw } = await qb.getRawAndEntities<Record<string, string>>();
-      items = entities.map((entity, i) => {
-        (entity as ProductWithHighlight).highlight = raw[i]?.highlight ?? undefined;
-        return entity as ProductWithHighlight;
-      });
-    } else {
-      items = await qb.getMany();
-    }
+    const { entities, raw } = await qb.getRawAndEntities<Record<string, string>>();
+    const items: ProductWithHighlight[] = entities.map((entity, i) => {
+      const withExtras = entity as ProductWithHighlight;
+      if (terms.length) withExtras.highlight = raw[i]?.highlight ?? undefined;
+      withExtras.imageUrl = raw[i]?.imageUrl ?? undefined;
+      return withExtras;
+    });
 
     return {
       items,
