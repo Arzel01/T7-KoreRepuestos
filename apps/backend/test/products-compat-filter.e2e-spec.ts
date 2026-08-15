@@ -30,7 +30,7 @@ describe('ProductsController — filtro por compatibilidad de vehículo (e2e)', 
     ds = app.get<DataSource>(getDataSourceToken());
 
     await ds.query(
-      'TRUNCATE TABLE sesiones, compatibilidades, productos, categorias, usuarios RESTART IDENTITY CASCADE',
+      'TRUNCATE TABLE sesiones, productos, categorias, usuarios RESTART IDENTITY CASCADE',
     );
 
     const bcrypt = await import('bcrypt');
@@ -62,16 +62,46 @@ describe('ProductsController — filtro por compatibilidad de vehículo (e2e)', 
       .expect(201);
     hondaProductId = r2.body.id as number;
 
-    // Registrar compatibilidades directamente en BD
+    // Crear marcas y modelos con rango de años, luego registrar en la junction `compatibilidad`
+    await ds.query(`INSERT INTO marcas (nombre) VALUES ('Toyota') ON CONFLICT (nombre) DO NOTHING`);
+    await ds.query(`INSERT INTO marcas (nombre) VALUES ('Honda') ON CONFLICT (nombre) DO NOTHING`);
+
+    const [{ id_marca: toyotaBrandId }] = await ds.query<Array<{ id_marca: number }>>(
+      `SELECT id_marca FROM marcas WHERE nombre = 'Toyota'`,
+    );
+    const [{ id_marca: hondaBrandId }] = await ds.query<Array<{ id_marca: number }>>(
+      `SELECT id_marca FROM marcas WHERE nombre = 'Honda'`,
+    );
+
     await ds.query(
-      `INSERT INTO compatibilidades (id_producto, marca, modelo, año_inicio, año_fin)
-       VALUES ($1, 'Toyota', 'Corolla', 2018, 2023)`,
-      [toyotaProductId],
+      `INSERT INTO modelos (id_marca, nombre, anio_inicio, anio_fin)
+       VALUES ($1, 'Corolla', 2018, 2023)
+       ON CONFLICT (id_marca, nombre) DO UPDATE SET anio_inicio = 2018, anio_fin = 2023`,
+      [toyotaBrandId],
     );
     await ds.query(
-      `INSERT INTO compatibilidades (id_producto, marca, modelo, año_inicio, año_fin)
-       VALUES ($1, 'Honda', 'Civic', 2019, 2022)`,
-      [hondaProductId],
+      `INSERT INTO modelos (id_marca, nombre, anio_inicio, anio_fin)
+       VALUES ($1, 'Civic', 2019, 2022)
+       ON CONFLICT (id_marca, nombre) DO UPDATE SET anio_inicio = 2019, anio_fin = 2022`,
+      [hondaBrandId],
+    );
+
+    const [{ id_modelo: corollaModelId }] = await ds.query<Array<{ id_modelo: number }>>(
+      `SELECT id_modelo FROM modelos WHERE id_marca = $1 AND nombre = 'Corolla'`,
+      [toyotaBrandId],
+    );
+    const [{ id_modelo: civicModelId }] = await ds.query<Array<{ id_modelo: number }>>(
+      `SELECT id_modelo FROM modelos WHERE id_marca = $1 AND nombre = 'Civic'`,
+      [hondaBrandId],
+    );
+
+    await ds.query(
+      `INSERT INTO compatibilidad (id_producto, id_modelo) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+      [toyotaProductId, corollaModelId],
+    );
+    await ds.query(
+      `INSERT INTO compatibilidad (id_producto, id_modelo) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+      [hondaProductId, civicModelId],
     );
   });
 

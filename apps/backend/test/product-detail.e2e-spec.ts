@@ -115,7 +115,7 @@ describe('ProductsController GET /api/v1/products/:id — detalle enriquecido (T
     dataSource = app.get<DataSource>(getDataSourceToken());
 
     await dataSource.query(
-      'TRUNCATE TABLE sesiones, compatibilidades, productos, categorias, usuarios RESTART IDENTITY CASCADE',
+      'TRUNCATE TABLE sesiones, productos, categorias, usuarios RESTART IDENTITY CASCADE',
     );
 
     const [{ id_producto }] = await dataSource.query<Array<{ id_producto: number }>>(
@@ -125,11 +125,26 @@ describe('ProductsController GET /api/v1/products/:id — detalle enriquecido (T
     );
     productId = id_producto;
 
-    // Compatibilidad directa en BD
+    // Compatibilidad: marca → modelo (con rango de años) → junction compatibilidad
     await dataSource.query(
-      `INSERT INTO compatibilidades (id_producto, marca, modelo, año_inicio, año_fin)
-       VALUES ($1, 'Chevrolet', 'Spark', 2017, 2022)`,
-      [productId],
+      `INSERT INTO marcas (nombre) VALUES ('Chevrolet') ON CONFLICT (nombre) DO NOTHING`,
+    );
+    const [{ id_marca }] = await dataSource.query<Array<{ id_marca: number }>>(
+      `SELECT id_marca FROM marcas WHERE nombre = 'Chevrolet'`,
+    );
+    await dataSource.query(
+      `INSERT INTO modelos (id_marca, nombre, anio_inicio, anio_fin)
+       VALUES ($1, 'Spark', 2017, 2022)
+       ON CONFLICT (id_marca, nombre) DO UPDATE SET anio_inicio = 2017, anio_fin = 2022`,
+      [id_marca],
+    );
+    const [{ id_modelo }] = await dataSource.query<Array<{ id_modelo: number }>>(
+      `SELECT id_modelo FROM modelos WHERE id_marca = $1 AND nombre = 'Spark'`,
+      [id_marca],
+    );
+    await dataSource.query(
+      `INSERT INTO compatibilidad (id_producto, id_modelo) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+      [productId, id_modelo],
     );
   });
 
@@ -169,11 +184,12 @@ describe('ProductsController GET /api/v1/products/:id — detalle enriquecido (T
       .get(`/api/v1/products/${productId}/reviews`)
       .expect(200);
 
-    // Incluso sin reseñas, la forma del DTO debe incluir avgRating y total
-    expect(res.body).toMatchObject({
-      avgRating: expect.any(Number),
-      total: expect.any(Number),
-      items: expect.any(Array),
-    });
+    // Incluso sin reseñas, la forma del DTO debe incluir averageRating y total
+    expect(res.body.total).toEqual(expect.any(Number));
+    expect(Array.isArray(res.body.items)).toBe(true);
+    // averageRating puede ser null cuando no hay reseñas
+    expect(res.body.averageRating === null || typeof res.body.averageRating === 'number').toBe(
+      true,
+    );
   });
 });

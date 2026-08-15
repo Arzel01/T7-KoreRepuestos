@@ -158,14 +158,24 @@ describe('MaintenanceRecordsController (e2e)', () => {
     expect(found).toBeDefined();
   });
 
-  it('POST con planId → planDescription presente en la respuesta (TC-A-016)', async () => {
+  it('POST con planId → planDescription presente en el historial (TC-A-016)', async () => {
     const res = await authReq('post', '/api/v1/maintenance/records')
       .send({ vehicleId, planId, completedMileage: 15000 })
       .expect(201);
 
     expect(res.body.planId).toBe(planId);
-    expect(typeof res.body.planDescription).toBe('string');
-    expect(res.body.planDescription).toBeTruthy();
+
+    // planDescription viene cargada con la relación, disponible en el GET del historial
+    const histRes = await authReq(
+      'get',
+      `/api/v1/maintenance/records?vehicleId=${vehicleId}`,
+    ).expect(200);
+    const record = (histRes.body as Array<{ id: number; planDescription?: string }>).find(
+      (r) => r.id === res.body.id,
+    );
+    expect(record).toBeDefined();
+    expect(typeof record!.planDescription).toBe('string');
+    expect(record!.planDescription).toBeTruthy();
   });
 
   it('POST con vehículo de otro usuario → 404 (TC-A-016)', async () => {
