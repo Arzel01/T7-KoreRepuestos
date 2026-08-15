@@ -19,7 +19,7 @@ import { quotationsApi } from '../server/quotations.api';
 import type { QuotationSummaryResponse } from '@kore/shared';
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('es-PE', {
+  return new Date(iso).toLocaleDateString('es-EC', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

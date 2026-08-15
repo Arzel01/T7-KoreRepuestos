@@ -86,8 +86,8 @@ describe('Quotations (e2e)', () => {
     const res = await auth('get', '/api/v1/cart/summary').expect(200);
     expect(res.body.itemCount).toBe(3);
     expect(res.body.subtotal).toBe(300);
-    expect(res.body.tax).toBe(54); // 300 * 0.18
-    expect(res.body.total).toBe(354);
+    expect(res.body.tax).toBe(45); // 300 * 0.15
+    expect(res.body.total).toBe(345);
     expect(res.body.canQuote).toBe(true);
   });
 
@@ -104,8 +104,8 @@ describe('Quotations (e2e)', () => {
     expect(res.body.items).toHaveLength(1);
     expect(res.body.items[0].unitPrice).toBe(100);
     expect(res.body.subtotal).toBe(300);
-    expect(res.body.tax).toBe(54);
-    expect(res.body.total).toBe(354);
+    expect(res.body.tax).toBe(45); // 300 * 0.15
+    expect(res.body.total).toBe(345);
     expect(res.body.expired).toBe(false);
 
     quotationId = res.body.id;

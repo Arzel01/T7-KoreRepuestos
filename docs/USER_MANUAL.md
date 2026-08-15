@@ -238,7 +238,7 @@ En **Mi carrito** (`/cart`) puedes:
   disponible del producto — el sistema lo bloquea antes de dejarte pasar ese límite.
 - **Eliminar una línea** individual (pide confirmación antes de borrarla).
 - **Vaciar el carrito** por completo.
-- Ver el **resumen**: **Subtotal**, **IVA (18 %)** y **Total** — estos cálculos siempre se hacen en el
+- Ver el **resumen**: **Subtotal**, **IVA (15 %)** y **Total** — estos cálculos siempre se hacen en el
   servidor, nunca en tu navegador, así que el total que ves es siempre el real y consistente.
 
 Un mismo producto **nunca se duplica** como línea separada: si lo agregas de nuevo (desde la ficha, el
@@ -293,7 +293,7 @@ En `/quotations/:id` puedes:
 ## 9. Preguntas frecuentes (cliente)
 
 **¿El total incluye IVA?**
-Sí. Tanto el total que ves en pantalla como el del PDF incluyen el IVA del 18 %.
+Sí. Tanto el total que ves en pantalla como el del PDF incluyen el IVA del 15 %.
 
 **No me llegó el email de la cotización o del recordatorio de mantenimiento.**
 En entornos de demostración o desarrollo, el envío de correo puede estar **simulado** — la app se
@@ -429,7 +429,7 @@ serán las sugerencias que ven los clientes.
 | **Guía de mantenimiento** | Conjunto de tareas y repuestos asociados a un modelo de vehículo, base del cálculo del plan de mantenimiento de cada cliente.   |
 | **Cotización**            | Documento con número único (`COT-AÑO-NNNNNN`) generado a partir del carrito, con precios congelados y fecha de validez.         |
 | **Estados de cotización** | Pendiente → Enviada / Aceptada / Rechazada; o Expirada si pasó su fecha de validez sin importar el estado interno.              |
-| **IVA**                   | 18 %, siempre calculado en el servidor e incluido en el total mostrado y en el PDF.                                             |
+| **IVA**                   | 15 %, siempre calculado en el servidor e incluido en el total mostrado y en el PDF.                                             |
 | **Notificación push**     | Aviso del navegador que llega incluso con la app cerrada; requiere HTTPS y que el usuario la active explícitamente.             |
 | **Asesor Comercial**      | Rol con acceso al panel de administración limitado a Dashboard y Cotizaciones (todas las de todos los clientes).                |
 | **Administrador**         | Rol con acceso completo al panel de administración, incluida la gestión del catálogo.                                           |

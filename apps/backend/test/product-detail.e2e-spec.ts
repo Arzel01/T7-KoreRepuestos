@@ -93,3 +93,102 @@ describe('ProductsController GET /api/v1/products/:id — detalle (e2e)', () => 
     await get(0).expect(400);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TC-A-008: Detalle enriquecido — compatibilidad y reseñas
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * TC-A-008: Vista de detalle de producto incluye:
+ *   ✓ Vehículos compatibles via GET /products/:id/compatibility
+ *   ✓ averageRating y total en GET /products/:id/reviews (calculado dinámicamente)
+ *   ✓ Endpoint de compatibilidad es público (sin auth)
+ *   ✓ Producto inexistente en compatibilidad → 404
+ */
+describe('ProductsController GET /api/v1/products/:id — detalle enriquecido (TC-A-008)', () => {
+  let app: INestApplication;
+  let dataSource: DataSource;
+  let productId: number;
+
+  beforeAll(async () => {
+    app = await createTestingApp();
+    dataSource = app.get<DataSource>(getDataSourceToken());
+
+    await dataSource.query(
+      'TRUNCATE TABLE sesiones, compatibilidad, productos, categorias, usuarios RESTART IDENTITY CASCADE',
+    );
+
+    const [{ id_producto }] = await dataSource.query<Array<{ id_producto: number }>>(
+      `INSERT INTO productos (sku, nombre, precio_base, stock_actual, is_active)
+       VALUES ('DET-ENR-001', 'Producto Detalle Enriquecido', 80.00, 15, TRUE)
+       RETURNING id_producto`,
+    );
+    productId = id_producto;
+
+    // Compatibilidad directa en BD — modelo normalizado: marca/modelo son
+    // tablas aparte, `compatibilidad` solo enlaza (id_producto, id_modelo).
+    const [{ id_marca }] = await dataSource.query<Array<{ id_marca: number }>>(
+      `INSERT INTO marcas (nombre) VALUES ('Chevrolet')
+       ON CONFLICT (nombre) DO UPDATE SET nombre = EXCLUDED.nombre
+       RETURNING id_marca`,
+    );
+    const [{ id_modelo }] = await dataSource.query<Array<{ id_modelo: number }>>(
+      `INSERT INTO modelos (id_marca, nombre, anio_inicio, anio_fin)
+       VALUES ($1, 'Spark', 2017, 2022)
+       ON CONFLICT (id_marca, nombre)
+         DO UPDATE SET anio_inicio = EXCLUDED.anio_inicio, anio_fin = EXCLUDED.anio_fin
+       RETURNING id_modelo`,
+      [id_marca],
+    );
+    await dataSource.query(
+      `INSERT INTO compatibilidad (id_producto, id_modelo) VALUES ($1, $2)
+       ON CONFLICT (id_producto, id_modelo) DO NOTHING`,
+      [productId, id_modelo],
+    );
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('GET /products/:id/compatibility → 200 array público con datos del vehículo (TC-A-008)', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/api/v1/products/${productId}/compatibility`)
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThanOrEqual(1);
+    const entry = res.body[0];
+    // La respuesta incluye al menos la información de la marca y el modelo
+    expect(entry).toMatchObject(
+      expect.objectContaining({
+        brandName: 'Chevrolet',
+        modelName: 'Spark',
+      }),
+    );
+  });
+
+  it('GET /products/:id/compatibility no requiere autenticación (público) (TC-A-008)', async () => {
+    await request(app.getHttpServer())
+      .get(`/api/v1/products/${productId}/compatibility`)
+      .expect(200);
+  });
+
+  it('GET /products/99999/compatibility → 404', async () => {
+    await request(app.getHttpServer()).get('/api/v1/products/99999/compatibility').expect(404);
+  });
+
+  it('GET /products/:id/reviews → 200 con averageRating y total (TC-A-008)', async () => {
+    const res = await request(app.getHttpServer())
+      .get(`/api/v1/products/${productId}/reviews`)
+      .expect(200);
+
+    // Sin reseñas para este producto, averageRating es null (no 0) — ver
+    // reviews.repository.ts: solo es número cuando AVG() tiene filas.
+    expect(res.body).toMatchObject({
+      averageRating: null,
+      total: expect.any(Number),
+      items: expect.any(Array),
+    });
+  });
+});

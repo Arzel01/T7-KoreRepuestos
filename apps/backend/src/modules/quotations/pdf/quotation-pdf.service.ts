@@ -3,9 +3,9 @@ import PDFDocument from 'pdfkit';
 
 import type { QuotationResponse } from '@kore/shared';
 
-/** Formatea un monto como moneda peruana (soles), coherente con el IVA aplicado. */
+/** Formatea un monto como dólares, coherente con el IVA aplicado. */
 function money(value: number): string {
-  return `S/ ${value.toFixed(2)}`;
+  return `$${value.toFixed(2)}`;
 }
 
 function formatDate(iso: string): string {

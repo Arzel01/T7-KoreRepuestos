@@ -70,7 +70,7 @@ export class QuotationMailerService {
     return [
       `Hola ${q.customer.name},`,
       '',
-      `Adjuntamos tu cotización ${q.number} por un total de S/ ${q.total.toFixed(2)} (IVA incluido).`,
+      `Adjuntamos tu cotización ${q.number} por un total de $${q.total.toFixed(2)} (IVA incluido).`,
       `Válida hasta el ${q.validUntil.slice(0, 10)}.`,
       '',
       'Gracias por confiar en Kore Repuestos.',

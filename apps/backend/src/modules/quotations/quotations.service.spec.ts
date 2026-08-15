@@ -43,9 +43,9 @@ describe('QuotationsService', () => {
       itemCount: items.reduce((s, i) => s + i.quantity, 0),
       distinctCount: items.length,
       subtotal,
-      taxRate: 0.18,
-      tax: subtotal * 0.18,
-      total: subtotal * 1.18,
+      taxRate: 0.15,
+      tax: subtotal * 0.15,
+      total: subtotal * 1.15,
       updatedAt: '2026-08-01T00:00:00.000Z',
     };
   }
@@ -170,7 +170,7 @@ describe('QuotationsService', () => {
       expect(repo.updateStatus).toHaveBeenCalledWith(42, 'Enviada');
     });
 
-    it('calcula totales con IVA 18% en la respuesta', async () => {
+    it('calcula totales con IVA 15% en la respuesta', async () => {
       cartService.getCart.mockResolvedValue(
         cart([cartItem({ quantity: 2, unitPrice: 100, lineTotal: 200 })]),
       );
@@ -179,9 +179,9 @@ describe('QuotationsService', () => {
       const res = await service.create(USER_ID, { clearCart: false });
 
       expect(res.subtotal).toBe(200);
-      expect(res.tax).toBe(36); // 200 * 0.18
-      expect(res.total).toBe(236);
-      expect(res.taxRate).toBe(0.18);
+      expect(res.tax).toBe(30); // 200 * 0.15
+      expect(res.total).toBe(230);
+      expect(res.taxRate).toBe(0.15);
       expect(res.customer.email).toBe('ana@kore.dev');
     });
   });
