@@ -194,4 +194,114 @@ describe('Maintenance flow (e2e)', () => {
   it('GET /notifications sin token → 401', async () => {
     await request(app.getHttpServer()).get('/api/v1/notifications').expect(401);
   });
+
+  // ── TC-A-011: Calendario de mantenimiento con CalendarItemDto ───────────────
+
+  it('GET /vehicles/:id/calendar → 200 array de CalendarItemDto con kmRemaining y products (TC-A-011)', async () => {
+    const vehicleId = await createVehicle(4000);
+    const res = await request(app.getHttpServer())
+      .get(`/api/v1/vehicles/${vehicleId}/calendar`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    expect(Array.isArray(res.body)).toBe(true);
+
+    // Puede estar vacío si no hay guía vinculada al modelo; si hay items validamos el shape
+    if ((res.body as unknown[]).length > 0) {
+      const item = res.body[0] as Record<string, unknown>;
+      expect(item).toMatchObject({
+        planId: expect.any(Number),
+        description: expect.any(String),
+        mileageInterval: expect.any(Number),
+        isCritical: expect.any(Boolean),
+        kmRemaining: expect.any(Number),
+        nextServiceDate: expect.any(String),
+        estimatedCost: expect.any(Number),
+        products: expect.any(Array),
+      });
+    }
+  });
+
+  it('GET /calendar incluye la tarea sembrada con kmRemaining calculado (TC-A-011)', async () => {
+    const vehicleId = await createVehicle(4000);
+    const res = await request(app.getHttpServer())
+      .get(`/api/v1/vehicles/${vehicleId}/calendar`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    const oilChange = (
+      res.body as Array<{ description: string; kmRemaining: number; products: unknown[] }>
+    ).find((s) => s.description === 'Cambio de aceite E2E');
+
+    expect(oilChange).toBeDefined();
+    // A 4000 km con intervalo 5000 → kmRemaining = 1000
+    expect(oilChange!.kmRemaining).toBe(1000);
+    // El producto sembrado (E2E-MANT-001) debe estar en la lista de partes
+    expect(oilChange!.products.length).toBeGreaterThanOrEqual(1);
+  });
+
+  // ── TC-A-014: Recordatorio con estado='pendiente' ───────────────────────────
+
+  it('notificación encolada tras mileage update tiene estado=pendiente en BD (TC-A-014)', async () => {
+    const vehicleId = await createVehicle(4000);
+
+    await request(app.getHttpServer())
+      .patch(`/api/v1/vehicles/${vehicleId}/mileage`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ currentMileage: 5000 })
+      .expect(204);
+
+    const rows: Array<{ estado: string }> = await ds.query(
+      `SELECT estado FROM notificaciones
+       WHERE id_vehiculo_usuario = $1
+       ORDER BY id_notificacion DESC LIMIT 1`,
+      [vehicleId],
+    );
+
+    expect(rows.length).toBeGreaterThanOrEqual(1);
+    expect(rows[0].estado).toBe('pendiente');
+  });
+
+  // ── TC-A-015: Plan secuencial + recalculación dinámica ─────────────────────
+
+  it('servicios del plan están ordenados por nextServiceDate ascendente (TC-A-015)', async () => {
+    const vehicleId = await createVehicle(1000);
+    const res = await request(app.getHttpServer())
+      .get(`/api/v1/vehicles/${vehicleId}/plan`)
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
+    const dates = (res.body.services as Array<{ nextServiceDate: string }>).map(
+      (s) => s.nextServiceDate,
+    );
+
+    for (let i = 1; i < dates.length; i++) {
+      expect(new Date(dates[i]).getTime()).toBeGreaterThanOrEqual(new Date(dates[i - 1]).getTime());
+    }
+  });
+
+  it('el plan se recalcula dinámicamente al actualizar el kilometraje (TC-A-015)', async () => {
+    const vehicleId = await createVehicle(4000);
+
+    const planBefore = await request(app.getHttpServer())
+      .get(`/api/v1/vehicles/${vehicleId}/plan`)
+      .set('Authorization', `Bearer ${token}`)
+      .then((r) => r.body as { overdueCount: number });
+
+    expect(planBefore.overdueCount).toBe(0); // a 4000 no hay vencidos
+
+    // Actualizar a 5000 → tarea con intervalo 5000 queda vencida
+    await request(app.getHttpServer())
+      .patch(`/api/v1/vehicles/${vehicleId}/mileage`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ currentMileage: 5000 })
+      .expect(204);
+
+    const planAfter = await request(app.getHttpServer())
+      .get(`/api/v1/vehicles/${vehicleId}/plan`)
+      .set('Authorization', `Bearer ${token}`)
+      .then((r) => r.body as { overdueCount: number });
+
+    expect(planAfter.overdueCount).toBeGreaterThanOrEqual(1);
+  });
 });
