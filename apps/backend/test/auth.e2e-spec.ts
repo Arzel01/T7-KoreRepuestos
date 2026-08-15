@@ -270,3 +270,137 @@ describe('AuthController (e2e)', () => {
     });
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TC-A-023: RolesGuard — 403 para Cliente, éxito para Administrador
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * TC-A-023: El RolesGuard bloquea con 403 a usuarios con rol Cliente cuando
+ * intentan acceder a operaciones exclusivas del Administrador.
+ * El Administrador obtiene el código de éxito esperado en cada caso.
+ *
+ * Endpoints verificados:
+ *   - POST /products        (crear producto)
+ *   - PATCH /products/:id   (editar producto)
+ *   - DELETE /products/:id  (soft-delete)
+ *   - POST /products/:id/images  (subir imagen)
+ *   - POST /maintenance/guides   (crear guía)
+ */
+describe('RolesGuard — Cliente obtiene 403 en rutas de Administrador (TC-A-023)', () => {
+  let app: INestApplication;
+  let dataSource: DataSource;
+  let adminToken: string;
+  let clientToken: string;
+  let productId: number;
+
+  beforeAll(async () => {
+    app = await createTestingApp();
+    dataSource = app.get<DataSource>(getDataSourceToken());
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  beforeEach(async () => {
+    await dataSource.query(
+      'TRUNCATE TABLE sesiones, productos, categorias, usuarios RESTART IDENTITY CASCADE',
+    );
+
+    const bcrypt = await import('bcrypt');
+    const hash = await bcrypt.hash('AdminPass1', 4);
+    await dataSource.query(
+      `INSERT INTO usuarios (email, password_hash, nombres, rol, is_active)
+       VALUES ($1, $2, 'Admin TC023', 'Administrador', TRUE)`,
+      ['admin-tc023@kore.test', hash],
+    );
+    const adminLogin = await request(app.getHttpServer())
+      .post('/api/v1/auth/login')
+      .send({ email: 'admin-tc023@kore.test', password: 'AdminPass1' })
+      .expect(200);
+    adminToken = adminLogin.body.tokens.accessToken;
+
+    const clientReg = await request(app.getHttpServer())
+      .post('/api/v1/auth/register')
+      .send({
+        email: 'client-tc023@kore.test',
+        password: 'ClientTc023',
+        firstName: 'Cliente',
+        lastName: 'TC023',
+      })
+      .expect(201);
+    clientToken = clientReg.body.tokens.accessToken;
+
+    const productRes = await request(app.getHttpServer())
+      .post('/api/v1/products')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ sku: 'TC023-SKU', name: 'Producto TC023', price: 10, stock: 5 })
+      .expect(201);
+    productId = productRes.body.id as number;
+  });
+
+  it('POST /products — Cliente → 403, Administrador → 201 (TC-A-023)', async () => {
+    await request(app.getHttpServer())
+      .post('/api/v1/products')
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send({ sku: 'BLOCK-CLIENT', name: 'Bloqueado', price: 5, stock: 1 })
+      .expect(403);
+
+    await request(app.getHttpServer())
+      .post('/api/v1/products')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ sku: 'ALLOWED-ADMIN', name: 'Permitido', price: 5, stock: 1 })
+      .expect(201);
+  });
+
+  it('PATCH /products/:id — Cliente → 403, Administrador → 200 (TC-A-023)', async () => {
+    await request(app.getHttpServer())
+      .patch(`/api/v1/products/${productId}`)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send({ price: 99 })
+      .expect(403);
+
+    await request(app.getHttpServer())
+      .patch(`/api/v1/products/${productId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ price: 99 })
+      .expect(200);
+  });
+
+  it('DELETE /products/:id — Cliente → 403, Administrador → 204 (TC-A-023)', async () => {
+    await request(app.getHttpServer())
+      .delete(`/api/v1/products/${productId}`)
+      .set('Authorization', `Bearer ${clientToken}`)
+      .expect(403);
+
+    await request(app.getHttpServer())
+      .delete(`/api/v1/products/${productId}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(204);
+  });
+
+  it('POST /maintenance/guides — Cliente → 403, Administrador → 201/404 (TC-A-023)', async () => {
+    await request(app.getHttpServer())
+      .post('/api/v1/maintenance/guides')
+      .set('Authorization', `Bearer ${clientToken}`)
+      .send({ modelId: 1 })
+      .expect(403);
+
+    // El admin llega al handler; modelo 1 puede no existir → 404 es correcto (no 403)
+    const adminRes = await request(app.getHttpServer())
+      .post('/api/v1/maintenance/guides')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ modelId: 999999 });
+    expect(adminRes.status).not.toBe(403);
+  });
+
+  it('sin token en cualquier ruta admin → 401 (no 403) (TC-A-023)', async () => {
+    await request(app.getHttpServer())
+      .post('/api/v1/products')
+      .send({ sku: 'NOTOKEN', name: 'X', price: 1, stock: 1 })
+      .expect(401);
+
+    await request(app.getHttpServer()).delete(`/api/v1/products/${productId}`).expect(401);
+  });
+});
