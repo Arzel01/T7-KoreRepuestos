@@ -1,8 +1,10 @@
+import { getDataSourceToken } from '@nestjs/typeorm';
 import request from 'supertest';
 
 import { createTestingApp, seedTestUsers } from './setup-e2e';
 
 import type { INestApplication } from '@nestjs/common';
+import type { DataSource } from 'typeorm';
 
 /**
  * Tests e2e para el módulo de vehículos (US#1).
@@ -211,5 +213,80 @@ describe('Vehicles (e2e)', () => {
         .set('Authorization', `Bearer ${token}`)
         .expect(204);
     });
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TC-A-013: Registro de vehículo — verificación en BD (vehiculos_usuario)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * TC-A-013: Tras POST /vehicles el registro persiste en `vehiculos_usuario`
+ * con el id_usuario correcto del usuario autenticado.
+ */
+describe('Vehicles — registro en vehiculos_usuario (TC-A-013)', () => {
+  let app: INestApplication;
+  let ds: DataSource;
+  let token: string;
+  let userId: number;
+
+  beforeAll(async () => {
+    app = await createTestingApp();
+    await seedTestUsers(app);
+    ds = app.get<DataSource>(getDataSourceToken());
+
+    const loginRes = await request(app.getHttpServer())
+      .post('/api/v1/auth/login')
+      .send({ email: 'test@kore.dev', password: 'Test1234!' })
+      .expect(200);
+    token = (loginRes.body as { tokens: { accessToken: string } }).tokens.accessToken;
+
+    const meRes = await request(app.getHttpServer())
+      .get('/api/v1/auth/me')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+    userId = Number((meRes.body as { sub: string }).sub);
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('POST /vehicles persiste registro en vehiculos_usuario con id_usuario correcto (TC-A-013)', async () => {
+    const brands = await request(app.getHttpServer())
+      .get('/api/v1/vehicles/brands')
+      .then((r) => r.body as { id: number }[]);
+    if (brands.length === 0) return;
+
+    const models = await request(app.getHttpServer())
+      .get(`/api/v1/vehicles/brands/${brands[0].id}/models`)
+      .then((r) => r.body as { id: number }[]);
+    if (models.length === 0) return;
+
+    const createRes = await request(app.getHttpServer())
+      .post('/api/v1/vehicles')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        brandId: brands[0].id,
+        modelId: models[0].id,
+        year: 2019,
+        currentMileage: 5000,
+        alias: 'Mi carro de prueba',
+      })
+      .expect(201);
+
+    const newVehicleId = (createRes.body as { id: number }).id;
+
+    const rows: Array<{ id_usuario: number; kilometraje_actual: number; anio: number }> =
+      await ds.query(
+        `SELECT id_usuario, kilometraje_actual, anio
+         FROM vehiculos_usuario WHERE id_vehiculo_usuario = $1`,
+        [newVehicleId],
+      );
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0].id_usuario).toBe(userId);
+    expect(rows[0].kilometraje_actual).toBe(5000);
+    expect(rows[0].anio).toBe(2019);
   });
 });

@@ -195,4 +195,45 @@ describe('ProductsController GET /api/v1/products — catálogo (e2e)', () => {
   it('rechaza query params desconocidos (400, forbidNonWhitelisted)', async () => {
     await get('?foo=1').expect(400);
   });
+
+  // ---------------------------------------------------------------------------
+  // TC-A-012: Búsqueda avanzada con 5+ filtros combinados simultáneos
+  // ---------------------------------------------------------------------------
+  it('combina 5+ params simultáneos — cláusula WHERE acumulativa (TC-A-012)', async () => {
+    // Con los datos sembrados en beforeEach:
+    //   FIL-001  Filtro de aceite   cat=filtros  10.00  stock=45
+    //   FIL-002  Filtro de aire     cat=filtros  50.00  stock=10
+    //   FRE-001  Pastilla de freno  cat=frenos  200.00  stock=5
+    //   FRE-002  Disco de freno     cat=frenos  120.00  stock=0
+    //   BUJ-001  Bujía estándar     cat=null     15.00  stock=99
+    //
+    // Filtros: search=filtro + categoryIds=filtros + minPrice=5 + maxPrice=55
+    //          + inStock=true + sortBy=price + sortOrder=asc + page=1 + pageSize=5
+    const res = await get(
+      `?search=filtro&categoryIds=${filtrosId}&minPrice=5&maxPrice=55&inStock=true&sortBy=price&sortOrder=asc&page=1&pageSize=5`,
+    ).expect(200);
+
+    // Solo FIL-001 (10.00) y FIL-002 (50.00) pasan todos los filtros a la vez
+    expect(res.body.total).toBe(2);
+    const skus = res.body.items.map((p: { sku: string }) => p.sku);
+    expect(skus).toContain('FIL-001');
+    expect(skus).toContain('FIL-002');
+    expect(skus).not.toContain('FRE-001');
+    expect(skus).not.toContain('FRE-002');
+    expect(skus).not.toContain('BUJ-001');
+
+    // Orden ascendente por precio
+    const prices = res.body.items.map((p: { price: number }) => p.price);
+    expect(prices[0]).toBeLessThanOrEqual(prices[1]);
+  });
+
+  it('5+ filtros sin resultados devuelven total=0 con items vacíos (TC-A-012)', async () => {
+    // FRE-002 está sin stock; combinado con minPrice muy alto → ningún resultado
+    const res = await get(
+      `?categoryIds=${frenosId}&minPrice=500&maxPrice=999&inStock=true&sortBy=price&sortOrder=desc`,
+    ).expect(200);
+
+    expect(res.body.total).toBe(0);
+    expect(res.body.items).toHaveLength(0);
+  });
 });

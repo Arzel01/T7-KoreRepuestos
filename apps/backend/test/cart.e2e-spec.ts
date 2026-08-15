@@ -135,4 +135,24 @@ describe('Cart (e2e)', () => {
       .expect(201);
     expect(res.body.itemCount).toBe(2);
   });
+
+  // TC-A-019: quantity=0 rechazado con error de validación
+  it('PUT /cart/items/:id con quantity=0 → 400 (error de validación) (TC-A-019)', async () => {
+    // Asegurar que hay un ítem en el carrito
+    await auth('post', '/api/v1/cart/items').send({ productId, quantity: 1 }).expect(201);
+
+    const cart = await auth('get', '/api/v1/cart').expect(200);
+    const itemId = cart.body.items[0].id as number;
+
+    await auth('put', `/api/v1/cart/items/${itemId}`).send({ quantity: 0 }).expect(400);
+  });
+
+  it('PUT /cart/items/:id con quantity negativa → 400 (TC-A-019)', async () => {
+    await auth('post', '/api/v1/cart/items').send({ productId, quantity: 1 }).expect(201);
+
+    const cart = await auth('get', '/api/v1/cart').expect(200);
+    const itemId = cart.body.items[0].id as number;
+
+    await auth('put', `/api/v1/cart/items/${itemId}`).send({ quantity: -1 }).expect(400);
+  });
 });

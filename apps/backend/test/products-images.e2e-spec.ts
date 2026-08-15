@@ -196,4 +196,27 @@ describe('ProductsController /api/v1/products/:id/images (e2e)', () => {
       .set('Authorization', `Bearer ${adminToken}`)
       .expect(404);
   });
+
+  // TC-A-004: archivo ejecutable rechazado
+  it('POST imagen .exe con content-type application/octet-stream → 400 (TC-A-004)', async () => {
+    const exeBuffer = Buffer.from('MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xFF\xFF'); // magic bytes de PE/EXE
+    await request(app.getHttpServer())
+      .post(`/api/v1/products/${productId}/images`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', exeBuffer, {
+        filename: 'malware.exe',
+        contentType: 'application/octet-stream',
+      })
+      .expect(400);
+  });
+
+  it('POST imagen .exe disfrazado con content-type image/jpeg → 400 (TC-A-004)', async () => {
+    // Magic bytes PE (MZ header) enviados con MIME type de imagen → debe fallar en validación
+    const exeBuffer = Buffer.from('MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xFF\xFF');
+    await request(app.getHttpServer())
+      .post(`/api/v1/products/${productId}/images`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .attach('file', exeBuffer, { filename: 'photo.jpg', contentType: 'image/jpeg' })
+      .expect(400);
+  });
 });
