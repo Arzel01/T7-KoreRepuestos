@@ -99,7 +99,7 @@ describe('Register → Shop → Quote (integration e2e)', () => {
   it('5) genera la cotización a partir del carrito (US#22)', async () => {
     const res = await authed('post', '/api/v1/quotations').send({ sendEmail: true }).expect(201);
     expect(res.body.items).toHaveLength(2);
-    expect(res.body.total).toBe(236);
+    expect(res.body.total).toBe(230); // 200 * 1.15
     // Con sendEmail=true el estado pasa a Enviada.
     expect(res.body.status).toBe('Enviada');
     quotationId = res.body.id;
