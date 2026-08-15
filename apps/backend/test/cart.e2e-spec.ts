@@ -78,7 +78,7 @@ describe('Cart (e2e)', () => {
     expect(res.body.subtotal).toBe(0);
     expect(res.body.tax).toBe(0);
     expect(res.body.total).toBe(0);
-    expect(res.body.taxRate).toBe(0.18);
+    expect(res.body.taxRate).toBe(0.15);
   });
 
   it('POST /cart/items → añade producto (201)', async () => {
@@ -104,8 +104,8 @@ describe('Cart (e2e)', () => {
     const res = await auth('put', `/api/v1/cart/items/${itemId}`).send({ quantity: 5 }).expect(200);
     expect(res.body.itemCount).toBe(5);
     expect(res.body.subtotal).toBe(PRICE * 5); // 500
-    expect(res.body.tax).toBe(90); // 500 * 0.18
-    expect(res.body.total).toBe(590);
+    expect(res.body.tax).toBe(75); // 500 * 0.15
+    expect(res.body.total).toBe(575);
   });
 
   it('PUT /cart/items/:id con cantidad mayor al stock → 400', async () => {

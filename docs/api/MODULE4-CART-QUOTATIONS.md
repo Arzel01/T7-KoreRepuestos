@@ -6,7 +6,7 @@ prefijo global `/api/v1` y **requieren autenticación** (JWT Bearer). La documen
 
 - **Base URL (dev):** `http://localhost:3000/api/v1`
 - **Auth:** header `Authorization: Bearer <accessToken>` (obtenido en `POST /auth/login`).
-- **Moneda:** soles peruanos (PEN). El IVA aplicado es **18 %** (`taxRate: 0.18`).
+- **Moneda:** dolares (USD). El IVA aplicado es **15 %** (`taxRate: 0.15`).
 - **Totales:** siempre se calculan en el servidor; el cliente nunca los envía.
 
 ---

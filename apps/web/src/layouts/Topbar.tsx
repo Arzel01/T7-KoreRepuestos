@@ -62,7 +62,7 @@ export function Topbar({ onMenuClick }: TopbarProps): JSX.Element {
           En línea
         </span>
         <span className="hidden text-sm text-white/80 sm:inline">
-          {new Date().toLocaleDateString('es-PE', {
+          {new Date().toLocaleDateString('es-EC', {
             day: '2-digit',
             month: 'short',
             year: 'numeric',

@@ -8,8 +8,8 @@
  * calculan en el servidor para que el cliente nunca los invente.
  */
 
-/** Impuesto general a las ventas (IGV/IVA Perú) aplicado al subtotal del carrito. */
-export const IVA_RATE = 0.18;
+/** Impuesto general a las ventas (IVA Ecuador) aplicado al subtotal del carrito. */
+export const IVA_RATE = 0.15;
 
 export interface CartItemResponse {
   id: number;

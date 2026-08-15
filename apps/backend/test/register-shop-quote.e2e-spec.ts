@@ -86,10 +86,10 @@ describe('Register → Shop → Quote (integration e2e)', () => {
 
   it('4) revisa el resumen del carrito (US#21)', async () => {
     const res = await authed('get', '/api/v1/cart/summary').expect(200);
-    // 2×50 + 1×100 = 200 subtotal; IVA 18% = 36; total 236
+    // 2×50 + 1×100 = 200 subtotal; IVA 15% = 30; total 230
     expect(res.body.subtotal).toBe(200);
-    expect(res.body.tax).toBe(36);
-    expect(res.body.total).toBe(236);
+    expect(res.body.tax).toBe(30);
+    expect(res.body.total).toBe(230);
     expect(res.body.canQuote).toBe(true);
   });
 

@@ -70,7 +70,7 @@ describe('CartService', () => {
   });
 
   describe('getCart · cálculos (subtotal, IVA, total)', () => {
-    it('calcula subtotal, IVA (18%) y total correctamente', async () => {
+    it('calcula subtotal, IVA (15%) y total correctamente', async () => {
       cartRepo.loadWithItems.mockResolvedValue(
         cartWith([
           { quantity: 2, product: product({ id: 5, price: 100 }) },
@@ -81,9 +81,9 @@ describe('CartService', () => {
       const cart = await service.getCart(USER_ID);
 
       expect(cart.subtotal).toBe(250);
-      expect(cart.taxRate).toBe(0.18);
-      expect(cart.tax).toBe(45); // 250 * 0.18
-      expect(cart.total).toBe(295);
+      expect(cart.taxRate).toBe(0.15);
+      expect(cart.tax).toBe(37.5); // 250 * 0.15
+      expect(cart.total).toBe(287.5);
       expect(cart.itemCount).toBe(3); // suma de cantidades
       expect(cart.distinctCount).toBe(2); // líneas
       expect(cart.items[0].lineTotal).toBe(200);
@@ -95,8 +95,8 @@ describe('CartService', () => {
       );
       const cart = await service.getCart(USER_ID);
       expect(cart.subtotal).toBe(99.99);
-      expect(cart.tax).toBe(18); // 99.99 * 0.18 = 17.9982 → 18.00
-      expect(cart.total).toBe(117.99);
+      expect(cart.tax).toBe(15); // 99.99 * 0.15 = 14.9985 → 15.00
+      expect(cart.total).toBe(114.99);
     });
   });
 
