@@ -2,6 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 const LS_KEY = 'kore_catalog_filters';
+const LS_TTL_MS = 6 * 60 * 60 * 1000;
+
+interface PersistedFilters {
+  params: string;
+  savedAt: number;
+}
 
 import type { ProductQueryParams, SavedSearchParams } from '@kore/shared';
 
@@ -70,14 +76,22 @@ function composeSearch(
 export function useCatalogFilters(): CatalogFiltersState {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Restore persisted filters on first mount when URL has no params
+  // Restore persisted filters on first mount when URL has no params —
+  // pero solo si se guardaron hace menos de LS_TTL_MS (si no, se descartan).
   useEffect(() => {
     if (searchParams.toString()) return;
     try {
       const saved = localStorage.getItem(LS_KEY);
-      if (saved) setSearchParams(new URLSearchParams(saved), { replace: true });
+      if (!saved) return;
+      const parsed = JSON.parse(saved) as PersistedFilters;
+      if (Date.now() - parsed.savedAt < LS_TTL_MS) {
+        setSearchParams(new URLSearchParams(parsed.params), { replace: true });
+      } else {
+        localStorage.removeItem(LS_KEY);
+      }
     } catch {
-      // localStorage unavailable — silently skip
+      // localStorage unavailable o formato viejo/corrupto — descartar
+      localStorage.removeItem(LS_KEY);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -88,7 +102,8 @@ export function useCatalogFilters(): CatalogFiltersState {
       const withoutPage = new URLSearchParams(searchParams);
       withoutPage.delete('page');
       if (withoutPage.toString()) {
-        localStorage.setItem(LS_KEY, withoutPage.toString());
+        const entry: PersistedFilters = { params: withoutPage.toString(), savedAt: Date.now() };
+        localStorage.setItem(LS_KEY, JSON.stringify(entry));
       } else {
         localStorage.removeItem(LS_KEY);
       }
