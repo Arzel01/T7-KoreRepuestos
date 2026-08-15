@@ -1,7 +1,11 @@
+import path from 'node:path';
+
 import { Injectable } from '@nestjs/common';
 import PDFDocument from 'pdfkit';
 
 import type { QuotationResponse } from '@kore/shared';
+
+const LOGO_PATH = path.join(__dirname, '../../../assets/logo.png');
 
 /** Formatea un monto como dólares, coherente con el IVA aplicado. */
 function money(value: number): string {
@@ -63,12 +67,12 @@ export class QuotationPdfService {
   }
 
   private drawHeader(doc: PDFKit.PDFDocument, q: QuotationResponse): void {
-    doc.fillColor(COLORS.accent).fontSize(22).font('Helvetica-Bold').text('KORE REPUESTOS', 50, 50);
+    doc.image(LOGO_PATH, 50, 44, { width: 140 });
     doc
       .fillColor(COLORS.muted)
       .fontSize(9)
       .font('Helvetica')
-      .text('Repuestos automotrices y planes de mantenimiento', 50, 76);
+      .text('Repuestos automotrices y planes de mantenimiento', 50, 88);
 
     doc
       .fillColor(COLORS.primary)
