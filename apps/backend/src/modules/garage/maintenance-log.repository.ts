@@ -34,6 +34,10 @@ export class MaintenanceLogRepository {
     });
   }
 
+  findByIdWithPlan(id: number): Promise<MaintenanceLog | null> {
+    return this.repo.findOne({ where: { id }, relations: { plan: true } });
+  }
+
   create(data: Partial<MaintenanceLog>): Promise<MaintenanceLog> {
     const entity = this.repo.create(data);
     return this.repo.save(entity);

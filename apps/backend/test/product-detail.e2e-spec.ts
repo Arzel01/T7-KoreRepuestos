@@ -115,7 +115,7 @@ describe('ProductsController GET /api/v1/products/:id — detalle enriquecido (T
     dataSource = app.get<DataSource>(getDataSourceToken());
 
     await dataSource.query(
-      'TRUNCATE TABLE sesiones, compatibilidades, productos, categorias, usuarios RESTART IDENTITY CASCADE',
+      'TRUNCATE TABLE sesiones, compatibilidad, productos, categorias, usuarios RESTART IDENTITY CASCADE',
     );
 
     const [{ id_producto }] = await dataSource.query<Array<{ id_producto: number }>>(
@@ -125,11 +125,25 @@ describe('ProductsController GET /api/v1/products/:id — detalle enriquecido (T
     );
     productId = id_producto;
 
-    // Compatibilidad directa en BD
+    // Compatibilidad directa en BD — modelo normalizado: marca/modelo son
+    // tablas aparte, `compatibilidad` solo enlaza (id_producto, id_modelo).
+    const [{ id_marca }] = await dataSource.query<Array<{ id_marca: number }>>(
+      `INSERT INTO marcas (nombre) VALUES ('Chevrolet')
+       ON CONFLICT (nombre) DO UPDATE SET nombre = EXCLUDED.nombre
+       RETURNING id_marca`,
+    );
+    const [{ id_modelo }] = await dataSource.query<Array<{ id_modelo: number }>>(
+      `INSERT INTO modelos (id_marca, nombre, anio_inicio, anio_fin)
+       VALUES ($1, 'Spark', 2017, 2022)
+       ON CONFLICT (id_marca, nombre)
+         DO UPDATE SET anio_inicio = EXCLUDED.anio_inicio, anio_fin = EXCLUDED.anio_fin
+       RETURNING id_modelo`,
+      [id_marca],
+    );
     await dataSource.query(
-      `INSERT INTO compatibilidades (id_producto, marca, modelo, año_inicio, año_fin)
-       VALUES ($1, 'Chevrolet', 'Spark', 2017, 2022)`,
-      [productId],
+      `INSERT INTO compatibilidad (id_producto, id_modelo) VALUES ($1, $2)
+       ON CONFLICT (id_producto, id_modelo) DO NOTHING`,
+      [productId, id_modelo],
     );
   });
 
@@ -169,9 +183,10 @@ describe('ProductsController GET /api/v1/products/:id — detalle enriquecido (T
       .get(`/api/v1/products/${productId}/reviews`)
       .expect(200);
 
-    // Incluso sin reseñas, la forma del DTO debe incluir avgRating y total
+    // Sin reseñas para este producto, averageRating es null (no 0) — ver
+    // reviews.repository.ts: solo es número cuando AVG() tiene filas.
     expect(res.body).toMatchObject({
-      avgRating: expect.any(Number),
+      averageRating: null,
       total: expect.any(Number),
       items: expect.any(Array),
     });

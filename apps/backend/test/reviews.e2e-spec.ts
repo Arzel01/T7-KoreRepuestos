@@ -110,7 +110,7 @@ describe('ReviewsController (e2e)', () => {
       .get(`/api/v1/products/${productId}/reviews`)
       .expect(200);
 
-    expect(res.body.avgRating).toBeGreaterThan(0);
+    expect(res.body.averageRating).toBeGreaterThan(0);
     expect(res.body.total).toBeGreaterThanOrEqual(1);
     expect(Array.isArray(res.body.items)).toBe(true);
     expect(res.body.items[0]).toMatchObject({ rating: 5 });

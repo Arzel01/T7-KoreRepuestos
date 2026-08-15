@@ -13,14 +13,18 @@ import type { VehiclesRepository } from './vehicles.repository';
 describe('MaintenanceRecordsService', () => {
   let service: MaintenanceRecordsService;
   let vehiclesRepo: { findOne: jest.Mock };
-  let logsRepo: { create: jest.Mock; findByVehicleWithPlan: jest.Mock };
+  let logsRepo: {
+    create: jest.Mock;
+    findByVehicleWithPlan: jest.Mock;
+    findByIdWithPlan: jest.Mock;
+  };
 
   const USER_ID = 7;
   const VEHICLE_ID = 3;
 
   beforeEach(() => {
     vehiclesRepo = { findOne: jest.fn() };
-    logsRepo = { create: jest.fn(), findByVehicleWithPlan: jest.fn() };
+    logsRepo = { create: jest.fn(), findByVehicleWithPlan: jest.fn(), findByIdWithPlan: jest.fn() };
     service = new MaintenanceRecordsService(
       vehiclesRepo as unknown as VehiclesRepository,
       logsRepo as unknown as MaintenanceLogRepository,
@@ -28,11 +32,21 @@ describe('MaintenanceRecordsService', () => {
   });
 
   describe('create', () => {
-    it('crea el registro con la fecha indicada y devuelve la respuesta mapeada', async () => {
+    it('crea el registro con la fecha indicada y devuelve la respuesta mapeada, con planDescription recargado', async () => {
       vehiclesRepo.findOne.mockResolvedValue({ id: VEHICLE_ID, userId: USER_ID });
       logsRepo.create.mockImplementation((data: Partial<MaintenanceLog>) =>
         Promise.resolve({ id: 50, ...data } as MaintenanceLog),
       );
+      // save() no trae la relación `plan` — el servicio la recarga con findByIdWithPlan.
+      logsRepo.findByIdWithPlan.mockResolvedValue({
+        id: 50,
+        vehicleId: VEHICLE_ID,
+        planId: 12,
+        completedAt: '2026-07-01',
+        completedMileage: 45000,
+        notes: 'Cambio de aceite y filtro',
+        plan: { description: 'Cambio de aceite' },
+      } as unknown as MaintenanceLog);
 
       const res = await service.create(USER_ID, {
         vehicleId: VEHICLE_ID,
@@ -49,10 +63,12 @@ describe('MaintenanceRecordsService', () => {
         completedMileage: 45000,
         notes: 'Cambio de aceite y filtro',
       });
+      expect(logsRepo.findByIdWithPlan).toHaveBeenCalledWith(50);
       expect(res).toMatchObject({
         id: 50,
         vehicleId: VEHICLE_ID,
         planId: 12,
+        planDescription: 'Cambio de aceite',
         completedMileage: 45000,
         notes: 'Cambio de aceite y filtro',
       });
@@ -63,6 +79,7 @@ describe('MaintenanceRecordsService', () => {
       logsRepo.create.mockImplementation((data: Partial<MaintenanceLog>) =>
         Promise.resolve({ id: 51, ...data } as MaintenanceLog),
       );
+      logsRepo.findByIdWithPlan.mockResolvedValue(null);
 
       const today = new Date().toISOString().split('T')[0];
       const res = await service.create(USER_ID, {

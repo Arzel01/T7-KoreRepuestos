@@ -10,7 +10,10 @@ import type { DataSource } from 'typeorm';
  * TC-A-006 + TC-A-007: Filtrado del catálogo por compatibilidad de vehículo.
  *
  * QueryProductsDto acepta vehicleBrand / vehicleModel / vehicleYear.
- * La tabla `compatibilidades` almacena marca/modelo/año_inicio/año_fin.
+ * El modelo de datos real es normalizado: `compatibilidad` (singular) solo
+ * tiene (id_producto, id_modelo); marca/año_inicio/año_fin viven en
+ * `marcas`/`modelos`. `compatibilidades` (plural) es una tabla legado que no
+ * existe en el schema actual — no usarla.
  *
  * Cubre:
  *   ✓ TC-A-006: ?vehicleBrand + vehicleModel → solo productos compatibles
@@ -30,7 +33,7 @@ describe('ProductsController — filtro por compatibilidad de vehículo (e2e)', 
     ds = app.get<DataSource>(getDataSourceToken());
 
     await ds.query(
-      'TRUNCATE TABLE sesiones, compatibilidades, productos, categorias, usuarios RESTART IDENTITY CASCADE',
+      'TRUNCATE TABLE sesiones, compatibilidad, productos, categorias, usuarios RESTART IDENTITY CASCADE',
     );
 
     const bcrypt = await import('bcrypt');
@@ -62,16 +65,49 @@ describe('ProductsController — filtro por compatibilidad de vehículo (e2e)', 
       .expect(201);
     hondaProductId = r2.body.id as number;
 
-    // Registrar compatibilidades directamente en BD
+    // Registrar compatibilidad directamente en BD — marca/modelo son tablas
+    // aparte (normalizado): hay que crearlas antes de enlazar el producto.
+    const upsertMarca = async (nombre: string): Promise<number> => {
+      const rows = (await ds.query(
+        `INSERT INTO marcas (nombre) VALUES ($1)
+         ON CONFLICT (nombre) DO UPDATE SET nombre = EXCLUDED.nombre
+         RETURNING id_marca`,
+        [nombre],
+      )) as Array<{ id_marca: number }>;
+      return rows[0].id_marca;
+    };
+
+    const upsertModelo = async (
+      idMarca: number,
+      nombre: string,
+      anioInicio: number,
+      anioFin: number,
+    ): Promise<number> => {
+      const rows = (await ds.query(
+        `INSERT INTO modelos (id_marca, nombre, anio_inicio, anio_fin)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (id_marca, nombre)
+           DO UPDATE SET anio_inicio = EXCLUDED.anio_inicio, anio_fin = EXCLUDED.anio_fin
+         RETURNING id_modelo`,
+        [idMarca, nombre, anioInicio, anioFin],
+      )) as Array<{ id_modelo: number }>;
+      return rows[0].id_modelo;
+    };
+
+    const toyotaMarcaId = await upsertMarca('Toyota');
+    const corollaModeloId = await upsertModelo(toyotaMarcaId, 'Corolla', 2018, 2023);
     await ds.query(
-      `INSERT INTO compatibilidades (id_producto, marca, modelo, año_inicio, año_fin)
-       VALUES ($1, 'Toyota', 'Corolla', 2018, 2023)`,
-      [toyotaProductId],
+      `INSERT INTO compatibilidad (id_producto, id_modelo) VALUES ($1, $2)
+       ON CONFLICT (id_producto, id_modelo) DO NOTHING`,
+      [toyotaProductId, corollaModeloId],
     );
+
+    const hondaMarcaId = await upsertMarca('Honda');
+    const civicModeloId = await upsertModelo(hondaMarcaId, 'Civic', 2019, 2022);
     await ds.query(
-      `INSERT INTO compatibilidades (id_producto, marca, modelo, año_inicio, año_fin)
-       VALUES ($1, 'Honda', 'Civic', 2019, 2022)`,
-      [hondaProductId],
+      `INSERT INTO compatibilidad (id_producto, id_modelo) VALUES ($1, $2)
+       ON CONFLICT (id_producto, id_modelo) DO NOTHING`,
+      [hondaProductId, civicModeloId],
     );
   });
 

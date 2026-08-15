@@ -35,7 +35,9 @@ export class MaintenanceRecordsService {
       completedMileage: dto.completedMileage,
       notes: dto.notes,
     });
-    return this.toResponse(record);
+    // save() no trae la relación `plan` — se recarga para exponer planDescription.
+    const withPlan = await this.logsRepo.findByIdWithPlan(record.id);
+    return this.toResponse(withPlan ?? record);
   }
 
   async history(userId: number, vehicleId: number): Promise<MaintenanceRecordResponse[]> {
