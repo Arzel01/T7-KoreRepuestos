@@ -101,7 +101,7 @@ describe('ProductsController GET /api/v1/products/:id — detalle (e2e)', () => 
 /**
  * TC-A-008: Vista de detalle de producto incluye:
  *   ✓ Vehículos compatibles via GET /products/:id/compatibility
- *   ✓ avgRating y total en GET /products/:id/reviews (calculado dinámicamente)
+ *   ✓ averageRating y total en GET /products/:id/reviews (calculado dinámicamente)
  *   ✓ Endpoint de compatibilidad es público (sin auth)
  *   ✓ Producto inexistente en compatibilidad → 404
  */
@@ -178,7 +178,7 @@ describe('ProductsController GET /api/v1/products/:id — detalle enriquecido (T
     await request(app.getHttpServer()).get('/api/v1/products/99999/compatibility').expect(404);
   });
 
-  it('GET /products/:id/reviews → 200 con avgRating y total (TC-A-008)', async () => {
+  it('GET /products/:id/reviews → 200 con averageRating y total (TC-A-008)', async () => {
     const res = await request(app.getHttpServer())
       .get(`/api/v1/products/${productId}/reviews`)
       .expect(200);
