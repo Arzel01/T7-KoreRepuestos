@@ -4,11 +4,21 @@ export class DropResenasTable1781137369814 implements MigrationInterface {
   name = 'DropResenasTable1781137369814';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Both tables existed with data. resenas (no ñ) is the orphaned duplicate;
-    // reseñas (with ñ) is the canonical table used by all backend code.
-    // Strategy: migrate rows from resenas → reseñas, skipping conflicts
-    // (when both tables have a review for the same product+user, keep reseñas
-    // since it may have the richer titulo/votos_util data).
+    // resenas (no ñ) was created directly in Supabase, never via a migration.
+    // CI starts from a blank DB so the table may not exist — guard with a check.
+    const rows: { exists: boolean }[] = await queryRunner.query(`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'public' AND table_name = 'resenas'
+      ) AS exists
+    `);
+    const exists: boolean = rows[0]?.exists ?? false;
+
+    if (!exists) return;
+
+    // Migrate rows into the canonical reseñas table before dropping.
+    // ON CONFLICT keeps the richer reseñas row when both tables share the same
+    // (id_producto, id_usuario) pair.
     await queryRunner.query(`
       INSERT INTO public."reseñas"
         (id_producto, id_usuario, calificacion, comentario, creado_en)
