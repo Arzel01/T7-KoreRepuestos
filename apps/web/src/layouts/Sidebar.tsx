@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
+import { Logo } from '@/components/Logo';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 
@@ -38,9 +39,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }): JSX.Elemen
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-white/10 px-6 py-6">
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-extrabold tracking-tight text-white">KORE</span>
-          <span className="text-[10px] uppercase tracking-[0.3em] text-white/70">v0.1</span>
+        <div className="flex items-center gap-2">
+          <Logo className="h-8 text-white" />
         </div>
         <p className="mt-1 text-[10px] uppercase tracking-[0.3em] text-white/70">
           Panel administrativo
@@ -141,7 +141,7 @@ export function Sidebar({ mobileOpen, onMobileOpenChange }: SidebarProps): JSX.E
         >
           <SheetTitle className="sr-only">Navegación del panel</SheetTitle>
           <SheetDescription className="sr-only">
-            Secciones del panel administrativo de Kore Repuestos.
+            Secciones del panel administrativo de KoreAuto.
           </SheetDescription>
           <SidebarContent onNavigate={() => onMobileOpenChange(false)} />
         </SheetContent>

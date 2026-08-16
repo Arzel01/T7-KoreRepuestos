@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { Logo } from '@/components/Logo';
 import { extractApiErrorMessage } from '@/lib/api-client';
 
 import { useAuth } from '../hooks/AuthContext';
@@ -94,9 +95,8 @@ export function RegisterPage(): JSX.Element {
           <div className="absolute -bottom-16 -left-16 size-56 rounded-full bg-white/10" />
 
           <div className="relative">
-            <Link to="/landing" className="text-3xl font-extrabold tracking-tight text-white">
-              KORE
-              <span className="ml-2 text-base font-normal text-white/70">Repuestos</span>
+            <Link to="/landing" className="flex items-center gap-2">
+              <Logo className="h-8 text-white" />
             </Link>
           </div>
 
@@ -119,16 +119,13 @@ export function RegisterPage(): JSX.Element {
             </div>
           </div>
 
-          <p className="relative text-xs text-white/40">© 2026 Kore Repuestos</p>
+          <p className="relative text-xs text-white/40">© 2026 KoreAuto</p>
         </aside>
 
         <section className="flex items-center justify-center bg-background px-6 py-16 sm:px-12">
           <div className="w-full max-w-xl animate-fade-in-up">
-            <Link
-              to="/"
-              className="mb-8 block text-2xl font-extrabold tracking-tight text-primary lg:hidden"
-            >
-              KORE <span className="text-sm font-normal text-muted-foreground">Repuestos</span>
+            <Link to="/" className="mb-8 flex items-center gap-2 lg:hidden">
+              <Logo className="h-6 text-primary" />
             </Link>
 
             <h2 className="text-2xl font-bold tracking-tight text-foreground">Registro</h2>

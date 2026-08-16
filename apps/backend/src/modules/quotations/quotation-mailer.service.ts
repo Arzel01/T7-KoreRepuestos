@@ -21,7 +21,7 @@ export class QuotationMailerService {
 
   constructor(config: ConfigService) {
     const host = config.get<string>('SMTP_HOST');
-    this.from = config.get<string>('SMTP_FROM') ?? 'Kore Repuestos <no-reply@kore.dev>';
+    this.from = config.get<string>('SMTP_FROM') ?? 'KoreAuto <no-reply@kore.dev>';
 
     if (host) {
       this.usesRealSmtp = true;
@@ -47,7 +47,7 @@ export class QuotationMailerService {
     await this.transporter.sendMail({
       from: this.from,
       to,
-      subject: `Tu cotización ${quotation.number} — Kore Repuestos`,
+      subject: `Tu cotización ${quotation.number} — KoreAuto`,
       text: this.buildBody(quotation),
       attachments: [
         {
@@ -73,7 +73,7 @@ export class QuotationMailerService {
       `Adjuntamos tu cotización ${q.number} por un total de $${q.total.toFixed(2)} (IVA incluido).`,
       `Válida hasta el ${q.validUntil.slice(0, 10)}.`,
       '',
-      'Gracias por confiar en Kore Repuestos.',
+      'Gracias por confiar en KoreAuto.',
     ].join('\n');
   }
 }

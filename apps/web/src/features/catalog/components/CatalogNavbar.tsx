@@ -1,6 +1,7 @@
 import { Car, LogOut, Settings, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { Logo } from '@/components/Logo';
 import { Button, buttonVariants } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -34,11 +35,8 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
     <header className="sticky top-0 z-40 border-b bg-background shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
         {/* Logo */}
-        <Link to="/landing" className="shrink-0 text-2xl font-bold tracking-tight text-primary">
-          KORE
-          <span className="ml-1 hidden text-sm font-normal text-muted-foreground sm:inline">
-            Repuestos
-          </span>
+        <Link to="/landing" className="flex shrink-0 items-center gap-1">
+          <Logo className="h-6 text-primary" />
         </Link>
 
         {/* Nav links */}

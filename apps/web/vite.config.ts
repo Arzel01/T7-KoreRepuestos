@@ -14,7 +14,7 @@ export default defineConfig({
       injectRegister: 'auto',
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Kore Repuestos',
+        name: 'KoreAuto',
         short_name: 'Kore',
         description: 'Catálogo de repuestos automotrices y gestión de mantenimiento de vehículos.',
         theme_color: '#0f3672',

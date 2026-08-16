@@ -23,7 +23,7 @@ export class EmailChannel implements NotificationChannel {
 
   constructor(config: ConfigService) {
     const host = config.get<string>('SMTP_HOST');
-    this.from = config.get<string>('SMTP_FROM') ?? 'Kore Repuestos <no-reply@kore.dev>';
+    this.from = config.get<string>('SMTP_FROM') ?? 'KoreAuto <no-reply@kore.dev>';
 
     if (host) {
       this.usesRealSmtp = true;

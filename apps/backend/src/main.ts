@@ -45,7 +45,7 @@ async function bootstrap(): Promise<void> {
 
   if (config.get<string>('SWAGGER_ENABLED', 'true') === 'true') {
     const swaggerConfig = new DocumentBuilder()
-      .setTitle('Kore Repuestos API')
+      .setTitle('KoreAuto API')
       .setDescription('Gestión de repuestos automotrices y planes de mantenimiento')
       .setVersion('0.1.0')
       .addBearerAuth()
