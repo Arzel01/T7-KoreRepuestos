@@ -7,7 +7,7 @@ import { savedSearchesApi } from '../server/saved-searches.api';
 
 import type { SavedSearchParams, SavedSearchResponse } from '@kore/shared';
 
-interface UseSavedSearches {
+export interface UseSavedSearches {
   savedSearches: SavedSearchResponse[];
   loading: boolean;
   error: string | null;

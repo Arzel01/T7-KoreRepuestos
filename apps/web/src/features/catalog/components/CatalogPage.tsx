@@ -13,6 +13,7 @@ import {
 import { useCatalogFilters } from '../hooks/useCatalogFilters';
 import { useCatalogProducts } from '../hooks/useCatalogProducts';
 import { useCategories } from '../hooks/useCategories';
+import { useSavedSearches } from '../hooks/useSavedSearches';
 
 import { CatalogNavbar } from './CatalogNavbar';
 import { CatalogPagination } from './CatalogPagination';
@@ -34,12 +35,14 @@ export function CatalogPage(): JSX.Element {
   const filters = useCatalogFilters();
   const { categories, loading: categoriesLoading } = useCategories();
   const { data, loading, error, retry } = useCatalogProducts(filters.applied, filters.appliedKey);
+  const savedSearches = useSavedSearches();
 
   const sidebar = (
     <CatalogSidebar
       filters={filters}
       categories={categories}
       categoriesLoading={categoriesLoading}
+      savedSearches={savedSearches}
     />
   );
 

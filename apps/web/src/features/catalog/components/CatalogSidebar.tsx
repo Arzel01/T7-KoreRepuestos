@@ -7,15 +7,23 @@ import { Separator } from '@/components/ui/separator';
 
 import { CategoryFilter } from './CategoryFilter';
 import { PriceFilter } from './PriceFilter';
+import { SavedSearches } from './SavedSearches';
 import { VehicleSelector } from './VehicleSelector';
 
 import type { CatalogFiltersState } from '../hooks/useCatalogFilters';
+import type { UseSavedSearches } from '../hooks/useSavedSearches';
 import type { CategoryResponse } from '@kore/shared';
 
 interface CatalogSidebarProps {
   filters: CatalogFiltersState;
   categories: CategoryResponse[];
   categoriesLoading: boolean;
+  /**
+   * Se recibe ya resuelto desde `CatalogPage` (no se llama `useSavedSearches`
+   * acá) porque este componente se monta dos veces en paralelo — sidebar
+   * desktop y drawer móvil — y ambas copias deben compartir un único fetch.
+   */
+  savedSearches: UseSavedSearches;
 }
 
 /**
@@ -27,6 +35,7 @@ export function CatalogSidebar({
   filters,
   categories,
   categoriesLoading,
+  savedSearches,
 }: CatalogSidebarProps): JSX.Element {
   const [categoryFilterResetKey, setCategoryFilterResetKey] = useState(0);
 
@@ -96,6 +105,18 @@ export function CatalogSidebar({
           </Label>
         </div>
       </section>
+
+      <Separator />
+
+      <SavedSearches
+        currentParams={filters.currentParams}
+        canSave={filters.hasActiveFilters}
+        onApply={filters.applySavedParams}
+        savedSearches={savedSearches.savedSearches}
+        loading={savedSearches.loading}
+        save={savedSearches.save}
+        remove={savedSearches.remove}
+      />
     </div>
   );
 }

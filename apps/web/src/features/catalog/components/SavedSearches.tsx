@@ -15,11 +15,13 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 import { extractApiErrorMessage } from '@/lib/api-client';
 
-import { useSavedSearches } from '../hooks/useSavedSearches';
-
+import type { UseSavedSearches } from '../hooks/useSavedSearches';
 import type { SavedSearchParams } from '@kore/shared';
 
-interface SavedSearchesProps {
+interface SavedSearchesProps extends Pick<
+  UseSavedSearches,
+  'savedSearches' | 'loading' | 'save' | 'remove'
+> {
   /** Parámetros actuales a guardar. */
   currentParams: SavedSearchParams;
   /** Hay al menos un filtro activo (habilita "Guardar"). */
@@ -32,14 +34,22 @@ interface SavedSearchesProps {
  * Sección "Búsquedas guardadas" del panel de filtros: guardar la búsqueda
  * actual (con nombre) y re-aplicar/eliminar las existentes. Solo visible para
  * usuarios autenticados.
+ *
+ * Recibe el estado por props (en vez de llamar `useSavedSearches` acá adentro)
+ * porque este componente se monta dos veces en paralelo — sidebar desktop y
+ * drawer móvil (ver `CatalogPage`) — y ambas copias deben compartir un único
+ * fetch y quedar en sync entre sí.
  */
 export function SavedSearches({
   currentParams,
   canSave,
   onApply,
+  savedSearches,
+  loading,
+  save,
+  remove,
 }: SavedSearchesProps): JSX.Element | null {
   const { isAuthenticated } = useAuth();
-  const { savedSearches, loading, save, remove } = useSavedSearches();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [nombre, setNombre] = useState('');
