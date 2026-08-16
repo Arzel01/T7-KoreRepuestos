@@ -45,6 +45,7 @@ export class MaintenancePlannerService {
             currentMileage: vehicle.currentMileage,
             averageDailyMileage: vehicle.averageDailyMileage,
             lastCompletedAt: lastLog?.completedAt,
+            lastCompletedMileage: lastLog?.completedMileage,
           },
           now,
         );

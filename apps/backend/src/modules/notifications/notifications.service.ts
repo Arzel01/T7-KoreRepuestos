@@ -43,16 +43,22 @@ export class NotificationsService {
 
   /**
    * Inserta una notificación `pendiente`. Idempotente para recordatorios: si ya
-   * existe una pendiente para el mismo (vehículo, tarea, canal) devuelve `null`
-   * sin duplicar (respaldado por el índice único parcial de la migración).
+   * existe una pendiente para el mismo (vehículo, tarea, canal, tipo) devuelve
+   * `null` sin duplicar (respaldado por el índice único parcial de la
+   * migración). `tipo` entra en la clave porque los tramos de urgencia
+   * (próximo/urgente/vencido) son recordatorios distintos que deben poder
+   * coexistir mientras uno anterior sigue sin despacharse.
    */
   async enqueue(input: EnqueueInput): Promise<Notification | null> {
+    const tipo = input.tipo ?? 'recordatorio_mantenimiento';
+
     if (input.vehicleId != null && input.planId != null) {
       const existing = await this.repo.findOne({
         where: {
           vehicleId: input.vehicleId,
           planId: input.planId,
           canal: input.canal,
+          tipo,
           estado: 'pendiente',
         },
       });
@@ -63,7 +69,7 @@ export class NotificationsService {
       userId: input.userId,
       vehicleId: input.vehicleId ?? null,
       planId: input.planId ?? null,
-      tipo: input.tipo ?? 'recordatorio_mantenimiento',
+      tipo,
       titulo: input.titulo,
       mensaje: input.mensaje,
       canal: input.canal,

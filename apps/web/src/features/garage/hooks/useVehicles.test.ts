@@ -8,6 +8,11 @@ import { useVehicles } from './useVehicles';
 
 import type { VehicleResponse } from '@kore/shared';
 
+const mockReload = vi.fn();
+vi.mock('@/features/notifications/hooks/NotificationsContext', () => ({
+  useNotifications: () => ({ reload: mockReload }),
+}));
+
 vi.mock('../server/garage.api', () => ({
   garageApi: {
     getVehicles: vi.fn(),
@@ -66,6 +71,19 @@ describe('useVehicles', () => {
     });
 
     expect(result.current.vehicles).toHaveLength(0);
+  });
+
+  it('refreshMileage recarga las notificaciones (el backend ya encoló recordatorios en el PATCH)', async () => {
+    mockApi.updateMileage.mockResolvedValue(undefined);
+    const { result } = renderHook(() => useVehicles());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.refreshMileage(1, 5000);
+    });
+
+    expect(mockReload).toHaveBeenCalledTimes(1);
+    expect(result.current.vehicles[0].currentMileage).toBe(5000);
   });
 
   it('expone el mensaje de error si la carga falla', async () => {

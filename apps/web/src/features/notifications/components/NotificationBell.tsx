@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/features/auth/hooks/AuthContext';
 
-import { useNotifications } from '../hooks/useNotifications';
+import { useNotifications } from '../hooks/NotificationsContext';
 
 function formatWhen(iso: string): string {
   const [date] = iso.split('T');
@@ -26,12 +26,12 @@ function formatWhen(iso: string): string {
  */
 export function NotificationBell(): JSX.Element | null {
   const { isAuthenticated } = useAuth();
-  const { notifications, unreadCount, loading, markRead } = useNotifications();
+  const { notifications, unreadCount, loading, markRead, reload } = useNotifications();
 
   if (!isAuthenticated) return null;
 
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={(open) => open && void reload()}>
       <DropdownMenuTrigger
         aria-label={`Notificaciones${unreadCount > 0 ? ` (${unreadCount} sin leer)` : ''}`}
         className={buttonVariants({

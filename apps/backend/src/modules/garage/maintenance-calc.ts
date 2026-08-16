@@ -15,6 +15,8 @@ export interface NextServiceInput {
   averageDailyMileage: number;
   /** Fecha (ISO `yyyy-mm-dd`) del último servicio registrado para la tarea, si existe. */
   lastCompletedAt?: string | null;
+  /** Kilometraje al que se registró el último servicio de la tarea, si existe. */
+  lastCompletedMileage?: number | null;
 }
 
 export interface NextServiceResult {
@@ -53,17 +55,34 @@ export function computeNextService(
   input: NextServiceInput,
   now: Date = new Date(),
 ): NextServiceResult {
-  const { mileageInterval, monthInterval, currentMileage, averageDailyMileage, lastCompletedAt } =
-    input;
+  const {
+    mileageInterval,
+    monthInterval,
+    currentMileage,
+    averageDailyMileage,
+    lastCompletedAt,
+    lastCompletedMileage,
+  } = input;
 
-  // Objetivo de km del próximo ciclo (múltiplo del intervalo por encima del actual).
+  // Objetivo de km del próximo ciclo. Con un último servicio registrado, el
+  // objetivo es fijo (última vez + intervalo): si el vehículo ya lo pasó,
+  // queda vencido (0 km) y se mantiene así hasta que se registre el próximo
+  // servicio — no "se le escapa" al siguiente múltiplo solo por seguir
+  // rodando. Sin historial no hay ancla: se asume el múltiplo más próximo
+  // desde el kilometraje actual (no acusa vencidos retroactivos al agregar
+  // un vehículo usado sin historial cargado).
   const interval = mileageInterval > 0 ? mileageInterval : 0;
   let kmRemaining = 0;
   let daysUntilKm = Number.POSITIVE_INFINITY;
 
   if (interval > 0) {
-    const cycleKm = Math.floor(currentMileage / interval) * interval;
-    const nextKmTarget = cycleKm < currentMileage ? cycleKm + interval : cycleKm;
+    let nextKmTarget: number;
+    if (lastCompletedMileage != null) {
+      nextKmTarget = lastCompletedMileage + interval;
+    } else {
+      const cycleKm = Math.floor(currentMileage / interval) * interval;
+      nextKmTarget = cycleKm < currentMileage ? cycleKm + interval : cycleKm;
+    }
     kmRemaining = Math.max(0, nextKmTarget - currentMileage);
     daysUntilKm =
       averageDailyMileage > 0 ? kmRemaining / averageDailyMileage : Number.POSITIVE_INFINITY;
@@ -120,7 +139,28 @@ export function summarizePlan(services: ReadonlyArray<CalendarItemDto>): PlanSum
   return { estimatedTotalCost, nextServiceDate, criticalCount, overdueCount };
 }
 
-/** ¿Está la tarea dentro de la ventana de anticipación configurada por el usuario? */
-export function isDueWithin(result: NextServiceResult, daysBefore: number): boolean {
-  return result.kmRemaining === 0 || result.daysRemaining <= daysBefore;
+/** Umbrales de kilometraje restante para escalar la urgencia del recordatorio. */
+export const KM_REMINDER_THRESHOLDS = { proximo: 1000, urgente: 100 } as const;
+
+export type ReminderUrgency = 'proximo' | 'urgente' | 'vencido';
+
+/**
+ * Clasifica la urgencia del recordatorio de una tarea, o `null` si todavía no
+ * corresponde avisar. Dos disparadores independientes, el que aplique gana:
+ * - Kilometraje restante: escalona en tramos (1000 km → "próximo",
+ *   100 km → "urgente", 0 km → "vencido") en vez de un único aviso de último
+ *   momento.
+ * - Fecha: cubre tareas dominadas por el intervalo en meses, donde puede
+ *   faltar mucho kilometraje todavía pero la fecha ya está dentro de la
+ *   ventana `daysBefore` configurada por el usuario.
+ */
+export function classifyReminder(
+  result: NextServiceResult,
+  daysBefore: number,
+): ReminderUrgency | null {
+  if (result.kmRemaining === 0) return 'vencido';
+  if (result.kmRemaining <= KM_REMINDER_THRESHOLDS.urgente) return 'urgente';
+  if (result.kmRemaining <= KM_REMINDER_THRESHOLDS.proximo) return 'proximo';
+  if (result.daysRemaining <= daysBefore) return 'proximo';
+  return null;
 }
