@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select';
 import { garageApi } from '@/features/garage/server/garage.api';
 
-import { VEHICLE_TYPES, VEHICLE_YEARS } from '../data/vehicle-placeholder';
+import { VEHICLE_YEARS } from '../data/vehicle-placeholder';
 
 import type { VehicleFilters } from '../hooks/useCatalogFilters';
 import type { MarcaResponse, ModeloResponse } from '@kore/shared';
@@ -123,29 +123,6 @@ export function VehicleSelector({ vehicle, onVehicleChange }: VehicleSelectorPro
             {models.map((m) => (
               <SelectItem key={m.id} value={m.nombre}>
                 {m.nombre}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Tipo (estático — sin tabla en BD) */}
-      <div className="space-y-1.5">
-        <Label htmlFor="vehicle-type" className="text-xs text-muted-foreground">
-          Tipo
-        </Label>
-        <Select
-          value={vehicle.type ? vehicle.type : '__all__'}
-          onValueChange={(val) => onVehicleChange('type', val === '__all__' ? '' : val)}
-        >
-          <SelectTrigger id="vehicle-type" className="w-full bg-background">
-            <SelectValue placeholder="Seleccione tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="__all__">Todos</SelectItem>
-            {VEHICLE_TYPES.map((opt) => (
-              <SelectItem key={opt} value={opt}>
-                {opt}
               </SelectItem>
             ))}
           </SelectContent>

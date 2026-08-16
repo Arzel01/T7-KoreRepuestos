@@ -8,8 +8,6 @@
  * reemplazar este import, sin tocar el resto del feature.
  */
 
-export const VEHICLE_TYPES = ['Sedán', 'SUV', 'Hatchback', 'Pickup', 'Furgoneta'] as const;
-
 export const VEHICLE_YEARS = Array.from({ length: 17 }, (_, i) => String(2026 - i));
 
 export interface PlaceholderRating {

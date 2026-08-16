@@ -1,4 +1,4 @@
-import { ImageOff, ShoppingCart } from 'lucide-react';
+import { ImageOff } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -70,24 +70,13 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
             </Badge>
           )}
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={() => navigate(`/product/${product.id}`)}
-          >
-            Ver Detalles
-          </Button>
-          {/* TODO(catalog): carrito real */}
-          <Button
-            size="icon"
-            disabled={!available}
-            aria-label={`Agregar ${product.name} al carrito`}
-            title="Agregar al carrito (próximamente)"
-          >
-            <ShoppingCart className="size-4" aria-hidden="true" />
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => navigate(`/product/${product.id}`)}
+        >
+          Ver Detalles
+        </Button>
       </CardFooter>
     </Card>
   );

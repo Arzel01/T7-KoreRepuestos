@@ -14,7 +14,6 @@ import type { ProductQueryParams, SavedSearchParams } from '@kore/shared';
 export interface VehicleFilters {
   brand: string;
   model: string;
-  type: string;
   /** Año de inicio del rango (o año único si yearTo está vacío). */
   year: string;
   /** Año de fin del rango. Solo visible en la UI cuando `year` tiene valor. */
@@ -45,22 +44,6 @@ export interface CatalogFiltersState {
   currentParams: SavedSearchParams;
   /** Re-aplica una búsqueda guardada reemplazando por completo la URL-state. */
   applySavedParams: (params: SavedSearchParams) => void;
-}
-
-/**
- * Compone el `search` que recibe el backend (solo tipo de vehículo por ahora).
- *
- * Marca, modelo y año NO van aquí — se envían como `vehicleBrand`/
- * `vehicleModel`/`vehicleYear`/`vehicleYearTo` y se filtran en el backend vía
- * la tabla `compatibilidad` (FK real a `modelos`/`marcas`), no por
- * coincidencia de texto contra el nombre del producto.
- */
-function composeSearch(
-  manualSearch: string | undefined,
-  vehicle: VehicleFilters,
-): string | undefined {
-  if (manualSearch?.trim()) return manualSearch.trim();
-  return vehicle.type.trim() || undefined;
 }
 
 /**
@@ -116,7 +99,6 @@ export function useCatalogFilters(): CatalogFiltersState {
     () => ({
       brand: searchParams.get('vehicleBrand') ?? '',
       model: searchParams.get('vehicleModel') ?? '',
-      type: searchParams.get('vehicleType') ?? '',
       year: searchParams.get('vehicleYear') ?? '',
       yearTo: searchParams.get('vehicleYearTo') ?? '',
     }),
@@ -131,7 +113,7 @@ export function useCatalogFilters(): CatalogFiltersState {
     const page = searchParams.get('page');
 
     return {
-      search: composeSearch(manualSearch, vehicle),
+      search: manualSearch?.trim() || undefined,
       vehicleBrand: vehicle.brand || undefined,
       vehicleModel: vehicle.model || undefined,
       vehicleYear: vehicle.year ? Number(vehicle.year) : undefined,
@@ -203,7 +185,6 @@ export function useCatalogFilters(): CatalogFiltersState {
       const urlKey: Record<keyof VehicleFilters, string> = {
         brand: 'vehicleBrand',
         model: 'vehicleModel',
-        type: 'vehicleType',
         year: 'vehicleYear',
         yearTo: 'vehicleYearTo',
       };
@@ -274,7 +255,6 @@ export function useCatalogFilters(): CatalogFiltersState {
       search: searchParams.get('search') ?? undefined,
       vehicleBrand: vehicle.brand || undefined,
       vehicleModel: vehicle.model || undefined,
-      vehicleType: vehicle.type || undefined,
       vehicleYear: vehicle.year ? Number(vehicle.year) : undefined,
       vehicleYearTo: vehicle.yearTo ? Number(vehicle.yearTo) : undefined,
       categoryIds: selectedCategoryIds.length ? selectedCategoryIds : undefined,
@@ -290,7 +270,6 @@ export function useCatalogFilters(): CatalogFiltersState {
       if (params.search) next.set('search', params.search);
       if (params.vehicleBrand) next.set('vehicleBrand', params.vehicleBrand);
       if (params.vehicleModel) next.set('vehicleModel', params.vehicleModel);
-      if (params.vehicleType) next.set('vehicleType', params.vehicleType);
       if (params.vehicleYear != null) next.set('vehicleYear', String(params.vehicleYear));
       if (params.vehicleYearTo != null) next.set('vehicleYearTo', String(params.vehicleYearTo));
       if (params.categoryIds?.length) next.set('categoryIds', params.categoryIds.join(','));
