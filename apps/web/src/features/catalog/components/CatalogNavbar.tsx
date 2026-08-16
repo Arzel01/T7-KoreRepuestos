@@ -46,12 +46,6 @@ export function CatalogNavbar({ initialSearch = '', onSearch }: CatalogNavbarPro
         >
           Catálogo
         </Link>
-        <Link
-          to="/search"
-          className="hidden shrink-0 text-sm font-medium text-muted-foreground hover:text-primary sm:block"
-        >
-          Búsqueda avanzada
-        </Link>
 
         {/* Búsqueda central con autocomplete */}
         <SearchAutocomplete initialSearch={initialSearch} onSearch={onSearch} />

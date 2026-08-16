@@ -1,5 +1,5 @@
 import { UserRole } from '@kore/shared';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { CategoriesPage } from '@/app/admin/CategoriesPage';
 import { DashboardPage } from '@/app/admin/DashboardPage';
@@ -23,15 +23,24 @@ import { SearchAnalyticsPage } from '@/features/analytics/components/SearchAnaly
 import { CartPage } from '@/features/cart/components/CartPage';
 import { CartSummaryPage } from '@/features/quotations/components/CartSummaryPage';
 import { QuotationPreviewPage } from '@/features/quotations/components/QuotationPreviewPage';
-import { AdvancedSearchPage } from '@/features/search/components/AdvancedSearchPage';
 import { AdminLayout } from '@/layouts/AdminLayout';
+
+/** Redirige preservando el query string — a diferencia de <Navigate to="/" />, que lo descarta. */
+function RedirectKeepingSearch({ to }: { to: string }): JSX.Element {
+  const location = useLocation();
+  return <Navigate to={{ pathname: to, search: location.search }} replace />;
+}
 
 export function AppRouter(): JSX.Element {
   return (
     <Routes>
       {/* ── Públicas ───────────────────────────────────────────────────── */}
       <Route path="/" element={<CatalogPage />} />
-      <Route path="/search" element={<AdvancedSearchPage />} />
+      {/* "Búsqueda avanzada" se fusionó al catálogo normal — los filtros ahora
+          viven en el sidebar de "/". Esta ruta solo existe para no romper
+          links viejos a /search?vehicleBrand=...&categoryIds=..., preservando
+          esos parámetros en vez de descartarlos. */}
+      <Route path="/search" element={<RedirectKeepingSearch to="/" />} />
       <Route path="/landing" element={<LandingPage />} />
       <Route path="/catalog" element={<Navigate to="/" replace />} />
       <Route path="/product/:id" element={<ProductDetailsPage />} />
