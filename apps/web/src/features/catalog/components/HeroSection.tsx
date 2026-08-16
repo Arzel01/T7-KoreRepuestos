@@ -37,7 +37,7 @@ export function HeroSection(): JSX.Element {
         </h1>
 
         <p className="mx-auto mt-6 max-w-xl text-lg text-white/80">
-          Miles de repuestos disponibles. Filtrá por categoría, precio y disponibilidad para
+          Miles de repuestos disponibles. Filtra por categoría, precio y disponibilidad para
           encontrar exactamente lo que buscás.
         </p>
 

@@ -25,7 +25,7 @@ interface PushPayload {
 /** Notificación push (recordatorios de mantenimiento, ver ADR-0002). */
 self.addEventListener('push', (event: PushEvent) => {
   const data: PushPayload = event.data?.json() ?? {};
-  const title = data.titulo ?? 'Kore Repuestos';
+  const title = data.titulo ?? 'KoreAuto';
   event.waitUntil(
     self.registration.showNotification(title, {
       body: data.mensaje ?? '',

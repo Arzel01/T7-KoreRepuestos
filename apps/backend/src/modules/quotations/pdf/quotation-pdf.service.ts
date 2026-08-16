@@ -43,7 +43,7 @@ export class QuotationPdfService {
         margin: 50,
         info: {
           Title: `Cotización ${quotation.number}`,
-          Author: 'Kore Repuestos',
+          Author: 'KoreAuto',
           Subject: `Cotización para ${quotation.customer.name}`,
         },
       });

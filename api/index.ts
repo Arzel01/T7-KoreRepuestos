@@ -45,7 +45,7 @@ async function bootstrap() {
 
   if (config.get<string>('SWAGGER_ENABLED', 'true') === 'true') {
     const swaggerConfig = new DocumentBuilder()
-      .setTitle('Kore Repuestos API')
+      .setTitle('KoreAuto API')
       .setDescription('Gestión de repuestos automotrices y planes de mantenimiento')
       .setVersion('0.1.0')
       .addBearerAuth()
@@ -65,7 +65,7 @@ async function bootstrap() {
       res.send(`<!DOCTYPE html>
 <html>
   <head>
-    <title>Kore Repuestos API</title>
+    <title>KoreAuto API</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
