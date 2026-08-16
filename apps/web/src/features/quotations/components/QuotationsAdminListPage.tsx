@@ -71,9 +71,10 @@ export function QuotationsAdminListPage(): JSX.Element {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-6 py-10 sm:px-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Cotizaciones</h1>
+    <div className="mx-auto max-w-7xl px-8 py-12 animate-fade-in-up">
+      <header className="mb-10 border-b border-border pb-6">
+        <p className="text-sm font-semibold text-primary">Cotizaciones · 01</p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">Cotizaciones</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Cotizaciones de todos los clientes. Reenviá el PDF por email o escribile directo para
           cerrar la venta.

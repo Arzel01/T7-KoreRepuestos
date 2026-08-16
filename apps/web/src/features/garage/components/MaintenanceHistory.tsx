@@ -43,9 +43,12 @@ export function MaintenanceHistory({ vehicleId }: { vehicleId: number }): JSX.El
     <ul className="space-y-3">
       {records.map((record) => (
         <li key={record.id}>
-          <Card className="rounded-2xl border-green-200 bg-green-50/60 shadow-sm">
+          <Card className="rounded-2xl border-success-foreground/20 bg-success/60 shadow-sm">
             <CardContent className="flex items-start gap-3 px-5 py-4">
-              <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-green-600" aria-hidden="true" />
+              <CheckCircle2
+                className="mt-0.5 size-5 shrink-0 text-success-foreground"
+                aria-hidden="true"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="font-semibold text-foreground">

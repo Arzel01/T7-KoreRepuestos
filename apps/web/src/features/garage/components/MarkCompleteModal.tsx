@@ -84,7 +84,7 @@ export function MarkCompleteModal({ open, planId, currentMileage, onClose, onCon
             Cancelar
           </Button>
           <Button
-            className="bg-green-600 hover:bg-green-700 text-white"
+            className="bg-success-foreground hover:bg-success-foreground/90 text-white"
             onClick={() => void handleConfirm()}
             disabled={saving}
           >

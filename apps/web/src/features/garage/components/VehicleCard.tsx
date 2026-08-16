@@ -92,14 +92,14 @@ export function VehicleCard({ vehicle, nextService, onUpdateMileage, onUpdate, o
           </div>
 
           {nextService && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-              <p className="text-xs text-amber-700 uppercase tracking-wide font-medium mb-1">
+            <div className="rounded-xl border border-warning-foreground/20 bg-warning px-4 py-3">
+              <p className="text-xs text-warning-foreground uppercase tracking-wide font-medium mb-1">
                 Próximo Mantenimiento
               </p>
               <p className="text-sm font-semibold text-neutral-800">
                 {nextService.description} — {nextService.mileageInterval.toLocaleString()} km
               </p>
-              <p className="text-xs text-amber-600 mt-0.5">
+              <p className="text-xs text-warning-foreground mt-0.5">
                 En {nextService.kmRemaining.toLocaleString()} km
               </p>
             </div>

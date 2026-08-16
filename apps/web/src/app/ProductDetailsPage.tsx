@@ -180,8 +180,10 @@ export function ProductDetailsPage(): JSX.Element {
                 <div className="flex items-center gap-2">
                   {isInStock ? (
                     <>
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                      <span className="text-sm font-semibold text-green-700">Disponible</span>
+                      <CheckCircle className="w-5 h-5 text-success-foreground" />
+                      <span className="text-sm font-semibold text-success-foreground">
+                        Disponible
+                      </span>
                     </>
                   ) : (
                     <>
@@ -193,9 +195,9 @@ export function ProductDetailsPage(): JSX.Element {
               </div>
 
               {isLowStock && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                  <span className="text-sm text-orange-700 font-medium">
+                <div className="bg-warning border border-warning-foreground/20 rounded-lg p-3 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-warning-foreground mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-warning-foreground font-medium">
                     Últimas unidades disponibles ({product.stock} en stock)
                   </span>
                 </div>

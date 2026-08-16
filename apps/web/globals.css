@@ -5,8 +5,9 @@
 
 /* ------------------------------------------------------------------
    1. FONTS
+   Inter se carga una sola vez, self-hosted vía @fontsource-variable/inter
+   en src/index.css — no se vuelve a importar acá.
    ------------------------------------------------------------------ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /* ------------------------------------------------------------------
    2. COLOR TOKENS
@@ -100,7 +101,7 @@
      ------------------------------------------------------------------ */
   --font-sans: 'Inter', 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
   --font-display: 'Inter', 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --font-mono: 'Inter', 'Arial', 'Helvetica Neue', Helvetica, sans-serif;
 
   --text-xs: 0.75rem; /* 12px */
   --text-sm: 0.8125rem; /* 13px */

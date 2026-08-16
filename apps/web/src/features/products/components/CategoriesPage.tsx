@@ -119,7 +119,7 @@ export function CategoriesPage(): JSX.Element {
     <div className="mx-auto max-w-4xl px-8 py-12 animate-fade-in-up">
       <header className="mb-10 flex items-end justify-between border-b border-border pb-8">
         <div>
-          <p className="text-sm font-semibold text-primary">Catálogo · 02</p>
+          <p className="text-sm font-semibold text-primary">Catálogo · 03</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">Categorías</h1>
         </div>
         <Button onClick={() => openCreate(null)}>+ Nueva categoría</Button>

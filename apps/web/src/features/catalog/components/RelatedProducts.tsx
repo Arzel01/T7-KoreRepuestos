@@ -95,7 +95,9 @@ export function RelatedProducts({ currentProductId }: RelatedProductsProps): JSX
                 </div>
                 <div
                   className={`px-2 py-1 rounded text-xs font-semibold ${
-                    product.stock > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    product.stock > 0
+                      ? 'bg-success text-success-foreground'
+                      : 'bg-red-100 text-red-700'
                   }`}
                 >
                   {product.stock > 0 ? 'En stock' : 'Sin stock'}

@@ -14,7 +14,7 @@ export function DashboardPage(): JSX.Element {
 
   return (
     <div className="storefront min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl px-6 py-10 sm:px-8 lg:py-12">
+      <div className="mx-auto max-w-7xl px-6 py-10 sm:px-8 lg:py-12 animate-fade-in-up">
         <header className="rounded-2xl border border-border bg-card p-8 shadow-sm sm:p-10">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-end">
             <div>

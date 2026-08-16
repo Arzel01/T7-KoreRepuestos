@@ -61,7 +61,7 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
         <div className="flex items-center justify-between">
           <span className="text-xl font-bold text-primary">${product.price.toFixed(2)}</span>
           {available ? (
-            <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+            <Badge className="bg-success text-success-foreground hover:bg-success">
               {product.stock} disponibles
             </Badge>
           ) : (
