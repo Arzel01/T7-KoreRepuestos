@@ -48,5 +48,6 @@ import { VehiclesService } from './vehicles.service';
     MaintenanceGuidesService,
     MaintenanceRecordsService,
   ],
+  exports: [ReminderSchedulerService],
 })
 export class GarageModule {}

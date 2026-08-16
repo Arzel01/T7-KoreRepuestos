@@ -6,16 +6,50 @@ import { NotificationDispatcher } from '../notifications/notification-dispatcher
 import { NotificationsService } from '../notifications/notifications.service';
 
 import { VehicleUser } from './entities/vehicle-user.entity';
+import { classifyReminder } from './maintenance-calc';
 import { MaintenancePlannerService } from './maintenance-planner.service';
 import { VehiclesRepository } from './vehicles.repository';
 
+import type { ReminderUrgency } from './maintenance-calc';
+import type { CalendarItemDto } from '@kore/shared';
+
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+/** Título/mensaje/tipo por tramo de urgencia (US#2 · recordatorios escalonados). */
+function buildReminderContent(
+  urgency: ReminderUrgency,
+  s: CalendarItemDto,
+  label: string,
+): { tipo: string; titulo: string; mensaje: string } {
+  const tipo = `recordatorio_mantenimiento_${urgency}`;
+  if (urgency === 'vencido') {
+    return {
+      tipo,
+      titulo: `Mantenimiento vencido: ${s.description}`,
+      mensaje: `El servicio "${s.description}" de ${label} está vencido. Agéndalo cuanto antes.`,
+    };
+  }
+  if (urgency === 'urgente') {
+    return {
+      tipo,
+      titulo: `Mantenimiento muy próximo: ${s.description}`,
+      mensaje: `El servicio "${s.description}" de ${label} vence en menos de 100 km (quedan ${s.kmRemaining} km).`,
+    };
+  }
+  return {
+    tipo,
+    titulo: `Mantenimiento próximo: ${s.description}`,
+    mensaje: `El servicio "${s.description}" de ${label} vence en aprox. ${s.kmRemaining} km (${s.nextServiceDate}).`,
+  };
+}
 
 /**
  * US#2 — Chequeo de recordatorios de mantenimiento. Un cron in-process
  * (`@nestjs/schedule`, sin Redis) barre los vehículos y encola recordatorios
  * para las tareas próximas/vencidas según las preferencias del usuario. El
- * mismo `checkVehicle` se dispara al actualizar el kilometraje de un vehículo.
+ * mismo `checkVehicle` se dispara al actualizar el kilometraje de un vehículo
+ * y al iniciar sesión (`checkUser`), así el usuario ve el aviso sin esperar
+ * al barrido de las 7am.
  */
 @Injectable()
 export class ReminderSchedulerService {
@@ -29,12 +63,19 @@ export class ReminderSchedulerService {
     private readonly config: ConfigService,
   ) {}
 
-  /** Barrido diario: revisa todos los vehículos y despacha lo encolado. */
+  /**
+   * Barrido diario: avanza el odómetro estimado de cada vehículo y luego
+   * revisa/despacha recordatorios. El avance de kilometraje corre siempre
+   * (no depende de `NOTIFICATIONS_ENABLED`, que solo gobierna el envío de
+   * recordatorios).
+   */
   @Cron(CronExpression.EVERY_DAY_AT_7AM)
   async runReminderSweep(): Promise<void> {
+    const vehicles = await this.vehiclesRepo.findAllForReminders();
+    await this.projectDailyMileage(vehicles);
+
     if (this.config.get<string>('NOTIFICATIONS_ENABLED') === 'false') return;
 
-    const vehicles = await this.vehiclesRepo.findAllForReminders();
     let enqueued = 0;
     for (const vehicle of vehicles) {
       enqueued += await this.checkVehicle(vehicle);
@@ -43,6 +84,33 @@ export class ReminderSchedulerService {
     this.logger.log(
       `Barrido de recordatorios: ${vehicles.length} vehículos, ${enqueued} encolados, ${sent} enviados`,
     );
+  }
+
+  /**
+   * Avanza el kilometraje estimado (`+= promedio diario`) de todos los
+   * vehículos en una sola sentencia SQL, y refleja el nuevo valor en los
+   * objetos ya cargados en memoria para que el resto del barrido (cálculo de
+   * recordatorios) use el kilometraje actualizado sin una segunda consulta.
+   * Es una estimación: la próxima actualización manual del usuario sigue
+   * siendo la fuente de verdad y el avance continúa sumando desde ahí.
+   */
+  private async projectDailyMileage(vehicles: VehicleUser[]): Promise<void> {
+    if (vehicles.length === 0) return;
+    const updated = await this.vehiclesRepo.incrementAllMileage();
+    for (const vehicle of vehicles) {
+      vehicle.currentMileage += vehicle.averageDailyMileage;
+    }
+    this.logger.log(`Avance diario de kilometraje: ${updated} vehículos actualizados`);
+  }
+
+  /** Chequea todos los vehículos de un usuario (US#2, disparado al hacer login). */
+  async checkUser(userId: number): Promise<number> {
+    const vehicles = await this.vehiclesRepo.findByUser(userId);
+    let enqueued = 0;
+    for (const vehicle of vehicles) {
+      enqueued += await this.checkVehicle(vehicle);
+    }
+    return enqueued;
   }
 
   /**
@@ -64,23 +132,23 @@ export class ReminderSchedulerService {
 
     let enqueued = 0;
     for (const s of services) {
-      const daysUntil = Math.ceil(
-        (new Date(s.nextServiceDate).getTime() - now.getTime()) / MS_PER_DAY,
+      const daysRemaining = Math.max(
+        0,
+        Math.ceil((new Date(s.nextServiceDate).getTime() - now.getTime()) / MS_PER_DAY),
       );
-      const overdue = s.kmRemaining === 0;
-      if (!overdue && daysUntil > prefs.daysBefore) continue;
+      const urgency = classifyReminder(
+        { kmRemaining: s.kmRemaining, nextServiceDate: s.nextServiceDate, daysRemaining },
+        prefs.daysBefore,
+      );
+      if (!urgency) continue;
 
-      const titulo = overdue
-        ? `Mantenimiento vencido: ${s.description}`
-        : `Mantenimiento próximo: ${s.description}`;
-      const mensaje = overdue
-        ? `El servicio "${s.description}" de ${label} está vencido. Agéndalo cuanto antes.`
-        : `El servicio "${s.description}" de ${label} vence en aprox. ${s.kmRemaining} km (${s.nextServiceDate}).`;
+      const { tipo, titulo, mensaje } = buildReminderContent(urgency, s, label);
 
       const base = {
         userId: vehicle.userId,
         vehicleId: vehicle.id,
         planId: s.planId,
+        tipo,
         titulo,
         mensaje,
       };
