@@ -5,7 +5,7 @@ import { dismissToast, subscribeToasts, type ToastItem, type ToastVariant } from
 import { cn } from '@/lib/utils';
 
 const VARIANT_STYLES: Record<ToastVariant, string> = {
-  success: 'border-green-200 bg-green-50 text-green-800',
+  success: 'border-success-foreground/20 bg-success text-success-foreground',
   error: 'border-destructive/30 bg-destructive/5 text-destructive',
   info: 'border-border bg-background text-foreground',
 };

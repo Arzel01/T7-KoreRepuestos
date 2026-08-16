@@ -136,7 +136,7 @@ export function ProductsListPage(): JSX.Element {
     <div className="mx-auto max-w-7xl px-8 py-12 animate-fade-in-up">
       <header className="mb-10 flex items-end justify-between border-b border-border pb-8">
         <div>
-          <p className="text-sm font-semibold text-primary">Inventario · 01</p>
+          <p className="text-sm font-semibold text-primary">Inventario · 02</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">Productos</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {loading ? 'Cargando…' : `${total} ítems registrados`}
@@ -252,7 +252,7 @@ export function ProductsListPage(): JSX.Element {
                   <span
                     className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
                       p.isActive
-                        ? 'bg-emerald-500/10 text-emerald-600'
+                        ? 'bg-success text-success-foreground'
                         : 'bg-muted text-muted-foreground'
                     }`}
                   >

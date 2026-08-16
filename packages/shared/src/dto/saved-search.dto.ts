@@ -9,7 +9,6 @@ export interface SavedSearchParams {
   search?: string;
   vehicleBrand?: string;
   vehicleModel?: string;
-  vehicleType?: string;
   vehicleYear?: number;
   vehicleYearTo?: number;
   categoryIds?: string[];

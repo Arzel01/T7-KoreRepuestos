@@ -102,7 +102,7 @@ export function CalendarMonthView({ items }: Props): JSX.Element {
               className={`flex min-h-12 flex-col items-center rounded-lg border p-1 text-xs ${
                 dayItems.length > 0
                   ? hasCritical
-                    ? 'border-orange-300 bg-orange-50'
+                    ? 'border-warning-foreground/30 bg-warning'
                     : 'border-primary/30 bg-primary/5'
                   : 'border-transparent'
               }`}
@@ -111,7 +111,7 @@ export function CalendarMonthView({ items }: Props): JSX.Element {
               {dayItems.length > 0 && (
                 <Badge
                   className={`mt-0.5 h-4 min-w-4 justify-center px-1 text-[10px] ${
-                    hasCritical ? 'bg-orange-500' : 'bg-primary'
+                    hasCritical ? 'bg-warning-foreground' : 'bg-primary'
                   } text-white`}
                 >
                   {dayItems.length}
@@ -136,7 +136,7 @@ export function CalendarMonthView({ items }: Props): JSX.Element {
               <div className="flex items-center gap-2">
                 <span className="font-medium">{it.description}</span>
                 {it.isCritical && (
-                  <Badge className="bg-orange-500 text-[10px] text-white">Crítico</Badge>
+                  <Badge className="bg-warning-foreground text-[10px] text-white">Crítico</Badge>
                 )}
               </div>
               <span className="text-xs text-muted-foreground">

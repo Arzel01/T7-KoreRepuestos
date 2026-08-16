@@ -135,7 +135,7 @@ export function QuotationPreviewPage(): JSX.Element {
               </div>
             )}
             {emailNotice && (
-              <div className="mb-4 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700">
+              <div className="mb-4 flex items-center gap-2 rounded-lg border border-success-foreground/30 bg-success px-4 py-3 text-sm text-success-foreground">
                 <CheckCircle2 className="size-4 shrink-0" />
                 {emailNotice}
               </div>

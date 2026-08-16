@@ -83,9 +83,9 @@ export function SearchAnalyticsPage(): JSX.Element {
   return (
     <div className="mx-auto max-w-5xl px-8 py-12 animate-fade-in-up">
       <header className="mb-10 border-b border-border pb-6">
-        <p className="text-sm font-semibold text-primary">Analíticas · Búsquedas</p>
+        <p className="text-sm font-semibold text-primary">Analíticas · 05</p>
         <h1 className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
-          Analytics de búsqueda
+          Analíticas de Búsqueda
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Top términos y búsquedas sin resultados del catálogo.
@@ -121,7 +121,7 @@ export function SearchAnalyticsPage(): JSX.Element {
         </p>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid items-start gap-8 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Top búsquedas</CardTitle>

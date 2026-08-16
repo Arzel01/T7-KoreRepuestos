@@ -58,7 +58,10 @@ export function Topbar({ onMenuClick }: TopbarProps): JSX.Element {
 
       <div className="flex shrink-0 items-center gap-3">
         <span className="hidden items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-medium text-white sm:inline-flex">
-          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" aria-hidden />
+          <span
+            className="h-1.5 w-1.5 animate-pulse rounded-full bg-success-foreground"
+            aria-hidden
+          />
           En línea
         </span>
         <span className="hidden text-sm text-white/80 sm:inline">

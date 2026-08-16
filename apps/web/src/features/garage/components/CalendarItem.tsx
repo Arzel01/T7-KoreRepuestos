@@ -51,7 +51,9 @@ export function CalendarItem({
     }
   }
 
-  const borderClass = item.isCritical ? 'border-orange-300 bg-orange-50' : 'border-border bg-card';
+  const borderClass = item.isCritical
+    ? 'border-warning-foreground/30 bg-warning'
+    : 'border-border bg-card';
 
   function formatDate(dateStr: string) {
     const [y, m, d] = dateStr.split('-');
@@ -68,8 +70,12 @@ export function CalendarItem({
             >
               {item.description}
             </h3>
-            {item.isCritical && <Badge className="bg-orange-500 text-white text-xs">Crítico</Badge>}
-            {isCompleted && <Badge className="bg-green-500 text-white text-xs">Completado</Badge>}
+            {item.isCritical && (
+              <Badge className="bg-warning-foreground text-white text-xs">Crítico</Badge>
+            )}
+            {isCompleted && (
+              <Badge className="bg-success-foreground text-white text-xs">Completado</Badge>
+            )}
           </div>
           <span className="text-xs text-muted-foreground">{formatDate(item.nextServiceDate)}</span>
         </CardHeader>
@@ -106,15 +112,15 @@ export function CalendarItem({
           )}
 
           {isCompleted && item.lastLog && (
-            <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm">
-              <p className="font-medium text-green-800">
+            <div className="rounded-xl border border-success-foreground/20 bg-success p-3 text-sm">
+              <p className="font-medium text-success-foreground">
                 Completado: {formatDate(item.lastLog.completedAt)}
               </p>
-              <p className="text-green-700">
+              <p className="text-success-foreground">
                 Kilometraje: {item.lastLog.completedMileage.toLocaleString()} km
               </p>
               {item.lastLog.notes && (
-                <p className="text-green-700 mt-1">Notas: {item.lastLog.notes}</p>
+                <p className="text-success-foreground mt-1">Notas: {item.lastLog.notes}</p>
               )}
             </div>
           )}
@@ -123,7 +129,7 @@ export function CalendarItem({
             {!isCompleted && (
               <Button
                 size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-success-foreground hover:bg-success-foreground/90 text-white"
                 onClick={() => setShowModal(true)}
               >
                 ✔ Marcar Completado

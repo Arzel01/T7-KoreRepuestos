@@ -4,8 +4,8 @@
 // -----------------------------------------------------------------------------
 // Filosofía:
 //   · Paleta de marca navy/red/cyan, sincronizada con apps/web/globals.css.
-//   · Tipografía Inter en toda la app (texto y titulares), JetBrains Mono
-//     para SKUs/IDs/precios — igual que apps/web/globals.css.
+//   · Tipografía Inter en toda la app — texto, titulares y SKUs/IDs/precios,
+//     igual que apps/web/globals.css.
 //   · Números tabulares globalmente: precios, stock, SKUs siempre alineados.
 // =============================================================================
 export default {
@@ -43,6 +43,14 @@ export default {
         },
         destructive: {
           DEFAULT: 'var(--destructive)',
+        },
+        success: {
+          DEFAULT: 'var(--success)',
+          foreground: 'var(--success-foreground)',
+        },
+        warning: {
+          DEFAULT: 'var(--warning)',
+          foreground: 'var(--warning-foreground)',
         },
         border: 'var(--border)',
         input: 'var(--input)',
@@ -117,7 +125,7 @@ export default {
         // usa Inter para todo, sin tipografía editorial separada.
         display: ['Inter', 'Arial', '"Helvetica Neue"', 'Helvetica', 'sans-serif'],
         sans: ['Inter', 'Arial', '"Helvetica Neue"', 'Helvetica', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        mono: ['Inter', 'Arial', '"Helvetica Neue"', 'Helvetica', 'sans-serif'],
       },
       fontSize: {
         // Escala editorial: titulares densos + body cómodo
