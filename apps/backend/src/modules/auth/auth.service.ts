@@ -5,6 +5,7 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
+import { ReminderSchedulerService } from '../garage/reminder-scheduler.service';
 import { UsersService } from '../users/users.service';
 
 import { SessionsRepository } from './sessions.repository';
@@ -24,6 +25,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly sessionsRepository: SessionsRepository,
     private readonly jwtService: JwtService,
+    private readonly reminderScheduler: ReminderSchedulerService,
     config: ConfigService,
   ) {
     this.accessTtlSeconds = this.parseTtl(config.get('JWT_EXPIRES_IN', '1h'));
@@ -68,6 +70,16 @@ export class AuthService {
       { sub: String(user.id), email: user.email, role: user.role },
       meta,
     );
+
+    // US#2 — al iniciar sesión se revisan los recordatorios de sus vehículos,
+    // así ve avisos de mantenimiento sin esperar al barrido diario. Nunca
+    // debe hacer fallar el login.
+    try {
+      await this.reminderScheduler.checkUser(user.id);
+    } catch (err) {
+      this.logger.warn(`No se pudo chequear recordatorios en login (userId=${user.id}): ${err}`);
+    }
+
     return { user: this.usersService.toResponse(user), tokens };
   }
 
