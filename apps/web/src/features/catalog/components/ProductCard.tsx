@@ -52,7 +52,9 @@ export function ProductCard({ product }: { product: ProductResponse }): JSX.Elem
         <p className="font-mono text-xs text-muted-foreground">{product.sku}</p>
         <RatingStars productId={product.id} />
         {product.description && (
-          <p className="line-clamp-2 text-sm text-muted-foreground">{product.description}</p>
+          <p className="line-clamp-2 text-sm text-muted-foreground">
+            {product.description.replace(/<[^>]*>/g, '')}
+          </p>
         )}
       </CardContent>
 
