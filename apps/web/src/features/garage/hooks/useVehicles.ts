@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import { useNotifications } from '@/features/notifications/hooks/NotificationsContext';
 import { extractApiErrorMessage } from '@/lib/api-client';
 
 import { garageApi } from '../server/garage.api';
@@ -8,6 +9,7 @@ import type { UpdateVehiclePayload } from '../server/garage.api';
 import type { CreateVehicleDto, VehicleResponse } from '@kore/shared';
 
 export function useVehicles() {
+  const { reload: reloadNotifications } = useNotifications();
   const [vehicles, setVehicles] = useState<VehicleResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,10 +42,18 @@ export function useVehicles() {
     setVehicles((prev) => prev.filter((v) => v.id !== id));
   }, []);
 
-  const refreshMileage = useCallback(async (id: number, currentMileage: number): Promise<void> => {
-    await garageApi.updateMileage(id, { currentMileage });
-    setVehicles((prev) => prev.map((v) => (v.id === id ? { ...v, currentMileage } : v)));
-  }, []);
+  const refreshMileage = useCallback(
+    async (id: number, currentMileage: number): Promise<void> => {
+      await garageApi.updateMileage(id, { currentMileage });
+      setVehicles((prev) => prev.map((v) => (v.id === id ? { ...v, currentMileage } : v)));
+      // El backend ya revisó recordatorios de forma síncrona dentro del PATCH
+      // (ver ReminderSchedulerService.checkVehicle en vehicles.service.ts) —
+      // para cuando esta promesa resuelve, la notificación ya existe. Recargar
+      // acá la refleja al instante en la campana, sin esperar al poll.
+      void reloadNotifications();
+    },
+    [reloadNotifications],
+  );
 
   const updateVehicle = useCallback(
     async (id: number, payload: UpdateVehiclePayload): Promise<VehicleResponse> => {

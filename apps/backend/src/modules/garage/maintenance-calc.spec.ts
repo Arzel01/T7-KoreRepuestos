@@ -1,4 +1,9 @@
-import { computeNextService, estimateCost, isDueWithin, summarizePlan } from './maintenance-calc';
+import {
+  classifyReminder,
+  computeNextService,
+  estimateCost,
+  summarizePlan,
+} from './maintenance-calc';
 
 import type { CalendarItemDto } from '@kore/shared';
 
@@ -59,6 +64,29 @@ describe('computeNextService (US#3 · algoritmo de mantenimiento)', () => {
     );
     // 6 meses desde 2026-01-10 → 2026-07-10.
     expect(r.nextServiceDate).toBe(addMonthsIso(new Date(lastCompletedAt), 6));
+  });
+
+  it('con último servicio registrado, queda vencido (0 km) al pasar el objetivo y no se corre al siguiente múltiplo', () => {
+    // Último servicio a los 75000 km, intervalo 5000 → objetivo 80000.
+    // A 80200 km ya lo pasó: debe marcar vencido, no recalcular a 85000.
+    const r = computeNextService(
+      {
+        mileageInterval: 5000,
+        currentMileage: 80200,
+        averageDailyMileage: 30,
+        lastCompletedMileage: 75000,
+      },
+      NOW,
+    );
+    expect(r.kmRemaining).toBe(0);
+  });
+
+  it('sin historial de servicio, usa el múltiplo más próximo (no acusa vencidos retroactivos)', () => {
+    const r = computeNextService(
+      { mileageInterval: 5000, currentMileage: 80200, averageDailyMileage: 30 },
+      NOW,
+    );
+    expect(r.kmRemaining).toBe(4800); // 85000 - 80200
   });
 
   it('no revienta cuando no hay km/día ni intervalo por meses', () => {
@@ -138,16 +166,36 @@ describe('summarizePlan', () => {
   });
 });
 
-describe('isDueWithin', () => {
-  it('está vencido si kmRemaining es 0', () => {
-    expect(isDueWithin({ kmRemaining: 0, nextServiceDate: 'x', daysRemaining: 999 }, 7)).toBe(true);
-  });
-  it('está próximo si los días restantes caben en la ventana', () => {
-    expect(isDueWithin({ kmRemaining: 500, nextServiceDate: 'x', daysRemaining: 5 }, 7)).toBe(true);
-  });
-  it('no dispara si falta más que la ventana', () => {
-    expect(isDueWithin({ kmRemaining: 500, nextServiceDate: 'x', daysRemaining: 20 }, 7)).toBe(
-      false,
+describe('classifyReminder (tramos de urgencia por km + fecha de respaldo)', () => {
+  it('vencido cuando kmRemaining es 0, sin importar la fecha', () => {
+    expect(classifyReminder({ kmRemaining: 0, nextServiceDate: 'x', daysRemaining: 999 }, 7)).toBe(
+      'vencido',
     );
+  });
+  it('urgente dentro de 100 km', () => {
+    expect(
+      classifyReminder({ kmRemaining: 100, nextServiceDate: 'x', daysRemaining: 999 }, 7),
+    ).toBe('urgente');
+    expect(classifyReminder({ kmRemaining: 1, nextServiceDate: 'x', daysRemaining: 999 }, 7)).toBe(
+      'urgente',
+    );
+  });
+  it('próximo entre 100 y 1000 km', () => {
+    expect(
+      classifyReminder({ kmRemaining: 1000, nextServiceDate: 'x', daysRemaining: 999 }, 7),
+    ).toBe('proximo');
+    expect(
+      classifyReminder({ kmRemaining: 101, nextServiceDate: 'x', daysRemaining: 999 }, 7),
+    ).toBe('proximo');
+  });
+  it('próximo por fecha aunque falte mucho km (tarea dominada por meses)', () => {
+    expect(classifyReminder({ kmRemaining: 5000, nextServiceDate: 'x', daysRemaining: 5 }, 7)).toBe(
+      'proximo',
+    );
+  });
+  it('null si no está dentro de ningún tramo de km ni de la ventana de días', () => {
+    expect(
+      classifyReminder({ kmRemaining: 5000, nextServiceDate: 'x', daysRemaining: 20 }, 7),
+    ).toBeNull();
   });
 });

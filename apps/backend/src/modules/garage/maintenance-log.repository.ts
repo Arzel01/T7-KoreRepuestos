@@ -27,10 +27,15 @@ export class MaintenanceLogRepository {
     });
   }
 
+  /**
+   * `completedAt` es solo fecha (sin hora): con dos registros el mismo día,
+   * el kilometraje desempata a favor del más avanzado (el service real más
+   * reciente), evitando anclar el cálculo de "próximo" al registro viejo.
+   */
   findLastForPlan(vehicleId: number, planId: number): Promise<MaintenanceLog | null> {
     return this.repo.findOne({
       where: { vehicleId, planId },
-      order: { completedAt: 'DESC' },
+      order: { completedAt: 'DESC', completedMileage: 'DESC' },
     });
   }
 
